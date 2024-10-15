@@ -14,6 +14,23 @@ class _EmailPageState extends State<EmailPage> {
   final TextEditingController passwordController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    final BaseAPI api = context.read<BaseAPI>();
+    api.addListener(
+      () {
+        if (api.status == AccountStatus.authenticated) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => const BaseApp(),
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -44,17 +61,12 @@ class _EmailPageState extends State<EmailPage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                final AuthAPI api = context.read<AuthAPI>();
+                final BaseAPI api = context.read<BaseAPI>();
 
                 try {
                   await api.createUser(
                     email: emailController.text,
                     password: passwordController.text,
-                  );
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const BaseApp(),
-                    ),
                   );
                 } on AppwriteException catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -69,7 +81,7 @@ class _EmailPageState extends State<EmailPage> {
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
-                final AuthAPI api = context.read<AuthAPI>();
+                final BaseAPI api = context.read<BaseAPI>();
 
                 try {
                   await api.createEmailSession(

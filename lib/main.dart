@@ -7,7 +7,7 @@ import 'package:runshaw/utils/api.dart';
 void main() {
   runApp(
     ChangeNotifierProvider(
-      create: ((context) => AuthAPI()),
+      create: ((context) => BaseAPI()),
       child: const BaseApp(),
     ),
   );

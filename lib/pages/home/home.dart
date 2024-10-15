@@ -13,7 +13,7 @@ class HomePage extends StatelessWidget {
         actions: [
           IconButton(
               onPressed: () async {
-                final api = context.read<AuthAPI>();
+                final api = context.read<BaseAPI>();
                 await api.signOut();
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(

@@ -7,11 +7,11 @@ enum AccountStatus {
   unauthenticated,
 }
 
-class AuthAPI extends ChangeNotifier {
+class BaseAPI extends ChangeNotifier {
   late User _currentUser;
   AccountStatus _status = AccountStatus.uninitialized;
 
-  Client _client = Client();
+  final Client _client = Client();
   late Account _account;
 
   User get currentUser => _currentUser;
@@ -19,7 +19,7 @@ class AuthAPI extends ChangeNotifier {
   String? get email => _currentUser.email;
   String? get userid => _currentUser.$id;
 
-  AuthAPI() {
+  BaseAPI() {
     init();
     loadUser();
   }

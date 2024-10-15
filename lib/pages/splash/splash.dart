@@ -17,7 +17,7 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   _navigateToHome() async {
-    final api = context.read<AuthAPI>();
+    final api = context.read<BaseAPI>();
     await api.init();
     await api.loadUser();
     final status = api.status;

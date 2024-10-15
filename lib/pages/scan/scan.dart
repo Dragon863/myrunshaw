@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/main.dart';
+import 'package:runshaw/pages/scan/controller.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
 
@@ -17,14 +18,13 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
   Barcode? _barcode;
   bool inProgress = false;
 
-  bool validate(String input) {
-    RegExp regExp = RegExp(r'^[a-zA-Z]{3}\d{8}-\d{6}$');
-
-    if (regExp.hasMatch(input)) {
-      return true;
-    } else {
-      return false;
-    }
+  void navigateToSplash() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const BaseApp(),
+      ),
+    );
   }
 
   Widget _buildBarcode(Barcode? value) {
@@ -133,17 +133,13 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
 
     print(popup);
 
-    final api = context.read<AuthAPI>();
+    final api = context.read<BaseAPI>();
     try {
       await api.createUser(
         email: "$studentID@student.runshaw.ac.uk",
         password: popup,
       );
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => const BaseApp(),
-        ),
-      );
+      navigateToSplash();
     } on AppwriteException catch (e) {
       if (e.message!.contains("already")) {
         try {
@@ -151,11 +147,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
             email: "$studentID@student.runshaw.ac.uk",
             password: popup,
           );
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const BaseApp(),
-            ),
-          );
+          navigateToSplash();
         } on AppwriteException catch (e) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
