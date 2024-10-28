@@ -29,6 +29,10 @@ class BaseApp extends StatelessWidget {
         ),
       ),
       home: SplashPage(),
+      debugShowCheckedModeBanner: false,
+      routes: <String, WidgetBuilder>{
+        '/splash': (BuildContext context) => SplashPage(),
+      },
     );
   }
 }

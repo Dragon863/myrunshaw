@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:runshaw/pages/home/home.dart';
 import 'package:runshaw/pages/login/stage1.dart';
+import 'package:runshaw/pages/main/main_view.dart';
 import 'package:runshaw/utils/api.dart';
 
 class SplashPage extends StatefulWidget {
@@ -26,7 +26,7 @@ class _SplashPageState extends State<SplashPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => HomePage(),
+          builder: (context) => const MainPage(),
         ),
       );
     } else {

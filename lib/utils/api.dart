@@ -1,5 +1,10 @@
+import 'dart:convert';
+
+import 'package:appwrite/models.dart';
 import 'package:flutter/widgets.dart';
 import 'package:appwrite/appwrite.dart';
+import 'package:icalendar_parser/icalendar_parser.dart';
+import 'package:runshaw/pages/sync/sync_controller.dart';
 
 enum AccountStatus {
   uninitialized,
@@ -34,11 +39,8 @@ class BaseAPI extends ChangeNotifier {
 
   loadUser() async {
     try {
-      final session = await _account.get();
-      _currentUser = User(
-        $id: session.$id,
-        email: session.email,
-      );
+      final User user = await _account.get();
+      _currentUser = user;
       _status = AccountStatus.authenticated;
     } catch (e) {
       _status = AccountStatus.unauthenticated;
@@ -53,10 +55,7 @@ class BaseAPI extends ChangeNotifier {
       email: email,
       password: password,
     );
-    _currentUser = User(
-      $id: user.$id,
-      email: user.email,
-    );
+    _currentUser = user;
     _status = AccountStatus.authenticated;
     notifyListeners();
     return _currentUser;
@@ -64,14 +63,12 @@ class BaseAPI extends ChangeNotifier {
 
   Future<void> createEmailSession(
       {required String email, required String password}) async {
-    final session = await _account.createEmailPasswordSession(
+    //final Session session =
+    await _account.createEmailPasswordSession(
       email: email,
       password: password,
     );
-    _currentUser = User(
-      $id: session.userId,
-      email: email,
-    );
+    _currentUser = await Account(_client).get();
     _status = AccountStatus.authenticated;
   }
 
@@ -85,11 +82,80 @@ class BaseAPI extends ChangeNotifier {
       notifyListeners();
     }
   }
-}
 
-class User {
-  final String $id;
-  final String email;
+  Future<void> syncTimetable(timetable) async {
+    final Databases databases = Databases(_client);
 
-  User({required this.$id, required this.email});
+    final DocumentList currentState = await databases.listDocuments(
+      databaseId: 'timetable',
+      collectionId: '671fe051003b06c2a5f7',
+    );
+
+    for (final Document document in currentState.documents) {
+      if (document.$id == user!.$id) {
+        await databases.updateDocument(
+          databaseId: 'timetable',
+          collectionId: '671fe051003b06c2a5f7',
+          documentId: user!.$id,
+          data: {"data": timetable.toString()},
+        );
+        return;
+      }
+    }
+
+    await databases.createDocument(
+      databaseId: 'timetable',
+      collectionId: '671fe051003b06c2a5f7',
+      documentId: user!.$id,
+      data: {"data": timetable.toString()},
+      permissions: ['read("any")'],
+    );
+  }
+
+  Future<List<Event>> fetchEvents() async {
+    List<Event> timetable = [];
+    bool hasSynced = false;
+    Document? myDocument;
+
+    final Databases databases = Databases(_client);
+    final DocumentList documents = await databases.listDocuments(
+      databaseId: 'timetable',
+      collectionId: '671fe051003b06c2a5f7',
+    );
+
+    for (final document in documents.documents) {
+      if (document.$id == user!.$id) {
+        hasSynced = true;
+        myDocument = document;
+        break;
+      }
+    }
+
+    if (!hasSynced) {
+      return [];
+    }
+
+    final events = jsonDecode(myDocument!.data["data"]);
+
+    for (final event in events["data"]) {
+      final String start = event["dtstart"]["dt"];
+      final String end = event["dtend"]["dt"];
+
+      final DateTime startDateTime = DateTime.parse(start);
+      final DateTime endDateTime = DateTime.parse(end);
+
+      timetable.add(Event(
+        summary: event['summary'],
+        location: event['location'],
+        start: startDateTime,
+        end: endDateTime,
+        description: event["description"],
+        uid: event["uid"],
+      ));
+    }
+    return timetable;
+  }
+
+  User? get user => _currentUser;
+  Account? get account => _account;
 }

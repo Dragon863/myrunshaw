@@ -2,6 +2,8 @@ import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/main.dart';
+import 'package:runshaw/pages/main/subpages/home/home.dart';
+import 'package:runshaw/pages/main/main_view.dart';
 import 'package:runshaw/utils/api.dart';
 
 class EmailPage extends StatefulWidget {
@@ -87,6 +89,12 @@ class _EmailPageState extends State<EmailPage> {
                   await api.createEmailSession(
                     email: emailController.text,
                     password: passwordController.text,
+                  );
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MainPage(),
+                    ),
                   );
                 } on AppwriteException catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
