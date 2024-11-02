@@ -2,7 +2,6 @@ import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/main.dart';
-import 'package:runshaw/pages/main/subpages/home/home.dart';
 import 'package:runshaw/pages/main/main_view.dart';
 import 'package:runshaw/utils/api.dart';
 

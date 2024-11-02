@@ -16,8 +16,23 @@ class _SyncPageState extends State<SyncPage> {
   void syncCalendar() {
     RegExp regex =
         RegExp(r'https://webservices\.runshaw\.ac\.uk/timetable\.ashx\?id=.*');
+
     if (regex.hasMatch(_controller.text)) {
-      syncFromUrl(_controller.text, context);
+      try {
+        syncFromUrl(_controller.text, context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Sync complete!"),
+          ),
+        );
+        Navigator.of(context).pop();
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("An error occurred whilst syncing: $e"),
+          ),
+        );
+      }
     } else {
       showDialog(
         context: context,

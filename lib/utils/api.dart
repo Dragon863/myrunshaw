@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:appwrite/models.dart';
 import 'package:flutter/widgets.dart';
 import 'package:appwrite/appwrite.dart';
-import 'package:icalendar_parser/icalendar_parser.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 
 enum AccountStatus {
@@ -97,8 +96,11 @@ class BaseAPI extends ChangeNotifier {
           databaseId: 'timetable',
           collectionId: '671fe051003b06c2a5f7',
           documentId: user!.$id,
-          data: {"data": timetable.toString()},
+          data: {
+            "data": timetable.toString(),
+          },
         );
+        print("Updated timetable");
         return;
       }
     }
@@ -110,6 +112,7 @@ class BaseAPI extends ChangeNotifier {
       data: {"data": timetable.toString()},
       permissions: ['read("any")'],
     );
+    print("Synced timetable");
   }
 
   Future<List<Event>> fetchEvents() async {
