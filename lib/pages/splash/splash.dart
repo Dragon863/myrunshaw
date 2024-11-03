@@ -46,7 +46,14 @@ class _SplashPageState extends State<SplashPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            FlutterLogo(size: 150),
+            CircleAvatar(
+              radius: 125,
+              backgroundColor: Colors.white,
+              child: CircleAvatar(
+                radius: 60,
+                backgroundImage: AssetImage('assets/img/logo.png'),
+              ),
+            ),
             SizedBox(height: 30),
             CircularProgressIndicator(),
             SizedBox(height: 30),
