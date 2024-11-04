@@ -42,19 +42,20 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
+      backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             CircleAvatar(
-              radius: 125,
+              radius: 100,
               backgroundColor: Colors.white,
               child: CircleAvatar(
-                radius: 60,
+                radius: 100,
                 backgroundImage: AssetImage('assets/img/logo.png'),
               ),
             ),
-            SizedBox(height: 30),
+            SizedBox(height: 45),
             CircularProgressIndicator(),
             SizedBox(height: 30),
             Text(

@@ -21,7 +21,6 @@ class _TimetablePageState extends State<TimetablePage> {
   @override
   void initState() {
     _refresh();
-    currentTitle = _fetchCurrentEvent();
     super.initState();
   }
 
@@ -31,6 +30,7 @@ class _TimetablePageState extends State<TimetablePage> {
       final List<Event> events = await api.fetchEvents();
       setState(() {
         _events = events;
+        currentTitle = _fetchCurrentEvent();
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

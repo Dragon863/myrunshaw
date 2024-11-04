@@ -12,6 +12,10 @@ List<Widget> getPages(bool showNotifs) {
     /*const Center(child: Text('Events Page Content')),
     if (showNotifs) const Center(child: NotificationsPage()),*/
     const Center(child: BusesPage()),
+    const Scaffold(
+      backgroundColor: Colors.white,
+      body: Placeholder(),
+    ),
     const TimetablePage(),
     const Center(child: SettingsPage()),
   ];
@@ -86,54 +90,18 @@ class _SliderViewState extends State<SliderView> {
                           color: Colors.black,
                         ),
                         'Home'),
-                    /*Menu(
-                        const Icon(
-                          Icons.calendar_month_outlined,
-                          color: Colors.black,
-                        ),
-                        'Events'),
-                    if (showNotifs)
-                      Menu(
-                          Stack(
-                            children: [
-                              const Icon(
-                                Icons.notifications_active_outlined,
-                                color: Colors.black,
-                              ),
-                              Visibility(
-                                visible: notification != 0,
-                                child: Positioned(
-                                  right: 0,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(1),
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.red,
-                                    ),
-                                    constraints: const BoxConstraints(
-                                      minWidth: 12,
-                                      minHeight: 12,
-                                    ),
-                                    child: Text(
-                                      notification.toString(),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 10,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                          'Notifications'),*/
                     Menu(
                         const Icon(
                           Icons.directions_bus_outlined,
                           color: Colors.black,
                         ),
                         'Buses'),
+                    Menu(
+                        const Icon(
+                          Icons.people_alt_outlined,
+                          color: Colors.black,
+                        ),
+                        'Friends'),
                     Menu(
                         const Icon(
                           Icons.calendar_month_outlined,

@@ -6,10 +6,12 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Center(
             child: Text(
-              'Logged In! :D',
+              '''Logged In! :D (I know I know, it's in alpha)
+              ''',
             ),
           ),
         ],
