@@ -48,10 +48,10 @@ class _SplashPageState extends State<SplashPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             CircleAvatar(
-              radius: 100,
+              radius: 120,
               backgroundColor: Colors.white,
               child: CircleAvatar(
-                radius: 100,
+                radius: 120,
                 backgroundImage: AssetImage('assets/img/logo.png'),
               ),
             ),

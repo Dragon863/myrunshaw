@@ -10,8 +10,7 @@ class HomePage extends StatelessWidget {
         children: [
           const Center(
             child: Text(
-              '''Logged In! :D (I know I know, it's in alpha)
-              ''',
+              '''Logged In! :D (I know I know, it's in alpha)''',
             ),
           ),
         ],

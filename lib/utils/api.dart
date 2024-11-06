@@ -22,6 +22,7 @@ class BaseAPI extends ChangeNotifier {
   AccountStatus get status => _status;
   String? get email => _currentUser.email;
   String? get userid => _currentUser.$id;
+  Client get client => _client;
 
   BaseAPI() {
     init();
@@ -49,8 +50,9 @@ class BaseAPI extends ChangeNotifier {
 
   Future<User?> createUser(
       {required String email, required String password}) async {
+    final userId = email.replaceAll("@student.runshaw.ac.uk", "").toLowerCase();
     final user = await _account.create(
-      userId: ID.unique(),
+      userId: userId,
       email: email,
       password: password,
     );
@@ -147,6 +149,11 @@ class BaseAPI extends ChangeNotifier {
       final DateTime startDateTime = DateTime.parse(start);
       final DateTime endDateTime = DateTime.parse(end);
 
+      if (startDateTime.isBefore(DateTime.now()) &&
+          endDateTime.isBefore(DateTime.now())) {
+        // Skip past events that have already happened!
+        continue;
+      }
       timetable.add(Event(
         summary: event['summary'],
         location: event['location'],

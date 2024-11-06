@@ -97,43 +97,52 @@ class _TimetablePageState extends State<TimetablePage> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: _refresh,
-              child: ListView(
-                children: _events.fillGaps().groupByDay().entries.map((entry) {
-                  final date = entry.key;
-                  final events = entry.value;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          formatDayTitle(date),
-                          style: GoogleFonts.rubik(
-                            fontSize: 18,
+              child: Center(
+                child: Container(
+                  constraints: const BoxConstraints(
+                    minWidth: 150,
+                    maxWidth: 700,
+                  ),
+                  child: ListView(
+                    children:
+                        _events.fillGaps().groupByDay().entries.map((entry) {
+                      final date = entry.key;
+                      final events = entry.value;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              formatDayTitle(date),
+                              style: GoogleFonts.rubik(
+                                fontSize: 18,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      ...events.map((event) {
-                        if (event.location != "") {
-                          return EventsCard(
-                            lessonName: event.summary,
-                            roomAndTeacher:
-                                "${event.description.replaceAll("Teacher: ", "")} in ${event.location}",
-                            timing: _humaniseTime(event.start, event.end),
-                            color: Colors.blue,
-                          );
-                        } else {
-                          return EventsCard(
-                            lessonName: event.summary,
-                            roomAndTeacher: event.description,
-                            timing: _humaniseTime(event.start, event.end),
-                            color: Colors.green.shade400,
-                          );
-                        }
-                      }),
-                    ],
-                  );
-                }).toList(),
+                          ...events.map((event) {
+                            if (event.location != "") {
+                              return EventsCard(
+                                lessonName: event.summary,
+                                roomAndTeacher:
+                                    "${event.description.replaceAll("Teacher: ", "")} in ${event.location}",
+                                timing: _humaniseTime(event.start, event.end),
+                                color: Colors.blue,
+                              );
+                            } else {
+                              return EventsCard(
+                                lessonName: event.summary,
+                                roomAndTeacher: event.description,
+                                timing: _humaniseTime(event.start, event.end),
+                                color: Colors.green.shade400,
+                              );
+                            }
+                          }),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ),
               ),
             ),
           ),
