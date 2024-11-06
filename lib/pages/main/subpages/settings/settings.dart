@@ -184,17 +184,20 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               const SizedBox(height: 18),
               Row(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(width: 24 + 10),
-                  Text(
-                    name,
-                    style: GoogleFonts.rubik(
-                      fontSize: 32,
-                      fontWeight: FontWeight.normal,
+                  const SizedBox(width: 24 + (10 * 2)),
+                  Expanded(
+                    child: Text(
+                      name,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.rubik(
+                        fontSize: 32,
+                        fontWeight: FontWeight.normal,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                  const SizedBox(width: 10),
                   IconButton(
                     icon: Icon(Icons.mode_edit, color: Colors.grey.shade800),
                     onPressed: () async {
@@ -202,6 +205,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         context: context,
                         builder: (context) {
                           final controller = TextEditingController();
+
+                          controller.text = this.name;
                           return AlertDialog(
                             title: const Text("Change Name"),
                             content: TextField(
@@ -209,6 +214,8 @@ class _SettingsPageState extends State<SettingsPage> {
                               decoration: const InputDecoration(
                                 hintText: "New Name",
                               ),
+                              onSubmitted: (value) =>
+                                  Navigator.of(context).pop(controller.text),
                             ),
                             actions: [
                               TextButton(
@@ -222,12 +229,21 @@ class _SettingsPageState extends State<SettingsPage> {
                         },
                       );
                       if (name != null) {
-                        final api = context.read<BaseAPI>();
-                        await api.account!.updateName(name: name);
-                        fetchPrefs();
+                        if (name.length < 40) {
+                          final api = context.read<BaseAPI>();
+                          await api.account!.updateName(name: name);
+                          fetchPrefs();
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Error: Name too long"),
+                            ),
+                          );
+                        }
                       }
                     },
                   ),
+                  const SizedBox(width: 10),
                 ],
               ),
               const SizedBox(height: 9),

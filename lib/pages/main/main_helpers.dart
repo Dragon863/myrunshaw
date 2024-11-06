@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:runshaw/pages/main/subpages/buses/buses.dart';
+import 'package:runshaw/pages/main/subpages/friends/friends.dart';
 import 'package:runshaw/pages/main/subpages/home/home.dart';
 import 'package:runshaw/pages/main/subpages/settings/settings.dart';
 import 'package:runshaw/pages/main/subpages/timetable/timetable.dart';
@@ -12,10 +13,7 @@ List<Widget> getPages(bool showNotifs) {
     /*const Center(child: Text('Events Page Content')),
     if (showNotifs) const Center(child: NotificationsPage()),*/
     const Center(child: BusesPage()),
-    const Scaffold(
-      backgroundColor: Colors.white,
-      body: Placeholder(),
-    ),
+    const FriendsPage(),
     const TimetablePage(),
     const Center(child: SettingsPage()),
   ];

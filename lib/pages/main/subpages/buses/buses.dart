@@ -20,25 +20,22 @@ class _BusesPageState extends State<BusesPage> {
       body: Center(
         child: Column(
           children: [
-            LayoutBuilder(
-              builder: (context, constraints) {
-                if (constraints.maxWidth < 750) {
-                  return Image.asset(
-                    "assets/img/busesmap.png",
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  );
-                } else {
-                  return Image.asset(
-                    "assets/img/busesmap.png",
-                    width: MediaQuery.of(context).size.width / 1.5,
-                    fit: BoxFit.cover,
-                  );
-                }
-              },
+            Center(
+              child: Container(
+                constraints: const BoxConstraints(
+                  minWidth: 150,
+                  maxWidth: 1000,
+                ),
+                child: Image.asset(
+                  "assets/img/busesmap.png",
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
             const SizedBox(height: 12),
             RichText(
+              textAlign: TextAlign.center,
               text: TextSpan(
                 text: 'The ',
                 style: GoogleFonts.rubik(
@@ -67,7 +64,6 @@ class _BusesPageState extends State<BusesPage> {
               ),
             ),
             const SizedBox(height: 12),
-            
           ],
         ),
       ),
