@@ -1,0 +1,26 @@
+name: Build and distribute
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: cedvdb/action-flutter-build-android@v1
+        with:
+          # optionals
+          build-cmd: flutter build apk --release
+          working-directory: ./
+          
+      - name: Archive APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: release-apk
+          # Try running the build locally with the build command to be sure of this path
+          path: build/app/outputs/flutter-apk/app-dev-release.apk
