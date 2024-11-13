@@ -98,6 +98,8 @@ class BaseAPI extends ChangeNotifier {
       {required String email, required String password}) async {
     if (email.contains("-")) {
       email = email.split("-").first.replaceAll("@student.runshaw.ac.uk", "");
+    } else {
+      email = email.replaceAll("@student.runshaw.ac.uk", "");
     }
     await _account.createEmailPasswordSession(
       email: "$email@student.runshaw.ac.uk",
