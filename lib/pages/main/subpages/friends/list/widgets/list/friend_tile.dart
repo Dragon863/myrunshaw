@@ -54,7 +54,6 @@ class _FriendTileState extends State<FriendTile> {
       final List<Event> events = await api.fetchEvents(userId: userId);
 
       final String current = fetchCurrentEvent(events);
-      print(current);
       if (current == "No Event" || current.contains("Aspire")) {
         setState(() {
           free = true;

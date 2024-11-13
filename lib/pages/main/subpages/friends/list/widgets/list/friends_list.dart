@@ -17,7 +17,6 @@ class _FriendsListState extends State<FriendsList> {
     // Load friends from API
     final api = context.read<BaseAPI>();
     final response = await api.getFriends();
-    print(response);
     for (final friendId in response) {
       if (mounted) {
         setState(() {

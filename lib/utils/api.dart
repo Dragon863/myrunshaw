@@ -69,13 +69,10 @@ class BaseAPI extends ChangeNotifier {
     notifyListeners();
     loadUser();
 
-    print(email);
     RegExp regExp = RegExp(r'-\d{6}');
     if (regExp.hasMatch(email)) {
-      print("Matched");
       final String code =
           regExp.firstMatch(email)!.group(0)!.replaceAll("-", "");
-      print(code);
       await setCode(
         code,
       );
