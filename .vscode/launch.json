@@ -20,6 +20,14 @@
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
+        },
+        {
+            "name": "runshaw (chrome)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "program": "lib/main.dart",
+            "deviceId": "chrome",
         }
     ]
 }

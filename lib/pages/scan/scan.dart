@@ -40,7 +40,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     }
 
     if (validate(value.displayValue ?? "")) {
-      String studentId = value.displayValue!.split("-")[0];
+      String studentId = value.displayValue!;
       return Wrap(
         children: [
           Text(
@@ -78,7 +78,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     final bool valid = validate(_barcode?.displayValue ?? "");
 
     if (valid) {
-      String studentId = _barcode!.displayValue!.split("-")[0];
+      String studentId = _barcode!.displayValue!;
       await maybeLogin(studentId);
     }
   }
@@ -102,6 +102,8 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
           content: TextField(
             controller: controllerPwd,
             obscureText: true,
+            autocorrect: false,
+            autofocus: true,
             decoration: const InputDecoration(
               labelText: "Password",
             ),
@@ -130,8 +132,6 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     if (popup == null) {
       return;
     }
-
-    print(popup);
 
     final api = context.read<BaseAPI>();
     try {

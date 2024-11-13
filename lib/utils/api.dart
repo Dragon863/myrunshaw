@@ -33,7 +33,6 @@ class BaseAPI extends ChangeNotifier {
     _client
         .setEndpoint('https://appwrite.danieldb.uk/v1')
         .setProject('66fdb56000209ea9ac18');
-
     _account = Account(_client);
   }
 
@@ -41,6 +40,7 @@ class BaseAPI extends ChangeNotifier {
     try {
       final User user = await _account.get();
       _currentUser = user;
+      _account = Account(_client);
       _status = AccountStatus.authenticated;
     } catch (e) {
       _status = AccountStatus.unauthenticated;
@@ -50,23 +50,57 @@ class BaseAPI extends ChangeNotifier {
 
   Future<User?> createUser(
       {required String email, required String password}) async {
-    final userId = email.replaceAll("@student.runshaw.ac.uk", "").toLowerCase();
+    String userId = "";
+    userId = email
+        .replaceAll("@student.runshaw.ac.uk", "")
+        .toLowerCase()
+        .split("-")
+        .first;
+
+    loadUser();
     final user = await _account.create(
       userId: userId,
-      email: email,
+      email: "$userId@student.runshaw.ac.uk",
       password: password,
     );
     _currentUser = user;
     _status = AccountStatus.authenticated;
+    await createEmailSession(email: email, password: password);
     notifyListeners();
+    loadUser();
+
+    print(email);
+    RegExp regExp = RegExp(r'-\d{6}');
+    if (regExp.hasMatch(email)) {
+      print("Matched");
+      final String code =
+          regExp.firstMatch(email)!.group(0)!.replaceAll("-", "");
+      print(code);
+      await setCode(
+        code,
+      );
+    } else {
+      await setCode("000000");
+    }
     return _currentUser;
+  }
+
+  Future<String> getCode() async {
+    Preferences result = await account!.getPrefs();
+    return result.data["code"];
+  }
+
+  Future<void> setCode(String code) async {
+    await account!.updatePrefs(prefs: {"code": code});
   }
 
   Future<void> createEmailSession(
       {required String email, required String password}) async {
-    //final Session session =
+    if (email.contains("-")) {
+      email = email.split("-").first.replaceAll("@student.runshaw.ac.uk", "");
+    }
     await _account.createEmailPasswordSession(
-      email: email,
+      email: "$email@student.runshaw.ac.uk",
       password: password,
     );
     _currentUser = await Account(_client).get();
@@ -117,7 +151,9 @@ class BaseAPI extends ChangeNotifier {
     print("Synced timetable");
   }
 
-  Future<List<Event>> fetchEvents() async {
+  Future<List<Event>> fetchEvents({String? userId}) async {
+    userId ??= user!.$id;
+
     List<Event> timetable = [];
     bool hasSynced = false;
     Document? myDocument;
@@ -129,7 +165,7 @@ class BaseAPI extends ChangeNotifier {
     );
 
     for (final document in documents.documents) {
-      if (document.$id == user!.$id) {
+      if (document.$id == userId) {
         hasSynced = true;
         myDocument = document;
         break;
@@ -164,6 +200,102 @@ class BaseAPI extends ChangeNotifier {
       ));
     }
     return timetable;
+  }
+
+  Future<String> sendFriendRequest(String userId) async {
+    final Databases databases = Databases(client);
+    //try {
+    await databases.createDocument(
+        databaseId: "friend_reqs",
+        collectionId: "outgoing",
+        documentId: "${user!.$id}-to-$userId",
+        data: {
+          "sent": DateTime.now().toIso8601String(),
+        },
+        permissions: [
+          Permission.read(Role.any()),
+          Permission.write(Role.user(userId)),
+          Permission.update(Role.user(userId)),
+          Permission.delete(Role.user(userId)),
+        ]);
+    return "Friend request sent!";
+    /* } catch (e) {
+      return "You've already sent a friend request to this user!";
+    }*/
+  }
+
+  Future<bool> respondToFriendRequest(String userId, bool accept) async {
+    final Databases databases = Databases(client);
+    try {
+      await databases.createDocument(
+          databaseId: "friend_reqs",
+          collectionId: "accepted",
+          documentId: "${user!.$id}-to-$userId",
+          data: {
+            "value": accept,
+          },
+          permissions: [
+            Permission.read(Role.any()),
+            Permission.write(Role.user(userId)),
+            Permission.update(Role.user(userId)),
+            Permission.delete(Role.user(userId)),
+          ]);
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
+  Future<List<String>> getFriends() async {
+    final Databases databases = Databases(client);
+    final DocumentList documents = await databases.listDocuments(
+      databaseId: "friend_reqs",
+      collectionId: "accepted",
+    );
+
+    List<String> friends = [];
+
+    for (final document in documents.documents) {
+      if (document.$id.startsWith(user!.$id)) {
+        final String friendId = document.$id.split("-").last;
+        final bool accepted = document.data["value"];
+        if (accepted) {
+          friends.add(friendId);
+        }
+      }
+    }
+
+    return friends;
+  }
+
+  Future<List> getFriendRequests() async {
+    final Databases databases = Databases(client);
+    final DocumentList documents = await databases.listDocuments(
+      databaseId: "friend_reqs",
+      collectionId: "outgoing",
+    );
+
+    List<String> requests = [];
+
+    for (final document in documents.documents) {
+      if (document.$id.startsWith(user!.$id)) {
+        final String friendId = document.$id.split("-").last;
+        requests.add(friendId);
+      }
+    }
+
+    return requests;
+  }
+
+  Future<String> getName(String userId) async {
+    final Functions functions = Functions(client);
+    final Execution execution = await functions.createExecution(
+      functionId: "getname",
+      path: "/user/name/get?id=$userId",
+    );
+    final String response = await execution.responseBody;
+    return jsonDecode(response)["name"];
   }
 
   User? get user => _currentUser;

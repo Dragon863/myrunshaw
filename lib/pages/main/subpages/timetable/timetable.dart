@@ -104,43 +104,60 @@ class _TimetablePageState extends State<TimetablePage> {
                     maxWidth: 700,
                   ),
                   child: ListView(
-                    children:
-                        _events.fillGaps().groupByDay().entries.map((entry) {
-                      final date = entry.key;
-                      final events = entry.value;
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              formatDayTitle(date),
-                              style: GoogleFonts.rubik(
-                                fontSize: 18,
+                    children: _events.isEmpty
+                        ? const [
+                            SizedBox(height: 20),
+                            Center(
+                              child: SizedBox(
+                                width: 30,
+                                height: 30,
+                                child: CircularProgressIndicator(),
                               ),
                             ),
-                          ),
-                          ...events.map((event) {
-                            if (event.location != "") {
-                              return EventsCard(
-                                lessonName: event.summary,
-                                roomAndTeacher:
-                                    "${event.description.replaceAll("Teacher: ", "")} in ${event.location}",
-                                timing: _humaniseTime(event.start, event.end),
-                                color: Colors.blue,
-                              );
-                            } else {
-                              return EventsCard(
-                                lessonName: event.summary,
-                                roomAndTeacher: event.description,
-                                timing: _humaniseTime(event.start, event.end),
-                                color: Colors.green.shade400,
-                              );
-                            }
-                          }),
-                        ],
-                      );
-                    }).toList(),
+                            SizedBox(height: 12),
+                            Text(
+                              "Fetching Events...",
+                              textAlign: TextAlign.center,
+                            )
+                          ]
+                        : _events.fillGaps().groupByDay().entries.map((entry) {
+                            final date = entry.key;
+                            final events = entry.value;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    formatDayTitle(date),
+                                    style: GoogleFonts.rubik(
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                                ...events.map((event) {
+                                  if (event.location != "") {
+                                    return EventsCard(
+                                      lessonName: event.summary,
+                                      roomAndTeacher:
+                                          "${event.description.replaceAll("Teacher: ", "")} in ${event.location}",
+                                      timing:
+                                          _humaniseTime(event.start, event.end),
+                                      color: Colors.blue,
+                                    );
+                                  } else {
+                                    return EventsCard(
+                                      lessonName: event.summary,
+                                      roomAndTeacher: event.description,
+                                      timing:
+                                          _humaniseTime(event.start, event.end),
+                                      color: Colors.green.shade400,
+                                    );
+                                  }
+                                }),
+                              ],
+                            );
+                          }).toList(),
                   ),
                 ),
               ),

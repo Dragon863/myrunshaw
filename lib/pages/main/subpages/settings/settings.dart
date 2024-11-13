@@ -117,7 +117,9 @@ class _SettingsPageState extends State<SettingsPage> {
         bucketId: "profiles",
         fileId: api.currentUser.$id,
       );
-    } catch (e) {}
+    } catch (e) {
+      // ignore
+    }
 
     await storage.createFile(
       bucketId: "profiles",
@@ -211,6 +213,8 @@ class _SettingsPageState extends State<SettingsPage> {
                             title: const Text("Change Name"),
                             content: TextField(
                               controller: controller,
+                              autofocus: true,
+                              autocorrect: false,
                               decoration: const InputDecoration(
                                 hintText: "New Name",
                               ),

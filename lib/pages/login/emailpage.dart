@@ -78,20 +78,11 @@ class _EmailPageState extends State<EmailPage> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () async {
-                    final BaseAPI api = context.read<BaseAPI>();
-
-                    try {
-                      await api.createUser(
-                        email: emailController.text,
-                        password: passwordController.text,
-                      );
-                    } on AppwriteException catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(e.message ?? 'An error occurred'),
-                        ),
-                      );
-                    }
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("You can only sign up with a QR code"),
+                      ),
+                    );
                   },
                   child: const Text('Sign Up'),
                 ),

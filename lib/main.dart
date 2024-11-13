@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:runshaw/pages/main/subpages/friends/list/widgets/popup_add_page.dart';
 import 'package:runshaw/pages/splash/splash.dart';
 import 'package:runshaw/utils/api.dart';
 
@@ -22,7 +23,9 @@ class BaseApp extends StatelessWidget {
       title: 'My Runshaw',
       theme: ThemeData(
         primarySwatch: Colors.red,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.red,
+        ),
         fontFamily: 'Rubik',
         textTheme: GoogleFonts.rubikTextTheme(
           Theme.of(context).textTheme,
@@ -32,6 +35,7 @@ class BaseApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       routes: <String, WidgetBuilder>{
         '/splash': (BuildContext context) => SplashPage(),
+        '/friends/add': (BuildContext context) => const PopupFriendAddPage(),
       },
     );
   }
