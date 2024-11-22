@@ -4,6 +4,8 @@ import 'package:appwrite/models.dart';
 import 'package:flutter/widgets.dart';
 import 'package:appwrite/appwrite.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
+import 'package:http/http.dart' as http;
+import 'package:runshaw/utils/config.dart';
 
 enum AccountStatus {
   uninitialized,
@@ -30,9 +32,7 @@ class BaseAPI extends ChangeNotifier {
   }
 
   init() {
-    _client
-        .setEndpoint('https://appwrite.danieldb.uk/v1')
-        .setProject('66fdb56000209ea9ac18');
+    _client.setEndpoint(Config.endpoint).setProject(Config.projectId);
     _account = Account(_client);
   }
 
@@ -117,8 +117,20 @@ class BaseAPI extends ChangeNotifier {
     }
   }
 
+  String humanResponse(String body) {
+    final jsonBody = jsonDecode(body);
+    if (jsonBody["error"] != null) {
+      return jsonBody["error"];
+    } else if (jsonBody["message"] != null) {
+      return jsonBody["message"];
+    } else {
+      // Shouldn't happen
+      return "Operation complete";
+    }
+  }
+
   Future<void> syncTimetable(timetable) async {
-    final Databases databases = Databases(_client);
+    /*final Databases databases = Databases(_client);
 
     final DocumentList currentState = await databases.listDocuments(
       databaseId: 'timetable',
@@ -147,15 +159,27 @@ class BaseAPI extends ChangeNotifier {
       data: {"data": timetable.toString()},
       permissions: ['read("any")'],
     );
-    print("Synced timetable");
+    print("Synced timetable");*/
+    final Jwt jwtToken = await account!.createJWT();
+    final response = await http.post(
+      Uri.parse('${Config.friendsMicroserviceUrl}/api/timetable'),
+      headers: {
+        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'timetable': timetable}),
+    );
+    if (response.statusCode == 200) {
+      throw "Error syncing timetable";
+    }
+    return;
   }
 
   Future<List<Event>> fetchEvents({String? userId}) async {
     userId ??= user!.$id;
 
     List<Event> timetable = [];
-    bool hasSynced = false;
-    Document? myDocument;
+    /*Document? myDocument;
 
     final Databases databases = Databases(_client);
     final DocumentList documents = await databases.listDocuments(
@@ -169,24 +193,44 @@ class BaseAPI extends ChangeNotifier {
         myDocument = document;
         break;
       }
+    }*/
+    String query = "";
+    if (userId != user!.$id) {
+      query = "?user_id=$userId";
     }
+    final Jwt jwtToken = await account!.createJWT();
+    final response = await http.get(
+      Uri.parse('${Config.friendsMicroserviceUrl}/api/timetable$query'),
+      headers: {
+        'Authorization': 'Bearer ${jwtToken.jwt}',
+      },
+    );
 
-    if (!hasSynced) {
+    if (response.statusCode != 200) {
       return [];
     }
 
-    final events = jsonDecode(myDocument!.data["data"]);
+    //final events = jsonDecode(myDocument!.data["data"]);
+    final events = jsonDecode(response.body);
 
-    for (final event in events["data"]) {
+    for (final event in events["timetable"]["data"]) {
       final String start = event["dtstart"]["dt"];
       final String end = event["dtend"]["dt"];
 
       final DateTime startDateTime = DateTime.parse(start);
       final DateTime endDateTime = DateTime.parse(end);
 
-      if (startDateTime.isBefore(DateTime.now()) &&
-          endDateTime.isBefore(DateTime.now())) {
+      final startOfToday = DateTime.now().subtract(
+        Duration(
+          hours: DateTime.now().hour,
+          minutes: DateTime.now().minute,
+          seconds: DateTime.now().second,
+        ),
+      );
+      if (startDateTime.isBefore(startOfToday) &&
+          endDateTime.isBefore(startOfToday)) {
         // Skip past events that have already happened!
+        // Starting at the beginning of the day prevents aspire weirdness
         continue;
       }
       timetable.add(Event(
@@ -202,6 +246,7 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<String> sendFriendRequest(String userId) async {
+    /*
     final Databases databases = Databases(client);
     //try {
     await databases.createDocument(
@@ -221,9 +266,23 @@ class BaseAPI extends ChangeNotifier {
     /* } catch (e) {
       return "You've already sent a friend request to this user!";
     }*/
+    */
+    final Jwt jwtToken = await account!.createJWT();
+    print(jwtToken.jwt);
+    final response = await http.post(
+      Uri.parse('${Config.friendsMicroserviceUrl}/api/friend-requests'),
+      headers: {
+        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'receiver_id': userId}),
+    );
+    return humanResponse(response.body);
   }
 
-  Future<bool> respondToFriendRequest(String userId, bool accept) async {
+  Future<bool> respondToFriendRequest(
+      String userId, bool accept, int id) async {
+    /*
     final Databases databases = Databases(client);
     try {
       await databases.createDocument(
@@ -243,11 +302,25 @@ class BaseAPI extends ChangeNotifier {
     } catch (e) {
       print(e);
       return false;
-    }
+    }*/
+
+    final Jwt jwtToken = await account!.createJWT();
+    final response = await http.put(
+      Uri.parse(
+          '${Config.friendsMicroserviceUrl}/api/friend-requests/${id.toString()}'),
+      headers: {
+        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'action': accept ? 'accept' : 'decline',
+      }),
+    );
+    return response.statusCode == 200;
   }
 
-  Future<List<String>> getFriends() async {
-    final Databases databases = Databases(client);
+  Future<List> getFriends() async {
+    /*final Databases databases = Databases(client);
     final DocumentList documents = await databases.listDocuments(
       databaseId: "friend_reqs",
       collectionId: "accepted",
@@ -265,11 +338,43 @@ class BaseAPI extends ChangeNotifier {
       }
     }
 
+    return friends;*/
+    final Jwt jwtToken = await account!.createJWT();
+    List<Map> friends = [];
+
+    final response = await http.get(
+      Uri.parse('${Config.friendsMicroserviceUrl}/api/friends'),
+      headers: {
+        'Authorization': 'Bearer ${jwtToken.jwt}',
+      },
+    );
+    print(user!.$id);
+    for (final friend in jsonDecode(response.body)) {
+      if (friend["receiver_id"] == user!.$id) {
+        friends.add({
+          "userid": friend["sender_id"],
+          "status": friend["status"],
+          "id": friend["id"],
+          "created_at": friend["created_at"],
+          "updated_at": friend["updated_at"],
+        });
+      } else {
+        friends.add(
+          {
+            "userid": friend["receiver_id"],
+            "status": friend["status"],
+            "id": friend["id"],
+            "created_at": friend["created_at"],
+            "updated_at": friend["updated_at"],
+          },
+        );
+      }
+    }
     return friends;
   }
 
   Future<List> getFriendRequests() async {
-    final Databases databases = Databases(client);
+    /*final Databases databases = Databases(client);
     final DocumentList documents = await databases.listDocuments(
       databaseId: "friend_reqs",
       collectionId: "outgoing",
@@ -284,7 +389,16 @@ class BaseAPI extends ChangeNotifier {
       }
     }
 
-    return requests;
+    return requests;*/
+    final Jwt jwtToken = await account!.createJWT();
+    final response = await http.get(
+      Uri.parse(
+          '${Config.friendsMicroserviceUrl}/api/friend-requests?status=pending'),
+      headers: {
+        'Authorization': 'Bearer ${jwtToken.jwt}',
+      },
+    );
+    return jsonDecode(response.body);
   }
 
   Future<String> getName(String userId) async {

@@ -82,9 +82,10 @@ class _PopupFriendAddPageState extends State<PopupFriendAddPage>
   }
 
   Future<void> returnValue(String studentID) async {
-    if (mounted) {
+    if (mounted && !inProgress) {
       Navigator.of(context).pop(studentID);
       // Prevents the user from scanning multiple times as widget is closing which breaks stuff as it removes all routes
+      inProgress = true;
     }
   }
 
@@ -132,13 +133,16 @@ class _PopupFriendAddPageState extends State<PopupFriendAddPage>
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.pop(context);
+                  Navigator.pop(context);
                 },
                 child: const Text("Cancel"),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop(textController.text);
+                  Navigator.of(context).pop(textController.text);
+                  // Pop twice to close the scanner and the dialog
                 },
                 child: const Text("Submit"),
               ),

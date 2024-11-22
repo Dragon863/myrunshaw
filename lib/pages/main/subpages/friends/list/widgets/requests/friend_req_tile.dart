@@ -7,10 +7,12 @@ import 'package:runshaw/utils/api.dart';
 class FriendRequestTile extends StatefulWidget {
   final String uid;
   final String? profilePicUrl;
+  final int id;
 
   const FriendRequestTile({
     super.key,
     required this.uid,
+    required this.id,
     this.profilePicUrl,
   });
 
@@ -42,7 +44,8 @@ class _FriendRequestTileState extends State<FriendRequestTile> {
 
   Future<void> respond(bool response) async {
     final api = context.read<BaseAPI>();
-    final bool result = await api.respondToFriendRequest(widget.uid, response);
+    final bool result =
+        await api.respondToFriendRequest(widget.uid, response, widget.id);
     if (result) {
       setState(() {
         responded = true;
@@ -68,6 +71,7 @@ class _FriendRequestTileState extends State<FriendRequestTile> {
       leading: CircleAvatar(
         foregroundImage: CachedNetworkImageProvider(
           widget.profilePicUrl!,
+          errorListener: (error) {},
         ),
         child: Text(
           name[0].toUpperCase(),

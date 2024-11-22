@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/widgets/list/friend_tile.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/config.dart';
 
 class FriendsList extends StatefulWidget {
   const FriendsList({super.key});
@@ -11,7 +12,7 @@ class FriendsList extends StatefulWidget {
 }
 
 class _FriendsListState extends State<FriendsList> {
-  List<Map> friends = [];
+  List friends = [];
 
   Future<void> loadFriends() async {
     // Load friends from API
@@ -21,7 +22,7 @@ class _FriendsListState extends State<FriendsList> {
       if (mounted) {
         setState(() {
           friends.add({
-            "id": friendId,
+            "id": friendId["userid"],
           });
         });
       }
@@ -42,7 +43,7 @@ class _FriendsListState extends State<FriendsList> {
         return FriendTile(
           uid: friend["id"],
           profilePicUrl:
-              "https://appwrite.danieldb.uk/v1/storage/buckets/profiles/files/${friend["id"]}/view?project=66fdb56000209ea9ac18",
+              "https://appwrite.danieldb.uk/v1/storage/buckets/${Config.profileBucketId}/files/${friend["id"]}/view?project=${Config.projectId}",
         );
       },
       itemCount: friends.length,

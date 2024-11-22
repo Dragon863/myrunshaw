@@ -101,6 +101,7 @@ class _FriendTileState extends State<FriendTile> {
       leading: CircleAvatar(
         foregroundImage: CachedNetworkImageProvider(
           widget.profilePicUrl!,
+          errorListener: (error) {},
         ),
         child: Text(
           name[0].toUpperCase(),

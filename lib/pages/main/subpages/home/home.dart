@@ -7,6 +7,7 @@ import 'package:runshaw/pages/main/subpages/friends/individual/individual_friend
 import 'package:runshaw/pages/qr/qr_page.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/config.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,6 +23,7 @@ class _HomePageState extends State<HomePage> {
   String nextLesson = "Loading...";
   String nextDetails = "Loading...";
   List<Widget> freeFriends = [];
+  bool loading = false;
 
   Future<void> loadPfp() async {
     final BaseAPI api = context.read<BaseAPI>();
@@ -32,7 +34,7 @@ class _HomePageState extends State<HomePage> {
         name = "Anonymous";
       }
       pfpUrl =
-          "https://appwrite.danieldb.uk/v1/storage/buckets/profiles/files/${api.user!.$id}/view?project=66fdb56000209ea9ac18";
+          "https://appwrite.danieldb.uk/v1/storage/buckets/${Config.profileBucketId}/files/${api.user!.$id}/view?project=${Config.projectId}";
       userId = api.user!.$id;
     });
   }
@@ -61,6 +63,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> loadData() async {
+    if (loading) {
+      return;
+    }
+    loading = true;
+    freeFriends.clear();
     final BaseAPI api = context.read<BaseAPI>();
     try {
       final List<Event> events = await api.fetchEvents(userId: api.user!.$id);
@@ -78,15 +85,23 @@ class _HomePageState extends State<HomePage> {
             uid: ''),
       );
 
-      setState(() {
-        nextLesson = next.summary;
-        nextDetails =
-            "${next.description.replaceAll("Teacher: ", "")} in ${next.location}";
-      });
-      final List<String> friends = await api.getFriends();
+      if (next.summary == "No Event") {
+        setState(() {
+          nextLesson = "No Event";
+          nextDetails = "";
+        });
+      } else {
+        setState(() {
+          nextLesson = next.summary;
+          nextDetails =
+              "${next.description.replaceAll("Teacher: ", "")} in ${next.location}";
+        });
+      }
+      final List friends = await api.getFriends();
       for (final friend in friends) {
-        final friendCurrentLesson = await loadCurrentEventFor(friend);
-        final name = await api.getName(friend);
+        final String uid = friend["userid"];
+        final friendCurrentLesson = await loadCurrentEventFor(uid);
+        final name = await api.getName(uid);
         if (friendCurrentLesson.contains("Aspire") ||
             friendCurrentLesson == "No Event") {
           setState(() {
@@ -96,24 +111,28 @@ class _HomePageState extends State<HomePage> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => IndividualFriendPage(
-                        userId: friend,
+                        userId: uid,
                         name: name,
                         profilePicUrl:
-                            "https://appwrite.danieldb.uk/v1/storage/buckets/profiles/files/$friend/view?project=66fdb56000209ea9ac18",
+                            "https://appwrite.danieldb.uk/v1/storage/buckets/${Config.profileBucketId}/files/$uid/view?project=${Config.projectId}",
                       ),
                     ),
                   );
                 },
-                child: CircleAvatar(
-                  radius: 25,
-                  foregroundImage: CachedNetworkImageProvider(
-                    "https://appwrite.danieldb.uk/v1/storage/buckets/profiles/files/$friend/view?project=66fdb56000209ea9ac18",
-                  ),
-                  child: Text(
-                    friend[0].toUpperCase(),
-                    style: GoogleFonts.rubik(
-                      fontSize: 5,
-                      fontWeight: FontWeight.bold,
+                child: Align(
+                  widthFactor: 0.8,
+                  child: CircleAvatar(
+                    radius: 25,
+                    foregroundImage: CachedNetworkImageProvider(
+                      "https://appwrite.danieldb.uk/v1/storage/buckets/${Config.profileBucketId}/files/$uid/view?project=${Config.projectId}",
+                      errorListener: (error) {},
+                    ),
+                    child: Text(
+                      name[0].toUpperCase(),
+                      style: GoogleFonts.rubik(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -123,8 +142,10 @@ class _HomePageState extends State<HomePage> {
         }
       }
     } catch (e) {
+      //throw e;
       print(e);
     }
+    loading = false;
   }
 
   @override
@@ -161,11 +182,12 @@ class _HomePageState extends State<HomePage> {
                                     radius: 60,
                                     foregroundImage: CachedNetworkImageProvider(
                                       pfpUrl ?? "",
+                                      errorListener: (error) {},
                                     ),
                                     child: Text(
                                       name[0].toUpperCase(),
                                       style: GoogleFonts.rubik(
-                                        fontSize: 18,
+                                        fontSize: 48,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -340,12 +362,11 @@ class _HomePageState extends State<HomePage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                Row(
-                  children: [
-                    Row(
-                      children: freeFriends,
-                    ),
-                  ],
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Row(
+                    children: freeFriends,
+                  ),
                 ),
               ],
             ),
@@ -353,10 +374,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          freeFriends = [];
-          loadData();
-        },
+        onPressed: loadData,
         child: const Icon(Icons.refresh),
       ),
     );

@@ -22,7 +22,7 @@ List<Widget> getPages(bool showNotifs) {
 class SliderView extends StatefulWidget {
   final Function(String, int)? onItemClick;
   final int currentIndex;
-  final int notification;
+  final String notification;
   final bool showNotifs;
 
   const SliderView({
@@ -99,7 +99,7 @@ class _SliderViewState extends State<SliderView> {
                           Icons.people_alt_outlined,
                           color: Colors.black,
                         ),
-                        'Friends'),
+                        'Friends${widget.notification}'),
                     Menu(
                         const Icon(
                           Icons.calendar_month_outlined,

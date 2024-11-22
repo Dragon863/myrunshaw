@@ -28,10 +28,27 @@ class _TimetablePageState extends State<TimetablePage> {
     final BaseAPI api = context.read<BaseAPI>();
     try {
       final List<Event> events = await api.fetchEvents();
-      setState(() {
-        _events = events;
-        currentTitle = _fetchCurrentEvent();
-      });
+      if (events.isNotEmpty) {
+        setState(() {
+          _events = events;
+          currentTitle = _fetchCurrentEvent();
+        });
+      } else {
+        events.add(
+          Event(
+              summary: 'Events not found',
+              location: '',
+              start: DateTime.now(),
+              end: DateTime.now(),
+              description:
+                  'Try syncing your timetable with the button in the bottom right',
+              uid: ''),
+        );
+        setState(() {
+          _events = events;
+          currentTitle = "Not synced";
+        });
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -217,6 +234,8 @@ String formatDayTitle(DateTime date) {
 extension EventScheduleFiller on List<Event> {
   List<Event> fillGaps() {
     if (isEmpty) return this;
+    if (length == 1 && this[0].summary.contains("Events not found"))
+      return this;
     final filledEvents = <Event>[];
 
     for (int index = 0; index < length; index++) {

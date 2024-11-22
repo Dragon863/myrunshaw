@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/config.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -34,7 +35,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     setState(() {
       profilePicUrl =
-          "https://appwrite.danieldb.uk/v1/storage/buckets/profiles/files/${api.currentUser.$id}/view?project=66fdb56000209ea9ac18&ts=${DateTime.now().millisecondsSinceEpoch.toString()}";
+          "https://appwrite.danieldb.uk/v1/storage/buckets/${Config.profileBucketId}/files/${api.currentUser.$id}/view?project=${Config.projectId}&ts=${DateTime.now().millisecondsSinceEpoch.toString()}";
     });
 
     setState(() {
@@ -99,8 +100,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
     setState(() {
       profilePicUrl = "https://appwrite.danieldb.uk/v1/storage/buckets"
-          "/profiles/files/${api.currentUser.$id}/"
-          "view?project=66fdb56000209ea9ac18"
+          "/${Config.profileBucketId}/files/${api.currentUser.$id}/"
+          "view?project=${Config.projectId}"
           "&ts=${DateTime.now().millisecondsSinceEpoch.toString()}";
     });
   }
