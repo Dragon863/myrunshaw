@@ -411,6 +411,20 @@ class BaseAPI extends ChangeNotifier {
     return jsonDecode(response)["name"];
   }
 
+  Future<void> setBusNumber(String? number) async {
+    Preferences currentPrefs = await account!.getPrefs();
+    if (currentPrefs.data["bus_number"] == number) {
+      return;
+    }
+    currentPrefs.data["bus_number"] = number;
+    await account!.updatePrefs(prefs: currentPrefs.data);
+  }
+
+  Future<String?> getBusNumber() async {
+    Preferences currentPrefs = await account!.getPrefs();
+    return currentPrefs.data["bus_number"];
+  }
+
   User? get user => _currentUser;
   Account? get account => _account;
 }

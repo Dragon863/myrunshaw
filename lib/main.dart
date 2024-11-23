@@ -4,8 +4,18 @@ import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/widgets/popup_add_page.dart';
 import 'package:runshaw/pages/splash/splash.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    // This is fine in dev as I'm on linux, and the app seems to go black if this fails for some reason
+  }
   runApp(
     ChangeNotifierProvider(
       create: ((context) => BaseAPI()),
@@ -36,6 +46,7 @@ class BaseApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         '/splash': (BuildContext context) => SplashPage(),
         '/friends/add': (BuildContext context) => const PopupFriendAddPage(),
+        // We can only add routes here that don't need data passing to them
       },
     );
   }

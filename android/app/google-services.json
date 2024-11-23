@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "463256926506",
+    "project_id": "my-runshaw",
+    "storage_bucket": "my-runshaw.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:463256926506:android:8eb950980fcd652aaa4653",
+        "android_client_info": {
+          "package_name": "com.daniel.runshaw"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcjXnFtNtleU9qoBtX2swoahVlWd5W2_0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

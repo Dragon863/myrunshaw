@@ -1,5 +1,6 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' as models;
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,7 +21,9 @@ class _SettingsPageState extends State<SettingsPage> {
   String name = "Loading...";
   String email = "Loading...";
   String userId = "Loading...";
+  String? busNumber;
   String? profilePicUrl;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -32,6 +35,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final BaseAPI api = context.read<BaseAPI>();
     final models.User? latestUserModel = await api.account?.get();
     final String displayName = latestUserModel!.name;
+    final String? busNumber = await api.getBusNumber();
 
     setState(() {
       profilePicUrl =
@@ -46,6 +50,9 @@ class _SettingsPageState extends State<SettingsPage> {
       }
       email = latestUserModel.email;
       userId = latestUserModel.$id;
+      if (busNumber != null) {
+        this.busNumber = busNumber;
+      }
     });
   }
 
@@ -264,7 +271,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   const SizedBox(width: 14),
                   const Text(
-                    "Demo Toggle",
+                    "Bus Notifications",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -310,6 +317,96 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     const SizedBox(width: 10),
                   ],
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(
+                  left: 12.0,
+                  right: 12.0,
+                ),
+                child: Divider(),
+              ),
+              const SizedBox(height: 4),
+              Form(
+                key: _formKey,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 8.0,
+                    right: 8.0,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      DropdownButtonFormField2<String>(
+                        isExpanded: true,
+                        decoration: InputDecoration(
+                          enabled: busNumber != null,
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 16),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        hint: const Text(
+                          'Select Your Bus Number',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        items: Config.busNumbers
+                            .map((item) => DropdownMenuItem<String>(
+                                  value: item.toString(),
+                                  child: Text(
+                                    item.toString(),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ))
+                            .toList(),
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Please select bus number.';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) async {
+                          final api = context.read<BaseAPI>();
+                          try {
+                            await api.setBusNumber(value);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Bus number updated!"),
+                              ),
+                            );
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Error setting bus number"),
+                              ),
+                            );
+                          }
+                        },
+                        buttonStyleData: const ButtonStyleData(
+                          padding: EdgeInsets.only(right: 8),
+                        ),
+                        iconStyleData: const IconStyleData(
+                          icon: Icon(
+                            Icons.arrow_drop_down,
+                            color: Colors.black45,
+                          ),
+                          iconSize: 24,
+                        ),
+                        dropdownStyleData: DropdownStyleData(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        menuItemStyleData: const MenuItemStyleData(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                        value: busNumber,
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 4),

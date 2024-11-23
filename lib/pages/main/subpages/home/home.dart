@@ -93,8 +93,9 @@ class _HomePageState extends State<HomePage> {
       } else {
         setState(() {
           nextLesson = next.summary;
-          nextDetails =
-              "${next.description.replaceAll("Teacher: ", "")} in ${next.location}";
+          nextDetails = next.description == null
+              ? "No Description"
+              : "${next.description!.replaceAll("Teacher: ", "")} in ${next.location}";
         });
       }
       final List friends = await api.getFriends();

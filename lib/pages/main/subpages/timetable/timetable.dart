@@ -154,18 +154,31 @@ class _TimetablePageState extends State<TimetablePage> {
                                 ),
                                 ...events.map((event) {
                                   if (event.location != "") {
+                                    String eventDetails;
+                                    if (event.description != null) {
+                                      eventDetails =
+                                          "${event.description!.replaceAll("Teacher: ", "")} in ${event.location}";
+                                    } else {
+                                      eventDetails =
+                                          event.location ?? 'Undefined';
+                                    }
                                     return EventsCard(
-                                      lessonName: event.summary,
-                                      roomAndTeacher:
-                                          "${event.description.replaceAll("Teacher: ", "")} in ${event.location}",
+                                      lessonName: event.summary == ''
+                                          ? "Exam"
+                                          : event.summary,
+                                      roomAndTeacher: eventDetails,
                                       timing:
                                           _humaniseTime(event.start, event.end),
-                                      color: Colors.blue,
+                                      color: event.summary != ""
+                                          ? Colors.blue
+                                          : Colors.red,
                                     );
                                   } else {
                                     return EventsCard(
-                                      lessonName: event.summary,
-                                      roomAndTeacher: event.description,
+                                      lessonName: event.summary == ''
+                                          ? "Exam"
+                                          : event.summary,
+                                      roomAndTeacher: event.description ?? '',
                                       timing:
                                           _humaniseTime(event.start, event.end),
                                       color: Colors.green.shade400,
@@ -234,8 +247,9 @@ String formatDayTitle(DateTime date) {
 extension EventScheduleFiller on List<Event> {
   List<Event> fillGaps() {
     if (isEmpty) return this;
-    if (length == 1 && this[0].summary.contains("Events not found"))
+    if (length == 1 && this[0].summary.contains("Events not found")) {
       return this;
+    }
     final filledEvents = <Event>[];
 
     for (int index = 0; index < length; index++) {

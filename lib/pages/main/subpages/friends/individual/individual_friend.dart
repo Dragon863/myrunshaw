@@ -180,19 +180,35 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
                                       ),
                                     ),
                                     ...events.map((event) {
+                                      if (event.description != null) {
+                                      } else {}
                                       if (event.location != "") {
+                                        String eventDetails;
+                                        if (event.description != null) {
+                                          eventDetails =
+                                              "${event.description!.replaceAll("Teacher: ", "")} in ${event.location}";
+                                        } else {
+                                          eventDetails =
+                                              event.location ?? 'Undefined';
+                                        }
                                         return EventsCard(
-                                          lessonName: event.summary,
-                                          roomAndTeacher:
-                                              "${event.description.replaceAll("Teacher: ", "")} in ${event.location}",
+                                          lessonName: event.summary == ''
+                                              ? "Exam"
+                                              : event.summary,
+                                          roomAndTeacher: eventDetails,
                                           timing: humaniseTime(
                                               event.start, event.end),
-                                          color: Colors.blue,
+                                          color: event.summary != ""
+                                              ? Colors.blue
+                                              : Colors.red,
                                         );
                                       } else {
                                         return EventsCard(
-                                          lessonName: event.summary,
-                                          roomAndTeacher: event.description,
+                                          lessonName: event.summary == ''
+                                              ? "Exam"
+                                              : event.summary,
+                                          roomAndTeacher:
+                                              event.description ?? '',
                                           timing: humaniseTime(
                                               event.start, event.end),
                                           color: Colors.green.shade400,
