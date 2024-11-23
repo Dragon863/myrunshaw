@@ -144,7 +144,6 @@ class _HomePageState extends State<HomePage> {
       }
     } catch (e) {
       //throw e;
-      print(e);
     }
     loading = false;
   }

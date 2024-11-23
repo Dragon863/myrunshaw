@@ -111,7 +111,6 @@ class BaseAPI extends ChangeNotifier {
       await _account.deleteSessions();
       _status = AccountStatus.unauthenticated;
     } catch (e) {
-      print("Error signing out: $e");
     } finally {
       notifyListeners();
     }
@@ -268,7 +267,6 @@ class BaseAPI extends ChangeNotifier {
     }*/
     */
     final Jwt jwtToken = await account!.createJWT();
-    print(jwtToken.jwt);
     final response = await http.post(
       Uri.parse('${Config.friendsMicroserviceUrl}/api/friend-requests'),
       headers: {
@@ -348,7 +346,6 @@ class BaseAPI extends ChangeNotifier {
         'Authorization': 'Bearer ${jwtToken.jwt}',
       },
     );
-    print(user!.$id);
     for (final friend in jsonDecode(response.body)) {
       if (friend["receiver_id"] == user!.$id) {
         friends.add({
@@ -423,6 +420,27 @@ class BaseAPI extends ChangeNotifier {
   Future<String?> getBusNumber() async {
     Preferences currentPrefs = await account!.getPrefs();
     return currentPrefs.data["bus_number"];
+  }
+
+  Future<String> getBusBay(String busNumber) async {
+    final Jwt jwtToken = await account!.createJWT();
+    final response = await http.get(
+      Uri.parse('${Config.friendsMicroserviceUrl}/api/bus'),
+      headers: {
+        'Authorization': 'Bearer ${jwtToken.jwt}',
+      },
+    );
+    final body = jsonDecode(response.body);
+
+    for (var bus in body) {
+      if (bus["bus_id"] == busNumber) {
+        if (bus["bus_bay"].toString() == "0") {
+          return "RSP_NYA"; // Reponse: not yet arrived
+        }
+        return bus["bus_bay"];
+      }
+    }
+    return "RSP_UNK"; // Response: unknown (no idea where the bus is!)
   }
 
   User? get user => _currentUser;

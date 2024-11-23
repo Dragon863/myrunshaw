@@ -14,15 +14,32 @@ class _BusesPageState extends State<BusesPage> {
   String myBus = 'bus tracker';
   List<String> toDisplay = ["is", "loading..."];
   bool loading = true;
-  bool showPin = true;
+  bool showPin = false;
   double xPercentage = 0.0;
   double yPercentage = 0.0;
 
   Future<void> loadData() async {
+    setState(() {
+      loading = true;
+    });
     final api = context.read<BaseAPI>();
     final busNumber = await api.getBusNumber();
 
-    calculatePosition("B17");
+    if (busNumber != null) {
+      final bay = await api.getBusBay(busNumber);
+      if (bay == "RSP_NYA" || bay == "RSP_UNK") {
+        setState(() {
+          toDisplay = ["has", "not yet arrived"];
+          showPin = false;
+        });
+      } else {
+        calculatePosition(bay);
+        setState(() {
+          toDisplay = ["is at stand", bay];
+          showPin = true;
+        });
+      }
+    }
 
     setState(() {
       if (busNumber == null) {
@@ -31,6 +48,10 @@ class _BusesPageState extends State<BusesPage> {
       } else {
         myBus = busNumber;
       }
+    });
+
+    setState(() {
+      loading = false;
     });
   }
 
