@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:appwrite/models.dart';
 import 'package:flutter/widgets.dart';
 import 'package:appwrite/appwrite.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:http/http.dart' as http;
 import 'package:runshaw/utils/config.dart';
@@ -42,6 +43,9 @@ class BaseAPI extends ChangeNotifier {
       _currentUser = user;
       _account = Account(_client);
       _status = AccountStatus.authenticated;
+      OneSignal.initialize(Config.oneSignalAppId);
+      OneSignal.Notifications.requestPermission(true);
+      OneSignal.login(_currentUser.$id);
     } catch (e) {
       _status = AccountStatus.unauthenticated;
     }
@@ -129,36 +133,6 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<void> syncTimetable(timetable) async {
-    /*final Databases databases = Databases(_client);
-
-    final DocumentList currentState = await databases.listDocuments(
-      databaseId: 'timetable',
-      collectionId: '671fe051003b06c2a5f7',
-    );
-
-    for (final Document document in currentState.documents) {
-      if (document.$id == user!.$id) {
-        await databases.updateDocument(
-          databaseId: 'timetable',
-          collectionId: '671fe051003b06c2a5f7',
-          documentId: user!.$id,
-          data: {
-            "data": timetable.toString(),
-          },
-        );
-        print("Updated timetable");
-        return;
-      }
-    }
-
-    await databases.createDocument(
-      databaseId: 'timetable',
-      collectionId: '671fe051003b06c2a5f7',
-      documentId: user!.$id,
-      data: {"data": timetable.toString()},
-      permissions: ['read("any")'],
-    );
-    print("Synced timetable");*/
     final Jwt jwtToken = await account!.createJWT();
     final response = await http.post(
       Uri.parse('${Config.friendsMicroserviceUrl}/api/timetable'),
@@ -178,21 +152,6 @@ class BaseAPI extends ChangeNotifier {
     userId ??= user!.$id;
 
     List<Event> timetable = [];
-    /*Document? myDocument;
-
-    final Databases databases = Databases(_client);
-    final DocumentList documents = await databases.listDocuments(
-      databaseId: 'timetable',
-      collectionId: '671fe051003b06c2a5f7',
-    );
-
-    for (final document in documents.documents) {
-      if (document.$id == userId) {
-        hasSynced = true;
-        myDocument = document;
-        break;
-      }
-    }*/
     String query = "";
     if (userId != user!.$id) {
       query = "?user_id=$userId";
@@ -245,27 +204,6 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<String> sendFriendRequest(String userId) async {
-    /*
-    final Databases databases = Databases(client);
-    //try {
-    await databases.createDocument(
-        databaseId: "friend_reqs",
-        collectionId: "outgoing",
-        documentId: "${user!.$id}-to-$userId",
-        data: {
-          "sent": DateTime.now().toIso8601String(),
-        },
-        permissions: [
-          Permission.read(Role.any()),
-          Permission.write(Role.user(userId)),
-          Permission.update(Role.user(userId)),
-          Permission.delete(Role.user(userId)),
-        ]);
-    return "Friend request sent!";
-    /* } catch (e) {
-      return "You've already sent a friend request to this user!";
-    }*/
-    */
     final Jwt jwtToken = await account!.createJWT();
     final response = await http.post(
       Uri.parse('${Config.friendsMicroserviceUrl}/api/friend-requests'),
@@ -280,28 +218,6 @@ class BaseAPI extends ChangeNotifier {
 
   Future<bool> respondToFriendRequest(
       String userId, bool accept, int id) async {
-    /*
-    final Databases databases = Databases(client);
-    try {
-      await databases.createDocument(
-          databaseId: "friend_reqs",
-          collectionId: "accepted",
-          documentId: "${user!.$id}-to-$userId",
-          data: {
-            "value": accept,
-          },
-          permissions: [
-            Permission.read(Role.any()),
-            Permission.write(Role.user(userId)),
-            Permission.update(Role.user(userId)),
-            Permission.delete(Role.user(userId)),
-          ]);
-      return true;
-    } catch (e) {
-      print(e);
-      return false;
-    }*/
-
     final Jwt jwtToken = await account!.createJWT();
     final response = await http.put(
       Uri.parse(
@@ -318,25 +234,6 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<List> getFriends() async {
-    /*final Databases databases = Databases(client);
-    final DocumentList documents = await databases.listDocuments(
-      databaseId: "friend_reqs",
-      collectionId: "accepted",
-    );
-
-    List<String> friends = [];
-
-    for (final document in documents.documents) {
-      if (document.$id.startsWith(user!.$id)) {
-        final String friendId = document.$id.split("-").last;
-        final bool accepted = document.data["value"];
-        if (accepted) {
-          friends.add(friendId);
-        }
-      }
-    }
-
-    return friends;*/
     final Jwt jwtToken = await account!.createJWT();
     List<Map> friends = [];
 
@@ -371,22 +268,6 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<List> getFriendRequests() async {
-    /*final Databases databases = Databases(client);
-    final DocumentList documents = await databases.listDocuments(
-      databaseId: "friend_reqs",
-      collectionId: "outgoing",
-    );
-
-    List<String> requests = [];
-
-    for (final document in documents.documents) {
-      if (document.$id.startsWith(user!.$id)) {
-        final String friendId = document.$id.split("-").last;
-        requests.add(friendId);
-      }
-    }
-
-    return requests;*/
     final Jwt jwtToken = await account!.createJWT();
     final response = await http.get(
       Uri.parse(
@@ -410,6 +291,8 @@ class BaseAPI extends ChangeNotifier {
 
   Future<void> setBusNumber(String? number) async {
     Preferences currentPrefs = await account!.getPrefs();
+    await OneSignal.User.addTagWithKey("bus", number);
+
     if (currentPrefs.data["bus_number"] == number) {
       return;
     }

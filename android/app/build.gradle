@@ -11,6 +11,7 @@ plugins {
 android {
     namespace = "com.daniel.runshaw"
     compileSdk = flutter.compileSdkVersion
+    compileSdkVersion = 34
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

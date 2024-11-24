@@ -3,6 +3,8 @@ class Config {
   static const String projectId = "66fdb56000209ea9ac18";
   static const String profileBucketId = "profiles";
 
+  static const String oneSignalAppId = "72211047-33fc-4036-96d8-100c4a7bf85a";
+
   static const String friendsMicroserviceUrl =
       "https://runshaw-api.danieldb.uk";
 
