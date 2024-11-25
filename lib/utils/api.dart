@@ -43,6 +43,7 @@ class BaseAPI extends ChangeNotifier {
       _currentUser = user;
       _account = Account(_client);
       _status = AccountStatus.authenticated;
+      OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
       OneSignal.initialize(Config.oneSignalAppId);
       OneSignal.Notifications.requestPermission(true);
       OneSignal.login(_currentUser.$id);
