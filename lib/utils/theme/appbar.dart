@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class RunshawAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -15,6 +16,11 @@ class RunshawAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    // When the app bar is created, we want to set the status bar to be transparent and the icons to be white (looks nice!)
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.red,
+      statusBarIconBrightness: Brightness.light,
+    ));
     return AppBar(
       centerTitle: true,
       backgroundColor: Colors.red,

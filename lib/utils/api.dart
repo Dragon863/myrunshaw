@@ -44,8 +44,6 @@ class BaseAPI extends ChangeNotifier {
       _account = Account(_client);
       _status = AccountStatus.authenticated;
       OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-      OneSignal.initialize(Config.oneSignalAppId);
-      OneSignal.Notifications.requestPermission(true);
       OneSignal.login(_currentUser.$id);
     } catch (e) {
       _status = AccountStatus.unauthenticated;
@@ -108,6 +106,7 @@ class BaseAPI extends ChangeNotifier {
       password: password,
     );
     _currentUser = await Account(_client).get();
+    OneSignal.login(_currentUser.$id);
     _status = AccountStatus.authenticated;
   }
 

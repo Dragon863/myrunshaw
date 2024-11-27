@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/widgets/popup_add_page.dart';
 import 'package:runshaw/pages/splash/splash.dart';
 import 'package:runshaw/utils/api.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:runshaw/utils/config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    // await Firebase.initializeApp(
+    //   options: DefaultFirebaseOptions.currentPlatform,
+    // );
   } catch (e) {
     // This is fine in dev as I'm on linux, and the app seems to go black if this fails for some reason
   }
+
+  // Get onesignal ready...
+  OneSignal.initialize(Config.oneSignalAppId);
+  OneSignal.Notifications.requestPermission(true);
+  OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+
   runApp(
     ChangeNotifierProvider(
       create: ((context) => BaseAPI()),
