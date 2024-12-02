@@ -10,8 +10,6 @@ import 'main_controller.dart';
 List<Widget> getPages(bool showNotifs) {
   return [
     const Center(child: HomePage()),
-    /*const Center(child: Text('Events Page Content')),
-    if (showNotifs) const Center(child: NotificationsPage()),*/
     const Center(child: BusesPage()),
     const FriendsPage(),
     const TimetablePage(),

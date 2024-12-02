@@ -326,6 +326,11 @@ class BaseAPI extends ChangeNotifier {
     return "RSP_UNK"; // Response: unknown (no idea where the bus is!)
   }
 
+  Future<bool> shouldSendNotification() async {
+    Preferences currentPrefs = await account!.getPrefs();
+    return currentPrefs.data["send_notifications"];
+  }
+
   User? get user => _currentUser;
   Account? get account => _account;
 }

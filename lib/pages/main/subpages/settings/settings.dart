@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
@@ -54,6 +55,14 @@ class _SettingsPageState extends State<SettingsPage> {
         this.busNumber = busNumber;
       }
     });
+
+    final tags = await OneSignal.User.getTags();
+    final bool showNotifs = tags["bus_optout"] == "true";
+    if (showNotifs) {
+      setState(() {
+        this.showNotifs = !showNotifs;
+      });
+    }
   }
 
   Future<void> photoAction() async {
@@ -280,10 +289,11 @@ class _SettingsPageState extends State<SettingsPage> {
                   const Spacer(),
                   Switch(
                       value: showNotifs,
-                      onChanged: (bool value) {
+                      onChanged: (bool value) async {
                         setState(() {
                           showNotifs = value;
                         });
+                        OneSignal.User.addTagWithKey("bus_optout", value);
                       }),
                   const SizedBox(width: 10),
                 ],
