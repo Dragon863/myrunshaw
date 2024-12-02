@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/individual_friend.dart';
-import 'package:runshaw/pages/nonetwork/no_network.dart';
 import 'package:runshaw/pages/qr/qr_page.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
@@ -369,14 +368,6 @@ class _HomePageState extends State<HomePage> {
                     children: freeFriends,
                   ),
                 ),
-                IconButton(
-                    onPressed: () {
-                      Navigator.of(context)
-                          .push(MaterialPageRoute(builder: (context) {
-                        return NoNetworkPage();
-                      }));
-                    },
-                    icon: Icon(Icons.wifi))
               ],
             ),
           ),
