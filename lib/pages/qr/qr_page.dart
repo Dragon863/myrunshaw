@@ -17,7 +17,8 @@ class QrCodePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
-              "Scan this code to check in to the study zone",
+              "(This is the QR code on your Student ID)",
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
               ),

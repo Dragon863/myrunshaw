@@ -276,58 +276,36 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Divider(),
               ),
               const SizedBox(height: 9),
-              Row(
-                children: [
-                  const SizedBox(width: 14),
-                  const Text(
-                    "Bus Notifications",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+              ListTile(
+                title: const Text(
+                  "Bus Notifications",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const Spacer(),
-                  Switch(
-                      value: showNotifs,
-                      onChanged: (bool value) async {
-                        setState(() {
-                          showNotifs = value;
-                        });
-                        OneSignal.User.addTagWithKey("bus_optout", value);
-                      }),
-                  const SizedBox(width: 10),
-                ],
+                ),
+                trailing: Switch(
+                    value: showNotifs,
+                    onChanged: (bool value) async {
+                      setState(() {
+                        showNotifs = value;
+                      });
+                      OneSignal.User.addTagWithKey("bus_optout", value);
+                    }),
               ),
               const SizedBox(height: 4),
-              InkWell(
+              ListTile(
                 onTap: () {
-                  //Navigator.of(context).pushNamed("/privacy_policy");
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('no'),
-                    ),
-                  );
+                  Navigator.of(context).pushNamed("/privacy_policy");
                 },
-                child: Row(
-                  children: [
-                    const SizedBox(width: 14),
-                    const Text(
-                      "Privacy Policy",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.arrow_forward_ios),
-                      onPressed: () {
-                        Navigator.of(context).pushNamed("/privacy_policy");
-                      },
-                    ),
-                    const SizedBox(width: 10),
-                  ],
+                title: Text(
+                  "Privacy Policy",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+                trailing: Icon(Icons.arrow_forward_ios),
               ),
               const Padding(
                 padding: EdgeInsets.only(

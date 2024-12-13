@@ -216,6 +216,22 @@ class BaseAPI extends ChangeNotifier {
     return humanResponse(response.body);
   }
 
+  Future<void> blockUser(String userId) async {
+    final Jwt jwtToken = await account!.createJWT();
+    final response = await http.post(
+      Uri.parse('${Config.friendsMicroserviceUrl}/api/block'),
+      headers: {
+        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'blocked_id': userId}),
+    );
+    if (response.statusCode != 201) {
+      throw "Error blocking user";
+    }
+    return;
+  }
+
   Future<bool> respondToFriendRequest(
       String userId, bool accept, int id) async {
     final Jwt jwtToken = await account!.createJWT();
@@ -329,6 +345,12 @@ class BaseAPI extends ChangeNotifier {
   Future<bool> shouldSendNotification() async {
     Preferences currentPrefs = await account!.getPrefs();
     return currentPrefs.data["send_notifications"];
+  }
+
+  Future<void> onboardComplete() async {
+    Preferences currentPrefs = await account!.getPrefs();
+    currentPrefs.data["onboarding_complete"] = true;
+    await account!.updatePrefs(prefs: currentPrefs.data);
   }
 
   User? get user => _currentUser;

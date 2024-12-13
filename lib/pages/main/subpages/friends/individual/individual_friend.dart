@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
+import 'package:runshaw/pages/main/subpages/friends/individual/user_info/user_info.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/events_card.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
@@ -75,20 +75,33 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
       appBar: RunshawAppBar(
         title: widget.name,
         actions: [
-          CircleAvatar(
-            radius: 18,
-            backgroundColor: Colors.white,
-            child: CircleAvatar(
-              radius: 16,
-              foregroundImage: CachedNetworkImageProvider(
-                widget.profilePicUrl,
-                errorListener: (error) {},
-              ),
-              child: Text(
-                widget.name != "" ? widget.name[0].toUpperCase() : "?",
-                style: GoogleFonts.rubik(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => UserInfoPage(
+                    id: widget.userId,
+                    name: widget.name,
+                    profilePicUrl: widget.profilePicUrl,
+                  ),
+                ),
+              );
+            },
+            icon: CircleAvatar(
+              radius: 18,
+              backgroundColor: Colors.white,
+              child: CircleAvatar(
+                radius: 16,
+                foregroundImage: CachedNetworkImageProvider(
+                  widget.profilePicUrl,
+                  errorListener: (error) {},
+                ),
+                child: Text(
+                  widget.name != "" ? widget.name[0].toUpperCase() : "?",
+                  style: GoogleFonts.rubik(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),

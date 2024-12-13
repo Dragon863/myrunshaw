@@ -59,7 +59,7 @@ class _EmailPageState extends State<EmailPage> {
                 const SizedBox(height: 20),
                 TextField(
                   decoration: const InputDecoration(
-                    labelText: 'Email',
+                    labelText: 'College Email',
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.emailAddress,

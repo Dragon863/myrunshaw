@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/login/stage1.dart';
 import 'package:runshaw/pages/main/main_view.dart';
 import 'package:runshaw/pages/nonetwork/no_network.dart';
+import 'package:runshaw/pages/onboarding/onboarding.dart';
 import 'package:runshaw/utils/api.dart';
 
 class SplashPage extends StatefulWidget {
@@ -30,6 +32,15 @@ class _SplashPageState extends State<SplashPage> {
     }
   }
 
+  Future<bool> isOnBoarded() async {
+    final api = context.read<BaseAPI>();
+    Preferences? currentPrefs = await api.account?.getPrefs();
+    if (currentPrefs == null) {
+      return false;
+    }
+    return currentPrefs.data["onboarding_complete"] == true;
+  }
+
   _navigateToHome() async {
     print(await hasNetwork());
     if (!await hasNetwork()) {
@@ -39,12 +50,20 @@ class _SplashPageState extends State<SplashPage> {
         ),
       );
     }
+
     final api = context.read<BaseAPI>();
     await api.init();
     await api.loadUser();
     final status = api.status;
 
     if (status == AccountStatus.authenticated) {
+      if (!await isOnBoarded()) {
+        return Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const OnBoardingPage(),
+          ),
+        );
+      }
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

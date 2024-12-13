@@ -108,6 +108,13 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             freeFriends.add(
               GestureDetector(
+                onLongPress: () async {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("$name (tap to view)"),
+                    ),
+                  );
+                },
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -160,8 +167,7 @@ class _HomePageState extends State<HomePage> {
           ),
           child: Padding(
             padding: const EdgeInsets.all(4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: ListView(
               children: [
                 Row(
                   children: [
@@ -221,30 +227,28 @@ class _HomePageState extends State<HomePage> {
                           child: Card(
                             elevation: 1,
                             child: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 8, right: 8, top: 8),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Next Event:',
-                                    style: GoogleFonts.rubik(),
-                                  ),
-                                  Expanded(
-                                    child: SingleChildScrollView(
-                                      scrollDirection: Axis.vertical,
-                                      child: Text(
-                                        nextLesson,
-                                        style: GoogleFonts.rubik(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
-                                        ),
-                                        overflow: TextOverflow.visible,
-                                      ),
+                              padding: const EdgeInsets.only(left: 8, right: 8),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Next Event:',
+                                      style: GoogleFonts.rubik(),
                                     ),
-                                  ),
-                                ],
+                                    Text(
+                                      nextLesson,
+                                      style: GoogleFonts.rubik(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                      overflow: TextOverflow.visible,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -254,29 +258,28 @@ class _HomePageState extends State<HomePage> {
                           child: Card(
                             elevation: 1,
                             child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Details:',
-                                    style: GoogleFonts.rubik(),
-                                  ),
-                                  Expanded(
-                                    child: SingleChildScrollView(
-                                      scrollDirection: Axis.vertical,
-                                      child: Text(
-                                        nextDetails,
-                                        style: GoogleFonts.rubik(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
-                                        ),
-                                        overflow: TextOverflow.visible,
-                                      ),
+                              padding: const EdgeInsets.only(left: 8, right: 8),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Details:',
+                                      style: GoogleFonts.rubik(),
                                     ),
-                                  ),
-                                ],
+                                    Text(
+                                      nextDetails,
+                                      style: GoogleFonts.rubik(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                      overflow: TextOverflow.visible,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -342,10 +345,7 @@ class _HomePageState extends State<HomePage> {
                               ],
                             ),
                             const Spacer(),
-                            IconButton(
-                              icon: const Icon(Icons.keyboard_arrow_right),
-                              onPressed: () {},
-                            ),
+                            const Icon(Icons.keyboard_arrow_right),
                           ],
                         ),
                       ),
@@ -362,10 +362,13 @@ class _HomePageState extends State<HomePage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Row(
-                    children: freeFriends,
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Row(
+                      children: freeFriends,
+                    ),
                   ),
                 ),
               ],
