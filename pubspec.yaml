@@ -2,7 +2,7 @@ name: runshaw
 description: "My Runshaw mobile app"
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.1+1
+version: 1.0.2
 
 environment:
   sdk: ^3.5.1
@@ -25,7 +25,7 @@ dependencies:
   http: ^1.2.2
   dropdown_button2: ^2.3.9
   firebase_core: ^3.8.0
-  onesignal_flutter: ^5.2.7
+  onesignal_flutter: ^5.2.8
   url_launcher: ^6.3.1
 
 dev_dependencies:

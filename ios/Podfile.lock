@@ -3,7 +3,7 @@ PODS:
     - Flutter
   - Firebase/CoreOnly (11.4.0):
     - FirebaseCore (= 11.4.0)
-  - firebase_core (3.8.0):
+  - firebase_core (3.8.1):
     - Firebase/CoreOnly (= 11.4.0)
     - Flutter
   - FirebaseCore (11.4.0):
@@ -67,12 +67,12 @@ PODS:
     - nanopb/encode (= 3.30910.0)
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
-  - onesignal_flutter (5.2.7):
+  - onesignal_flutter (5.2.8):
     - Flutter
-    - OneSignalXCFramework (= 5.2.7)
-  - OneSignalXCFramework (5.2.7):
-    - OneSignalXCFramework/OneSignalComplete (= 5.2.7)
-  - OneSignalXCFramework/OneSignal (5.2.7):
+    - OneSignalXCFramework (= 5.2.8)
+  - OneSignalXCFramework (5.2.8):
+    - OneSignalXCFramework/OneSignalComplete (= 5.2.8)
+  - OneSignalXCFramework/OneSignal (5.2.8):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalExtension
     - OneSignalXCFramework/OneSignalLiveActivities
@@ -80,38 +80,38 @@ PODS:
     - OneSignalXCFramework/OneSignalOSCore
     - OneSignalXCFramework/OneSignalOutcomes
     - OneSignalXCFramework/OneSignalUser
-  - OneSignalXCFramework/OneSignalComplete (5.2.7):
+  - OneSignalXCFramework/OneSignalComplete (5.2.8):
     - OneSignalXCFramework/OneSignal
     - OneSignalXCFramework/OneSignalInAppMessages
     - OneSignalXCFramework/OneSignalLocation
-  - OneSignalXCFramework/OneSignalCore (5.2.7)
-  - OneSignalXCFramework/OneSignalExtension (5.2.7):
+  - OneSignalXCFramework/OneSignalCore (5.2.8)
+  - OneSignalXCFramework/OneSignalExtension (5.2.8):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalOutcomes
-  - OneSignalXCFramework/OneSignalInAppMessages (5.2.7):
+  - OneSignalXCFramework/OneSignalInAppMessages (5.2.8):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalNotifications
     - OneSignalXCFramework/OneSignalOSCore
     - OneSignalXCFramework/OneSignalOutcomes
     - OneSignalXCFramework/OneSignalUser
-  - OneSignalXCFramework/OneSignalLiveActivities (5.2.7):
+  - OneSignalXCFramework/OneSignalLiveActivities (5.2.8):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalOSCore
     - OneSignalXCFramework/OneSignalUser
-  - OneSignalXCFramework/OneSignalLocation (5.2.7):
+  - OneSignalXCFramework/OneSignalLocation (5.2.8):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalNotifications
     - OneSignalXCFramework/OneSignalOSCore
     - OneSignalXCFramework/OneSignalUser
-  - OneSignalXCFramework/OneSignalNotifications (5.2.7):
+  - OneSignalXCFramework/OneSignalNotifications (5.2.8):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalExtension
     - OneSignalXCFramework/OneSignalOutcomes
-  - OneSignalXCFramework/OneSignalOSCore (5.2.7):
+  - OneSignalXCFramework/OneSignalOSCore (5.2.8):
     - OneSignalXCFramework/OneSignalCore
-  - OneSignalXCFramework/OneSignalOutcomes (5.2.7):
+  - OneSignalXCFramework/OneSignalOutcomes (5.2.8):
     - OneSignalXCFramework/OneSignalCore
-  - OneSignalXCFramework/OneSignalUser (5.2.7):
+  - OneSignalXCFramework/OneSignalUser (5.2.8):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalNotifications
     - OneSignalXCFramework/OneSignalOSCore
@@ -193,7 +193,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   device_info_plus: 97af1d7e84681a90d0693e63169a5d50e0839a0d
   Firebase: cf1b19f21410b029b6786a54e9764a0cacad3c99
-  firebase_core: 9efc3ecf689cdbc90f13f4dc58108c83ea46b266
+  firebase_core: 418aed674e9a0b8b6088aec16cde82a811f6261f
   FirebaseCore: e0510f1523bc0eb21653cac00792e1e2bd6f1771
   FirebaseCoreInternal: d98ab91e2d80a56d7b246856a8885443b302c0c2
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
@@ -210,8 +210,8 @@ SPEC CHECKSUMS:
   MLKitVision: 45e79d68845a2de77e2dd4d7f07947f0ed157b0e
   mobile_scanner: fd0054c52ede661e80bf5a4dea477a2467356bee
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
-  onesignal_flutter: fe89f59e6f0c06a9c0f3aff8309db83b89c40de3
-  OneSignalXCFramework: c56f9470a6fb23048baf55e02740a09cfd32863c
+  onesignal_flutter: 9d61b584081ed9188546e3cba3342858d5d81fec
+  OneSignalXCFramework: 4215fb8deb8a669504d39c02dffaf2ec8ebe10ae
   package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
