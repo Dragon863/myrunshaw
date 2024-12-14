@@ -27,7 +27,6 @@ class _OnBoardingStageFourState extends State<OnBoardingStageFour> {
             content: Text("Sync complete!"),
           ),
         );
-        Navigator.of(context).pop();
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
