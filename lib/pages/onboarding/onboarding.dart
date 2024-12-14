@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:runshaw/pages/onboarding/pages/four.dart';
 import 'package:runshaw/pages/onboarding/pages/one.dart';
 import 'package:runshaw/pages/onboarding/pages/three.dart';
 import 'package:runshaw/pages/onboarding/pages/two.dart';
@@ -22,6 +23,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
     const OnBoardingStageOne(),
     const OnBoardingStageTwo(),
     const OnBoardingStageThree(),
+    const OnBoardingStageFour(),
   ];
 
   @override
@@ -58,7 +60,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
                 alignment: Alignment.bottomCenter,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(3, (index) {
+                  children: List.generate(4, (index) {
                     final isActive = _currentPage == index;
                     return AnimatedContainer(
                       duration: const Duration(milliseconds: 300),

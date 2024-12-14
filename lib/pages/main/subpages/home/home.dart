@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
       if (api.user!.name != "") {
         name = api.user!.name;
       } else {
-        name = "Anonymous";
+        name = "Name not set";
       }
       pfpUrl =
           "https://appwrite.danieldb.uk/v1/storage/buckets/${Config.profileBucketId}/files/${api.user!.$id}/view?project=${Config.projectId}";
@@ -41,9 +41,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    super.initState();
     loadPfp();
     loadData();
+    super.initState();
   }
 
   Future<String> loadCurrentEventFor(String userId) async {
