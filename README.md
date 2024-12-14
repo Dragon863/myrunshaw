@@ -1,6 +1,6 @@
 # "My Runshaw" App
 
-This is a Flutter app for me and my friends to use in college. It allows us to share our timetables with each other and see who is free, and it also provides bus push notifications and calculates bus bay locations. 
+This is a Flutter app for me and my friends to use in college. It allows us to share our timetables with each other and see who is free, and it also provides bus push notifications and calculates bus bay locations. Backend source is available in a [separate repo](https://github.com/Dragon863/runshaw-friends-api)
 
 ## Development Explanation
 
