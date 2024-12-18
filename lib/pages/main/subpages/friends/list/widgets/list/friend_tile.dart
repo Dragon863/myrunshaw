@@ -10,11 +10,15 @@ import 'package:runshaw/utils/api.dart';
 class FriendTile extends StatefulWidget {
   final String uid;
   final String? profilePicUrl;
+  final bool freeOnly;
+  final ValueNotifier<bool> inFiveMinutesNotifier;
 
   const FriendTile({
     super.key,
     required this.uid,
     this.profilePicUrl,
+    required this.freeOnly,
+    required this.inFiveMinutesNotifier,
   });
 
   @override
@@ -34,26 +38,33 @@ class _FriendTileState extends State<FriendTile> {
     super.initState();
     getName();
     getCurrentEvent();
+
+    widget.inFiveMinutesNotifier.addListener(() {
+      setState(() {
+        currentLesson = null;
+        free = false;
+      });
+      getCurrentEvent();
+    });
   }
 
-  void pushPage(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => IndividualFriendPage(
-          userId: widget.uid,
-          name: name,
-          profilePicUrl: widget.profilePicUrl!,
-        ),
-      ),
-    );
+  @override
+  void dispose() {
+    widget.inFiveMinutesNotifier.removeListener(() {});
+    super.dispose();
   }
 
   Future<String> loadCurrentEventFor(String userId) async {
     final BaseAPI api = context.read<BaseAPI>();
     try {
       final List<Event> events = await api.fetchEvents(userId: userId);
-
-      final String current = fetchCurrentEvent(events);
+      String current = "";
+      if (widget.inFiveMinutesNotifier.value) {
+        final timeInFive = DateTime.now().add(const Duration(minutes: 5));
+        current = fetchCurrentEventAt(events, timeInFive);
+      } else {
+        current = fetchCurrentEvent(events);
+      }
       if (current == "No Event" || current.contains("Aspire")) {
         setState(() {
           free = true;
@@ -80,11 +91,7 @@ class _FriendTileState extends State<FriendTile> {
     final api = context.read<BaseAPI>();
     final name = await api.getName(widget.uid);
     setState(() {
-      if (name == "") {
-        this.name = "Unknown";
-      } else {
-        this.name = name;
-      }
+      this.name = name.isEmpty ? "Unknown" : name;
     });
   }
 
@@ -95,40 +102,52 @@ class _FriendTileState extends State<FriendTile> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: CircleAvatar(
-        foregroundImage: CachedNetworkImageProvider(
-          widget.profilePicUrl!,
-          errorListener: (error) {},
-        ),
-        child: Text(
-          name[0].toUpperCase(),
-          style: GoogleFonts.rubik(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+  void pushPage(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => IndividualFriendPage(
+          userId: widget.uid,
+          name: name,
+          profilePicUrl: widget.profilePicUrl!,
         ),
       ),
-      title: Text(name),
-      subtitle: free
-          ? const Text('Currently Free')
-          : Text(currentLesson ?? 'Loading...'),
-      onTap: () => pushPage(context),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          /*widget.free
-              ? const Icon(Icons.event_available, color: Colors.green)
-              : const Icon(Icons.event_busy, color: Colors.red),*/
-          statusIcon,
-          const SizedBox(width: 10),
-          IconButton(
-            onPressed: () => pushPage(context),
-            icon: const Icon(Icons.keyboard_arrow_right),
-          )
-        ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Visibility(
+      visible: !(widget.freeOnly && !free),
+      child: ListTile(
+        leading: CircleAvatar(
+          foregroundImage: CachedNetworkImageProvider(
+            widget.profilePicUrl!,
+            errorListener: (error) {},
+          ),
+          child: Text(
+            name[0].toUpperCase(),
+            style: GoogleFonts.rubik(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        title: Text(name),
+        subtitle: free
+            ? const Text('Currently Free')
+            : Text(currentLesson ?? 'Loading...'),
+        onTap: () => pushPage(context),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            statusIcon,
+            const SizedBox(width: 10),
+            IconButton(
+              onPressed: () => pushPage(context),
+              icon: const Icon(Icons.keyboard_arrow_right),
+            )
+          ],
+        ),
       ),
     );
   }

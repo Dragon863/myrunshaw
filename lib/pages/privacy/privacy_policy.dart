@@ -51,7 +51,7 @@ class PrivacyPolicyPage extends StatelessWidget {
             const Text(
               '• Email Address: Collected during account creation and used for communication purposes.\n'
               '• Full Name: Used to personalize your experience within the app and to display to friends added by the User within the app\n'
-              '• Password Hash: Securely stored to protect your account credentials.'
+              '• Password Hash: Securely stored to protect your account credentials.\n'
               '• Device Information: Collected to provide a personalized experience and to improve the app\'s features and functionality.\n'
               '• Student ID: Used as a unique identifier to distinguish users\n',
               style: TextStyle(fontSize: 16),

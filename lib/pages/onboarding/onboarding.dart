@@ -7,6 +7,10 @@ import 'package:runshaw/pages/onboarding/pages/two.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
 
+abstract class OnboardingStage {
+  Future<bool> onLeaveStage();
+}
+
 class OnBoardingPage extends StatefulWidget {
   const OnBoardingPage({super.key});
 
@@ -15,6 +19,7 @@ class OnBoardingPage extends StatefulWidget {
 }
 
 class _OnBoardingPageState extends State<OnBoardingPage> {
+  Widget fabIcon = const Icon(Icons.keyboard_arrow_right, color: Colors.white);
   int _currentPage = 0;
 
   final PageController _pageController = PageController();
@@ -25,6 +30,74 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
     const OnBoardingStageThree(),
     const OnBoardingStageFour(),
   ];
+
+  Future<bool> handlePageTransition() async {
+    if (contents[_currentPage] is OnboardingStage) {
+      final onboardingStage = contents[_currentPage] as OnboardingStage;
+      setState(() {
+        fabIcon = const CircularProgressIndicator(color: Colors.white);
+      });
+      final bool canContinue = await onboardingStage.onLeaveStage();
+      if (!canContinue) {
+        setState(() {
+          fabIcon = Icon(
+              _currentPage == contents.length - 1
+                  ? Icons.check
+                  : Icons.keyboard_arrow_right,
+              color: Colors.white);
+        });
+        return false;
+      }
+      setState(() {
+        fabIcon = const Icon(Icons.keyboard_arrow_right, color: Colors.white);
+      });
+    }
+    if (_currentPage == contents.length - 2) {
+      setState(() {
+        fabIcon = const Icon(Icons.check, color: Colors.white);
+      });
+    }
+    return true;
+  }
+
+  Future<void> goToNextPage() async {
+    final bool canContinue = await handlePageTransition();
+    if (_currentPage < contents.length - 1 && canContinue) {
+      setState(() {
+        _currentPage++;
+      });
+      _pageController.animateToPage(
+        _currentPage,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeIn,
+      );
+    } else if (_currentPage == contents.length - 1 && canContinue) {
+      final api = context.read<BaseAPI>();
+      await api.onboardComplete();
+      Navigator.pushReplacementNamed(context, '/splash');
+    }
+    if (!canContinue) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please complete the required fields"),
+        ),
+      );
+    }
+  }
+
+  Future<void> goToPreviousPage() async {
+    if (_currentPage > 0) {
+      setState(() {
+        _currentPage--;
+        fabIcon = const Icon(Icons.keyboard_arrow_right, color: Colors.white);
+      });
+      _pageController.animateToPage(
+        _currentPage,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeIn,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,11 +118,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
                 flex: 8,
                 child: PageView.builder(
                   controller: _pageController,
-                  onPageChanged: (index) {
-                    setState(() {
-                      _currentPage = index;
-                    });
-                  },
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: contents.length,
                   itemBuilder: (context, index) {
                     return contents[index];
@@ -57,22 +126,25 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
                 ),
               ),
               Align(
-                alignment: Alignment.bottomCenter,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(4, (index) {
-                    final isActive = _currentPage == index;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                      width: isActive ? 24 : 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: isActive ? Colors.red : Colors.grey,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    );
-                  }),
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: List.generate(contents.length, (index) {
+                      final isActive = _currentPage == index;
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                        width: isActive ? 24 : 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: isActive ? Colors.red : Colors.grey,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      );
+                    }),
+                  ),
                 ),
               ),
               const SizedBox(height: 18),
@@ -80,26 +152,22 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.red,
-        onPressed: () async {
-          if (_currentPage < contents.length - 1) {
-            _pageController.nextPage(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeIn,
-            );
-          } else {
-            final api = context.read<BaseAPI>();
-            await api.onboardComplete();
-            Navigator.pushNamed(context, '/splash');
-          }
-        },
-        child: Icon(
-          _currentPage < contents.length - 1
-              ? Icons.keyboard_arrow_right
-              : Icons.done,
-          color: Colors.white,
-        ),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: "back",
+            onPressed: goToPreviousPage,
+            child: Icon(Icons.keyboard_arrow_left, color: Colors.black),
+          ),
+          const SizedBox(width: 8),
+          FloatingActionButton(
+            heroTag: "forward",
+            backgroundColor: Colors.red,
+            onPressed: goToNextPage,
+            child: fabIcon,
+          ),
+        ],
       ),
     );
   }

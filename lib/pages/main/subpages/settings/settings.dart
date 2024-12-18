@@ -3,6 +3,7 @@ import 'package:appwrite/models.dart' as models;
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
@@ -40,7 +41,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     setState(() {
       profilePicUrl =
-          "https://appwrite.danieldb.uk/v1/storage/buckets/${Config.profileBucketId}/files/${api.currentUser.$id}/view?project=${Config.projectId}&ts=${DateTime.now().millisecondsSinceEpoch.toString()}";
+          "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/${api.currentUser.$id}/view?project=${MyRunshawConfig.projectId}&ts=${DateTime.now().millisecondsSinceEpoch.toString()}";
     });
 
     setState(() {
@@ -116,8 +117,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
     setState(() {
       profilePicUrl = "https://appwrite.danieldb.uk/v1/storage/buckets"
-          "/${Config.profileBucketId}/files/${api.currentUser.$id}/"
-          "view?project=${Config.projectId}"
+          "/${MyRunshawConfig.profileBucketId}/files/${api.currentUser.$id}/"
+          "view?project=${MyRunshawConfig.projectId}"
           "&ts=${DateTime.now().millisecondsSinceEpoch.toString()}";
     });
   }
@@ -298,14 +299,32 @@ class _SettingsPageState extends State<SettingsPage> {
                 onTap: () {
                   Navigator.of(context).pushNamed("/privacy_policy");
                 },
-                title: Text(
+                title: const Text(
                   "Privacy Policy",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                trailing: Icon(Icons.arrow_forward_ios),
+                trailing: const Icon(Icons.arrow_forward_ios),
+              ),
+              ListTile(
+                title: const Text(
+                  "Reset Profile Pictures",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                onTap: () {
+                  DefaultCacheManager().emptyCache();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Profile pictures reset"),
+                    ),
+                  );
+                },
+                trailing: const Icon(Icons.delete_outline),
               ),
               const Padding(
                 padding: EdgeInsets.only(
@@ -339,7 +358,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           'Select Your Bus Number',
                           style: TextStyle(fontSize: 14),
                         ),
-                        items: Config.busNumbers
+                        items: MyRunshawConfig.busNumbers
                             .map((item) => DropdownMenuItem<String>(
                                   value: item.toString(),
                                   child: Text(
@@ -397,7 +416,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 4),
               const Spacer(),
               SelectableText(
                 email,

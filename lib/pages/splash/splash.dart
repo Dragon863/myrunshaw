@@ -42,7 +42,6 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   _navigateToHome() async {
-    print(await hasNetwork());
     if (!await hasNetwork()) {
       return Navigator.of(context).pushReplacement(
         MaterialPageRoute(

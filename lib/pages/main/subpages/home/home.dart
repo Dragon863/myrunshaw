@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/individual_friend.dart';
+import 'package:runshaw/pages/main/subpages/timetable/widgets/list.dart';
 import 'package:runshaw/pages/qr/qr_page.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
@@ -24,6 +25,7 @@ class _HomePageState extends State<HomePage> {
   String nextDetails = "Loading...";
   List<Widget> freeFriends = [];
   bool loading = false;
+  List<Event> events = [];
 
   Future<void> loadPfp() async {
     final BaseAPI api = context.read<BaseAPI>();
@@ -34,15 +36,32 @@ class _HomePageState extends State<HomePage> {
         name = "Name not set";
       }
       pfpUrl =
-          "https://appwrite.danieldb.uk/v1/storage/buckets/${Config.profileBucketId}/files/${api.user!.$id}/view?project=${Config.projectId}";
+          "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/${api.user!.$id}/view?project=${MyRunshawConfig.projectId}";
       userId = api.user!.$id;
     });
+  }
+
+  Future<void> loadEvents() async {
+    final BaseAPI api = context.read<BaseAPI>();
+    try {
+      final List<Event> events = await api.fetchEvents(userId: api.user!.$id);
+      setState(() {
+        this.events = events;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("An error occurred whilst fetching events: $e"),
+        ),
+      );
+    }
   }
 
   @override
   void initState() {
     loadPfp();
     loadData();
+    loadEvents();
     super.initState();
   }
 
@@ -122,7 +141,7 @@ class _HomePageState extends State<HomePage> {
                         userId: uid,
                         name: name,
                         profilePicUrl:
-                            "https://appwrite.danieldb.uk/v1/storage/buckets/${Config.profileBucketId}/files/$uid/view?project=${Config.projectId}",
+                            "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/$uid/view?project=${MyRunshawConfig.projectId}",
                       ),
                     ),
                   );
@@ -132,7 +151,7 @@ class _HomePageState extends State<HomePage> {
                   child: CircleAvatar(
                     radius: 25,
                     foregroundImage: CachedNetworkImageProvider(
-                      "https://appwrite.danieldb.uk/v1/storage/buckets/${Config.profileBucketId}/files/$uid/view?project=${Config.projectId}",
+                      "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/$uid/view?project=${MyRunshawConfig.projectId}",
                       errorListener: (error) {},
                     ),
                     child: Text(
@@ -172,6 +191,7 @@ class _HomePageState extends State<HomePage> {
                 Row(
                   children: [
                     Expanded(
+                      // Profile card
                       child: AspectRatio(
                         aspectRatio: 1,
                         child: Card(
@@ -222,6 +242,7 @@ class _HomePageState extends State<HomePage> {
                         child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Next lessons
                         AspectRatio(
                           aspectRatio: 2 / 1,
                           child: Card(
@@ -253,6 +274,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
+                        // Next event details
                         AspectRatio(
                           aspectRatio: 2 / 1,
                           child: Card(
@@ -288,6 +310,7 @@ class _HomePageState extends State<HomePage> {
                     )),
                   ],
                 ),
+                // QR Code
                 SizedBox(
                   width: double.infinity,
                   child: Card(
@@ -353,6 +376,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 const SizedBox(height: 8),
+                // Free friend display title
                 freeFriends.isEmpty
                     ? const SizedBox()
                     : Text(
@@ -362,6 +386,7 @@ class _HomePageState extends State<HomePage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                // Display free friends
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Padding(
@@ -371,6 +396,40 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
+                // Conditional display of today's events
+                events.where((event) {
+                  final now = DateTime.now();
+                  final todayStart = now.copyWith(
+                      hour: 0, minute: 0, second: 0, millisecond: 0);
+                  final todayEnd = now.copyWith(
+                      hour: 23, minute: 59, second: 59, millisecond: 999);
+                  final today = events
+                      .where((event) =>
+                          event.start.isAfter(todayStart) &&
+                          event.end.isBefore(todayEnd))
+                      .toList();
+                  return today.isNotEmpty;
+                }).isNotEmpty
+                    // Just checks if there are any events today
+                    ? Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Text(
+                          'Today:',
+                          style: GoogleFonts.rubik(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      )
+                    : const SizedBox(),
+                // Display today's events
+                events != []
+                    ? TimetableList(
+                        events: events,
+                        dense: true,
+                        todayOnly: true,
+                      )
+                    : const SizedBox(),
               ],
             ),
           ),

@@ -1,14 +1,56 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:runshaw/pages/onboarding/onboarding.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
 
-class OnBoardingStageFour extends StatefulWidget {
+class OnBoardingStageFour extends StatefulWidget implements OnboardingStage {
   const OnBoardingStageFour({super.key});
 
   @override
   State<OnBoardingStageFour> createState() => _OnBoardingStageFourState();
+
+  static final GlobalKey<_OnBoardingStageFourState> _stateKey = GlobalKey();
+
+  @override
+  Key? get key => _stateKey;
+
+  @override
+  Future<bool> onLeaveStage() async {
+    final state = _stateKey.currentState;
+    if (state != null) {
+      final url = state._controller.text;
+      RegExp regex = RegExp(
+          r'https://webservices\.runshaw\.ac\.uk/timetable\.ashx\?id=.*');
+
+      if (url == "internal:complete") {
+        return true;
+      }
+
+      if (regex.hasMatch(url)) {
+        try {
+          await syncFromUrl(url, state.context);
+          ScaffoldMessenger.of(state.context).showSnackBar(
+            const SnackBar(
+              content: Text("Sync complete!"),
+            ),
+          );
+          return true;
+        } catch (e) {
+          ScaffoldMessenger.of(state.context).showSnackBar(
+            SnackBar(
+              content: Text("An error occurred whilst syncing: $e"),
+            ),
+          );
+        }
+      } else {
+        return false;
+      }
+    }
+    return false;
+  }
 }
 
 class _OnBoardingStageFourState extends State<OnBoardingStageFour> {
@@ -94,6 +136,7 @@ class _OnBoardingStageFourState extends State<OnBoardingStageFour> {
     final timetable = await api.fetchEvents();
     if (timetable.length > 1) {
       setState(() {
+        _controller.text = "internal:complete";
         contents = [
           const SizedBox(height: 12),
           Text(

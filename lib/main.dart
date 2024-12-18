@@ -19,7 +19,7 @@ void main() async {
   }
 
   // Get onesignal ready...
-  OneSignal.initialize(Config.oneSignalAppId);
+  OneSignal.initialize(MyRunshawConfig.oneSignalAppId);
   OneSignal.Notifications.requestPermission(true);
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
 

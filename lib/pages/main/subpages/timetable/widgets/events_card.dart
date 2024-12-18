@@ -6,6 +6,7 @@ class EventsCard extends StatelessWidget {
   final String roomAndTeacher;
   final String timing;
   final Color color;
+  final bool dense;
 
   const EventsCard({
     super.key,
@@ -13,14 +14,20 @@ class EventsCard extends StatelessWidget {
     required this.roomAndTeacher,
     required this.timing,
     required this.color,
+    this.dense = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(12),
+          bottomRight: Radius.circular(12),
+          topLeft: Radius.circular(6),
+          bottomLeft: Radius.circular(6),
+        ),
       ),
       child: IntrinsicHeight(
         child: Row(
@@ -38,7 +45,7 @@ class EventsCard extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(6.0),
+                padding: EdgeInsets.all(dense ? 4.0 : 6.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -56,12 +63,13 @@ class EventsCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Text(
-                      roomAndTeacher,
-                      style: GoogleFonts.rubik(
-                        fontSize: 14,
-                      ),
-                    ),
+                    if (!dense)
+                      Text(
+                        roomAndTeacher,
+                        style: GoogleFonts.rubik(
+                          fontSize: 14,
+                        ),
+                      )
                   ],
                 ),
               ),

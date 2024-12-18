@@ -2,13 +2,31 @@ import 'package:appwrite/models.dart' as models;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:runshaw/pages/onboarding/onboarding.dart';
 import 'package:runshaw/utils/api.dart';
 
-class OnBoardingStageTwo extends StatefulWidget {
+class OnBoardingStageTwo extends StatefulWidget implements OnboardingStage {
   const OnBoardingStageTwo({super.key});
 
   @override
   State<OnBoardingStageTwo> createState() => _OnBoardingStageTwoState();
+
+  static final GlobalKey<_OnBoardingStageTwoState> _stateKey = GlobalKey();
+
+  @override
+  Key? get key => _stateKey;
+
+  @override
+  Future<bool> onLeaveStage() async {
+    final state = _stateKey.currentState;
+    if (state != null) {
+      final name = state.controller.text;
+      if (name.isNotEmpty) {
+        await state.saveName(name);
+      }
+    }
+    return true;
+  }
 }
 
 class _OnBoardingStageTwoState extends State<OnBoardingStageTwo> {
@@ -87,7 +105,6 @@ class _OnBoardingStageTwoState extends State<OnBoardingStageTwo> {
 
   @override
   void dispose() {
-    print(controller.text);
     controller.dispose();
     super.dispose();
   }

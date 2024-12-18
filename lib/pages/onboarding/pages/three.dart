@@ -1,4 +1,5 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +16,7 @@ class OnBoardingStageThree extends StatefulWidget {
 class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
   String? busNumber;
   final _formKey = GlobalKey<FormState>();
+  BaseAPI? api;
 
   Future<void> fetchPrefs() async {
     final BaseAPI api = context.read<BaseAPI>();
@@ -25,10 +27,32 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
     });
   }
 
+  Future<void> setBusNumber() async {
+    final api = context.read<BaseAPI>();
+    try {
+      await api.setBusNumber(busNumber);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Bus number updated!"),
+        ),
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Error setting bus number"),
+        ),
+      );
+    }
+  }
+
   @override
   void initState() {
     fetchPrefs();
     super.initState();
+    api = context.read<BaseAPI>();
   }
 
   @override
@@ -96,7 +120,7 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
                       style: TextStyle(fontSize: 14),
                     ),
                     items: [
-                      ...Config.busNumbers
+                      ...MyRunshawConfig.busNumbers
                           .map((item) => DropdownMenuItem<String>(
                                 value: item.toString(),
                                 child: Text(
@@ -127,7 +151,9 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
                           ),
                         );
                       } catch (e) {
-                        print(e);
+                        if (kDebugMode) {
+                          print(e);
+                        }
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text("Error setting bus number"),

@@ -45,7 +45,7 @@ class _FriendRequestsListState extends State<FriendRequestsList> {
           uid: friend["id"],
           id: friend["req_id"],
           profilePicUrl:
-              "https://appwrite.danieldb.uk/v1/storage/buckets/${Config.profileBucketId}/files/${friend["id"]}/view?project=${Config.projectId}",
+              "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/${friend["id"]}/view?project=${MyRunshawConfig.projectId}",
         );
       },
       itemCount: requests.length,

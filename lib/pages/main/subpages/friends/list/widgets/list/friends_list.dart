@@ -13,11 +13,13 @@ class FriendsList extends StatefulWidget {
 
 class _FriendsListState extends State<FriendsList> {
   List friends = [];
+  final ValueNotifier<bool> inFiveMinutesNotifier = ValueNotifier(false);
+  bool freeOnly = false;
 
   Future<void> loadFriends() async {
-    // Load friends from API
     final api = context.read<BaseAPI>();
     final response = await api.getFriends();
+
     for (final friendId in response) {
       if (mounted) {
         setState(() {
@@ -31,22 +33,67 @@ class _FriendsListState extends State<FriendsList> {
 
   @override
   void initState() {
-    super.initState();
     loadFriends();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemBuilder: (context, index) {
-        final friend = friends[index];
-        return FriendTile(
-          uid: friend["id"],
-          profilePicUrl:
-              "https://appwrite.danieldb.uk/v1/storage/buckets/${Config.profileBucketId}/files/${friend["id"]}/view?project=${Config.projectId}",
-        );
-      },
-      itemCount: friends.length,
+    return Column(
+      children: [
+        Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            title: const Text("Filters"),
+            children: [
+              ListTile(
+                dense: true,
+                title: const Text("In 5 minutes"),
+                trailing: ValueListenableBuilder<bool>(
+                  valueListenable: inFiveMinutesNotifier,
+                  builder: (context, inFiveMinutes, _) {
+                    return Checkbox(
+                      value: inFiveMinutes,
+                      onChanged: (bool? value) {
+                        inFiveMinutesNotifier.value = value!;
+                      },
+                    );
+                  },
+                ),
+              ),
+              ListTile(
+                dense: true,
+                title: const Text("Free only"),
+                trailing: Checkbox(
+                  value: freeOnly,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      freeOnly = value!;
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+        const Divider(height: 2),
+        Expanded(
+          child: ListView.builder(
+            cacheExtent: 9999,
+            itemBuilder: (context, index) {
+              final friend = friends[index];
+              return FriendTile(
+                uid: friend["id"],
+                profilePicUrl:
+                    "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/${friend["id"]}/view?project=${MyRunshawConfig.projectId}",
+                freeOnly: freeOnly,
+                inFiveMinutesNotifier: inFiveMinutesNotifier,
+              );
+            },
+            itemCount: friends.length,
+          ),
+        ),
+      ],
     );
   }
 }

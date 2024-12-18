@@ -57,13 +57,7 @@ class _FriendsPageState extends State<FriendsPage> {
                         ),
                       ],
                     ),
-                    Column(
-                      children: [
-                        Expanded(
-                          child: FriendRequestsList(),
-                        ),
-                      ],
-                    ),
+                    FriendRequestsList(),
                   ],
                 ),
                 floatingActionButton: FloatingActionButton(
@@ -82,37 +76,3 @@ class _FriendsPageState extends State<FriendsPage> {
     );
   }
 }
-    
-    
-/*Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 6, right: 6),
-          child: Container(
-            constraints: const BoxConstraints(
-              minWidth: 150,
-              maxWidth: 700,
-            ),
-            child: const Column(
-              children: [
-                Expanded(
-                  child: FriendsList(),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).pushNamed('/friends/add').then(
-                (value) async => await addFriend(value as String?),
-              );
-        },
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
-}
-*/

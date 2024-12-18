@@ -33,7 +33,9 @@ class BaseAPI extends ChangeNotifier {
   }
 
   init() {
-    _client.setEndpoint(Config.endpoint).setProject(Config.projectId);
+    _client
+        .setEndpoint(MyRunshawConfig.endpoint)
+        .setProject(MyRunshawConfig.projectId);
     _account = Account(_client);
   }
 
@@ -135,7 +137,7 @@ class BaseAPI extends ChangeNotifier {
   Future<void> syncTimetable(timetable) async {
     final Jwt jwtToken = await account!.createJWT();
     final response = await http.post(
-      Uri.parse('${Config.friendsMicroserviceUrl}/api/timetable'),
+      Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/timetable'),
       headers: {
         'Authorization': 'Bearer ${jwtToken.jwt}',
         'Content-Type': 'application/json',
@@ -148,7 +150,8 @@ class BaseAPI extends ChangeNotifier {
     return;
   }
 
-  Future<List<Event>> fetchEvents({String? userId}) async {
+  Future<List<Event>> fetchEvents(
+      {String? userId, bool includeAll = false}) async {
     userId ??= user!.$id;
 
     List<Event> timetable = [];
@@ -158,7 +161,8 @@ class BaseAPI extends ChangeNotifier {
     }
     final Jwt jwtToken = await account!.createJWT();
     final response = await http.get(
-      Uri.parse('${Config.friendsMicroserviceUrl}/api/timetable$query'),
+      Uri.parse(
+          '${MyRunshawConfig.friendsMicroserviceUrl}/api/timetable$query'),
       headers: {
         'Authorization': 'Bearer ${jwtToken.jwt}',
       },
@@ -185,11 +189,14 @@ class BaseAPI extends ChangeNotifier {
           seconds: DateTime.now().second,
         ),
       );
-      if (startDateTime.isBefore(startOfToday) &&
-          endDateTime.isBefore(startOfToday)) {
-        // Skip past events that have already happened!
-        // Starting at the beginning of the day prevents aspire weirdness
-        continue;
+
+      if (!includeAll) {
+        if (startDateTime.isBefore(startOfToday) &&
+            endDateTime.isBefore(startOfToday)) {
+          // Skip past events that have already happened!
+          // Starting at the beginning of the day prevents aspire weirdness
+          continue;
+        }
       }
       timetable.add(Event(
         summary: event['summary'],
@@ -206,7 +213,8 @@ class BaseAPI extends ChangeNotifier {
   Future<String> sendFriendRequest(String userId) async {
     final Jwt jwtToken = await account!.createJWT();
     final response = await http.post(
-      Uri.parse('${Config.friendsMicroserviceUrl}/api/friend-requests'),
+      Uri.parse(
+          '${MyRunshawConfig.friendsMicroserviceUrl}/api/friend-requests'),
       headers: {
         'Authorization': 'Bearer ${jwtToken.jwt}',
         'Content-Type': 'application/json',
@@ -219,7 +227,7 @@ class BaseAPI extends ChangeNotifier {
   Future<void> blockUser(String userId) async {
     final Jwt jwtToken = await account!.createJWT();
     final response = await http.post(
-      Uri.parse('${Config.friendsMicroserviceUrl}/api/block'),
+      Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/block'),
       headers: {
         'Authorization': 'Bearer ${jwtToken.jwt}',
         'Content-Type': 'application/json',
@@ -237,7 +245,7 @@ class BaseAPI extends ChangeNotifier {
     final Jwt jwtToken = await account!.createJWT();
     final response = await http.put(
       Uri.parse(
-          '${Config.friendsMicroserviceUrl}/api/friend-requests/${id.toString()}'),
+          '${MyRunshawConfig.friendsMicroserviceUrl}/api/friend-requests/${id.toString()}'),
       headers: {
         'Authorization': 'Bearer ${jwtToken.jwt}',
         'Content-Type': 'application/json',
@@ -254,7 +262,7 @@ class BaseAPI extends ChangeNotifier {
     List<Map> friends = [];
 
     final response = await http.get(
-      Uri.parse('${Config.friendsMicroserviceUrl}/api/friends'),
+      Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/friends'),
       headers: {
         'Authorization': 'Bearer ${jwtToken.jwt}',
       },
@@ -287,7 +295,7 @@ class BaseAPI extends ChangeNotifier {
     final Jwt jwtToken = await account!.createJWT();
     final response = await http.get(
       Uri.parse(
-          '${Config.friendsMicroserviceUrl}/api/friend-requests?status=pending'),
+          '${MyRunshawConfig.friendsMicroserviceUrl}/api/friend-requests?status=pending'),
       headers: {
         'Authorization': 'Bearer ${jwtToken.jwt}',
       },
@@ -324,7 +332,7 @@ class BaseAPI extends ChangeNotifier {
   Future<String> getBusBay(String busNumber) async {
     final Jwt jwtToken = await account!.createJWT();
     final response = await http.get(
-      Uri.parse('${Config.friendsMicroserviceUrl}/api/bus'),
+      Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/bus'),
       headers: {
         'Authorization': 'Bearer ${jwtToken.jwt}',
       },
