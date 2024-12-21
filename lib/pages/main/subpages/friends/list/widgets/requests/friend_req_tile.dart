@@ -23,6 +23,7 @@ class FriendRequestTile extends StatefulWidget {
 class _FriendRequestTileState extends State<FriendRequestTile> {
   String name = "Loading...";
   bool responded = false;
+  bool disableButtons = false;
 
   @override
   void initState() {
@@ -43,7 +44,14 @@ class _FriendRequestTileState extends State<FriendRequestTile> {
   }
 
   Future<void> respond(bool response) async {
+    if (disableButtons) {
+      return;
+    }
     final api = context.read<BaseAPI>();
+    setState(() {
+      name = "Loading...";
+      disableButtons = true;
+    });
     final bool result =
         await api.respondToFriendRequest(widget.uid, response, widget.id);
     if (result) {
@@ -86,9 +94,6 @@ class _FriendRequestTileState extends State<FriendRequestTile> {
           ? Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                /*widget.free
-              ? const Icon(Icons.event_available, color: Colors.green)
-              : const Icon(Icons.event_busy, color: Colors.red),*/
                 IconButton(
                   onPressed: () async => await respond(false),
                   icon: const Icon(Icons.close, color: Colors.red),
