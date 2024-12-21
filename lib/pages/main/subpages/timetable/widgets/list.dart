@@ -22,10 +22,14 @@ class TimetableList extends StatefulWidget {
 
 class _TimetableListState extends State<TimetableList> {
   final List<Event> _events = [];
+  bool emptyAndDense = false;
 
   @override
   void initState() {
     _events.addAll(widget.events);
+    if (widget.events.isEmpty && widget.dense) {
+      emptyAndDense = true;
+    }
     super.initState();
   }
 
@@ -36,8 +40,11 @@ class _TimetableListState extends State<TimetableList> {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      physics: widget.dense
+          ? const NeverScrollableScrollPhysics()
+          : const AlwaysScrollableScrollPhysics(),
       shrinkWrap: true,
-      children: widget.events.isEmpty
+      children: widget.events.isEmpty && !emptyAndDense
           ? const [
               SizedBox(height: 20),
               Center(

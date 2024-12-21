@@ -92,9 +92,9 @@ class _PopupFriendAddPageState extends State<PopupFriendAddPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: RunshawAppBar(
+      appBar: const RunshawAppBar(
         title: "Add Friend",
-        actions: const [],
+        actions: [],
       ),
       backgroundColor: Colors.black,
       body: Stack(

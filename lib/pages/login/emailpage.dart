@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/main.dart';
+import 'package:runshaw/pages/login/password_reset_login.dart';
 import 'package:runshaw/pages/main/main_view.dart';
 import 'package:runshaw/utils/api.dart';
 
 class EmailPage extends StatefulWidget {
+  const EmailPage({super.key});
+
   @override
   State<EmailPage> createState() => _EmailPageState();
 }
@@ -55,7 +58,29 @@ class _EmailPageState extends State<EmailPage> {
                   ),
                 ),
                 const SizedBox(height: 5),
-                const Text("Let's get you logged in..."),
+                const Text("Let's get you logged in"),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("(or "),
+                    InkWell(
+                      child: const Text(
+                        'reset password here',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const PasswordResetLoginPage(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Text(")"),
+                  ],
+                ),
                 const SizedBox(height: 20),
                 TextField(
                   decoration: const InputDecoration(
@@ -96,11 +121,12 @@ class _EmailPageState extends State<EmailPage> {
                         email: emailController.text,
                         password: passwordController.text,
                       );
-                      Navigator.pushReplacement(
+                      Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
                           builder: (context) => const MainPage(),
                         ),
+                        (r) => false,
                       );
                     } on AppwriteException catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(

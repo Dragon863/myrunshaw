@@ -110,14 +110,12 @@ class _TimetablePageState extends State<TimetablePage> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: _refresh,
-              child: Center(
-                child: Container(
-                  constraints: const BoxConstraints(
-                    minWidth: 150,
-                    maxWidth: 700,
-                  ),
-                  child: TimetableList(events: _events),
+              child: Container(
+                constraints: const BoxConstraints(
+                  minWidth: 150,
+                  maxWidth: 700,
                 ),
+                child: TimetableList(events: _events),
               ),
             ),
           ),

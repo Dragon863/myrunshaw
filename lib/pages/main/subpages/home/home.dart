@@ -218,7 +218,7 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
+                                  const SizedBox(height: 2),
                                   Text(
                                     name,
                                     style: GoogleFonts.rubik(

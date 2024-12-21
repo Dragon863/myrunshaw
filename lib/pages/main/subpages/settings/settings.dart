@@ -161,277 +161,342 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
-        child: Container(
-          constraints: const BoxConstraints(
-            minWidth: 150,
-            maxWidth: 700,
-          ),
-          child: Column(
-            children: [
-              const SizedBox(height: 18),
-              Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 75,
-                    foregroundImage: profilePicUrl != null
-                        ? NetworkImage(profilePicUrl!)
-                        : null,
-                    child: Text(
-                      name[0].toUpperCase(),
-                      style: GoogleFonts.rubik(
-                        fontSize: 60,
-                        fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Center(
+          child: Container(
+            constraints: const BoxConstraints(
+              minWidth: 150,
+              maxWidth: 700,
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 18),
+                Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 75,
+                      foregroundImage: profilePicUrl != null
+                          ? NetworkImage(profilePicUrl!)
+                          : null,
+                      child: Text(
+                        name[0].toUpperCase(),
+                        style: GoogleFonts.rubik(
+                          fontSize: 60,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.camera_alt,
-                        color: Colors.white,
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                        ),
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all(Colors.red),
+                          shape: WidgetStateProperty.all(const CircleBorder()),
+                        ),
+                        onPressed: photoAction,
                       ),
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all(Colors.red),
-                        shape: WidgetStateProperty.all(const CircleBorder()),
-                      ),
-                      onPressed: photoAction,
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(width: 24 + (10 * 2)),
-                  Expanded(
-                    child: Text(
-                      name,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.rubik(
-                        fontSize: 32,
-                        fontWeight: FontWeight.normal,
+                  ],
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(width: 24 + (10 * 2)),
+                    Expanded(
+                      child: Text(
+                        name,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.rubik(
+                          fontSize: 32,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.mode_edit, color: Colors.grey.shade800),
-                    onPressed: () async {
-                      final name = await showDialog<String>(
-                        context: context,
-                        builder: (context) {
-                          final controller = TextEditingController();
+                    IconButton(
+                      icon: Icon(Icons.mode_edit, color: Colors.grey.shade800),
+                      onPressed: () async {
+                        final name = await showDialog<String>(
+                          context: context,
+                          builder: (context) {
+                            final controller = TextEditingController();
 
-                          controller.text = this.name;
-                          return AlertDialog(
-                            title: const Text("Change Name"),
-                            content: TextField(
-                              controller: controller,
-                              autofocus: true,
-                              autocorrect: false,
-                              decoration: const InputDecoration(
-                                hintText: "New Name",
+                            controller.text = this.name;
+                            return AlertDialog(
+                              title: const Text("Change Name"),
+                              content: TextField(
+                                controller: controller,
+                                autofocus: true,
+                                autocorrect: false,
+                                decoration: const InputDecoration(
+                                  hintText: "New Name",
+                                ),
+                                onSubmitted: (value) =>
+                                    Navigator.of(context).pop(controller.text),
                               ),
-                              onSubmitted: (value) =>
-                                  Navigator.of(context).pop(controller.text),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(controller.text);
-                                },
-                                child: const Text("Change"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop(controller.text);
+                                  },
+                                  child: const Text("Change"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                        if (name != null) {
+                          if (name.length < 40) {
+                            final api = context.read<BaseAPI>();
+                            await api.account!.updateName(name: name);
+                            fetchPrefs();
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Error: Name too long"),
                               ),
-                            ],
-                          );
-                        },
-                      );
-                      if (name != null) {
-                        if (name.length < 40) {
-                          final api = context.read<BaseAPI>();
-                          await api.account!.updateName(name: name);
-                          fetchPrefs();
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Error: Name too long"),
-                            ),
-                          );
+                            );
+                          }
                         }
-                      }
-                    },
-                  ),
-                  const SizedBox(width: 10),
-                ],
-              ),
-              const SizedBox(height: 9),
-              const Padding(
-                padding: EdgeInsets.only(
-                  left: 12.0,
-                  right: 12.0,
-                ),
-                child: Divider(),
-              ),
-              const SizedBox(height: 9),
-              ListTile(
-                title: const Text(
-                  "Bus Notifications",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                trailing: Switch(
-                    value: showNotifs,
-                    onChanged: (bool value) async {
-                      setState(() {
-                        showNotifs = value;
-                      });
-                      OneSignal.User.addTagWithKey("bus_optout", value);
-                    }),
-              ),
-              const SizedBox(height: 4),
-              ListTile(
-                onTap: () {
-                  Navigator.of(context).pushNamed("/privacy_policy");
-                },
-                title: const Text(
-                  "Privacy Policy",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                trailing: const Icon(Icons.arrow_forward_ios),
-              ),
-              ListTile(
-                title: const Text(
-                  "Reset Profile Pictures",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                onTap: () {
-                  DefaultCacheManager().emptyCache();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Profile pictures reset"),
+                      },
                     ),
-                  );
-                },
-                trailing: const Icon(Icons.delete_outline),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(
-                  left: 12.0,
-                  right: 12.0,
+                    const SizedBox(width: 10),
+                  ],
                 ),
-                child: Divider(),
-              ),
-              const SizedBox(height: 4),
-              Form(
-                key: _formKey,
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    left: 8.0,
-                    right: 8.0,
+                const SizedBox(height: 9),
+                const Padding(
+                  padding: EdgeInsets.only(
+                    left: 12.0,
+                    right: 12.0,
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      DropdownButtonFormField2<String>(
-                        isExpanded: true,
-                        decoration: InputDecoration(
-                          enabled: busNumber != null,
-                          contentPadding:
-                              const EdgeInsets.symmetric(vertical: 16),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                        ),
-                        hint: const Text(
-                          'Select Your Bus Number',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        items: MyRunshawConfig.busNumbers
-                            .map((item) => DropdownMenuItem<String>(
-                                  value: item.toString(),
-                                  child: Text(
-                                    item.toString(),
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ))
-                            .toList(),
-                        validator: (value) {
-                          if (value == null) {
-                            return 'Please select bus number.';
-                          }
-                          return null;
-                        },
-                        onChanged: (value) async {
-                          final api = context.read<BaseAPI>();
-                          try {
-                            await api.setBusNumber(value);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Bus number updated!"),
-                              ),
-                            );
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Error setting bus number"),
-                              ),
-                            );
-                          }
-                        },
-                        buttonStyleData: const ButtonStyleData(
-                          padding: EdgeInsets.only(right: 8),
-                        ),
-                        iconStyleData: const IconStyleData(
-                          icon: Icon(
-                            Icons.arrow_drop_down,
-                            color: Colors.black45,
-                          ),
-                          iconSize: 24,
-                        ),
-                        dropdownStyleData: DropdownStyleData(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                        ),
-                        menuItemStyleData: const MenuItemStyleData(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                        ),
-                        value: busNumber,
+                  child: Divider(),
+                ),
+                const SizedBox(height: 9),
+                ListTile(
+                  title: const Text(
+                    "Bus Notifications",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  trailing: Switch(
+                      value: showNotifs,
+                      onChanged: (bool value) async {
+                        setState(() {
+                          showNotifs = value;
+                        });
+                        OneSignal.User.addTagWithKey("bus_optout", !value);
+                      }),
+                ),
+                ExpansionTile(
+                  title: const Text(
+                    "Legal",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  children: [
+                    ListTile(
+                      onTap: () {
+                        Navigator.of(context).pushNamed("/privacy_policy");
+                      },
+                      title: const Text(
+                        "Privacy Policy",
                       ),
-                    ],
+                      trailing: const Icon(Icons.privacy_tip_outlined),
+                    ),
+                    ListTile(
+                      onTap: () {
+                        Navigator.of(context).pushNamed("/terms");
+                      },
+                      title: const Text(
+                        "Terms of Use",
+                      ),
+                      trailing: const Icon(Icons.gavel),
+                    ),
+                  ],
+                ),
+                ExpansionTile(
+                  title: const Text(
+                    "Manage Account",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  children: [
+                    ListTile(
+                      title: const Text(
+                        "Change Password",
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pushNamed("/change_password");
+                      },
+                      trailing: const Icon(
+                        Icons.password,
+                      ),
+                    ),
+                    ListTile(
+                      title: const Text("Close Account"),
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text("Close Account"),
+                              content: const Text(
+                                "Are you sure you want to close your account? All data will be irreversibly deleted!",
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text("Cancel"),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    final api = context.read<BaseAPI>();
+                                    try {
+                                      await api.closeAccount();
+                                      Navigator.of(context)
+                                          .pushNamedAndRemoveUntil(
+                                        "/splash",
+                                        (route) => false,
+                                      );
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content:
+                                              Text("Error closing account"),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: const Text("Close"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      trailing: const Icon(
+                        Icons.no_accounts,
+                      ),
+                    )
+                  ],
+                ),
+                ListTile(
+                  title: const Text(
+                    "Reset Profile Pictures",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onTap: () {
+                    DefaultCacheManager().emptyCache();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Profile pictures reset!"),
+                      ),
+                    );
+                  },
+                  trailing: const Icon(Icons.delete_outline),
+                ),
+                Form(
+                  key: _formKey,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 8.0,
+                      right: 8.0,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        DropdownButtonFormField2<String>(
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            enabled: busNumber != null,
+                            contentPadding:
+                                const EdgeInsets.symmetric(vertical: 16),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                          hint: const Text(
+                            'Select Your Bus Number',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          items: MyRunshawConfig.busNumbers
+                              .map((item) => DropdownMenuItem<String>(
+                                    value: item.toString(),
+                                    child: Text(
+                                      item.toString(),
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ))
+                              .toList(),
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Please select bus number.';
+                            }
+                            return null;
+                          },
+                          onChanged: (value) async {
+                            final api = context.read<BaseAPI>();
+                            try {
+                              await api.setBusNumber(value);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Bus number updated!"),
+                                ),
+                              );
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Error setting bus number"),
+                                ),
+                              );
+                            }
+                          },
+                          buttonStyleData: const ButtonStyleData(
+                            padding: EdgeInsets.only(right: 16),
+                          ),
+                          iconStyleData: const IconStyleData(
+                            icon: Icon(
+                              Icons.arrow_drop_down,
+                              color: Colors.black45,
+                            ),
+                            iconSize: 24,
+                          ),
+                          dropdownStyleData: DropdownStyleData(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                          menuItemStyleData: const MenuItemStyleData(
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                          ),
+                          value: busNumber,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const Spacer(),
-              SelectableText(
-                email,
-                style: GoogleFonts.rubik(
-                  fontSize: 12,
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-              SelectableText(
-                userId,
-                style: GoogleFonts.rubik(
-                  fontSize: 12,
-                  fontWeight: FontWeight.normal,
-                ),
-              )
-            ],
+              ],
+            ),
           ),
         ),
       ),

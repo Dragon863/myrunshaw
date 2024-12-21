@@ -3,8 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/widgets/popup_add_page.dart';
+import 'package:runshaw/pages/password/password_reset.dart';
 import 'package:runshaw/pages/privacy/privacy_policy.dart';
 import 'package:runshaw/pages/splash/splash.dart';
+import 'package:runshaw/pages/terms/terms_of_use.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
 
@@ -48,12 +50,14 @@ class BaseApp extends StatelessWidget {
           Theme.of(context).textTheme,
         ),
       ),
-      home: SplashPage(),
+      home: const SplashPage(),
       debugShowCheckedModeBanner: false,
       routes: <String, WidgetBuilder>{
-        '/splash': (BuildContext context) => SplashPage(),
+        '/splash': (BuildContext context) => const SplashPage(),
         '/friends/add': (BuildContext context) => const PopupFriendAddPage(),
         '/privacy_policy': (BuildContext context) => const PrivacyPolicyPage(),
+        '/change_password': (BuildContext context) => const PasswordResetPage(),
+        '/terms': (BuildContext context) => const TermsOfUsePage(),
         // We can only add routes here that don't need data passing to them
       },
     );

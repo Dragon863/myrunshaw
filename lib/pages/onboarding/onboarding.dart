@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/onboarding/pages/four.dart';
 import 'package:runshaw/pages/onboarding/pages/one.dart';
@@ -77,11 +78,39 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
       Navigator.pushReplacementNamed(context, '/splash');
     }
     if (!canContinue) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please complete the required fields"),
-        ),
-      );
+      if (_currentPage == contents.length - 1) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text("Warning!",
+                style: GoogleFonts.rubik(fontWeight: FontWeight.bold)),
+            content: const Text(
+                "You haven't provided your timetable. Sharing your timetable is a key feature of this app - if possible, please consider adding it! Are you sure you want to skip this step?"),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  final api = context.read<BaseAPI>();
+                  await api.onboardComplete();
+                  Navigator.pushReplacementNamed(context, '/splash');
+                },
+                child: const Text("Yes"),
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("No"),
+              ),
+            ],
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Please complete the required fields"),
+          ),
+        );
+      }
     }
   }
 
@@ -102,7 +131,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: RunshawAppBar(title: "Introduction"),
+      appBar: const RunshawAppBar(title: "Introduction"),
       backgroundColor: Colors.white,
       body: Center(
         child: Container(
@@ -158,7 +187,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
           FloatingActionButton(
             heroTag: "back",
             onPressed: goToPreviousPage,
-            child: Icon(Icons.keyboard_arrow_left, color: Colors.black),
+            child: const Icon(Icons.keyboard_arrow_left, color: Colors.black),
           ),
           const SizedBox(width: 8),
           FloatingActionButton(

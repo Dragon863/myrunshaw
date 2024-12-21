@@ -53,7 +53,7 @@ class StageOneLogin extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => EmailPage(),
+                        builder: (context) => const EmailPage(),
                       ),
                     );
                   },

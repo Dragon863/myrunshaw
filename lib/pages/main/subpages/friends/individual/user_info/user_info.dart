@@ -26,7 +26,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: RunshawAppBar(title: "Profile"),
+      appBar: const RunshawAppBar(title: "Profile"),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,

@@ -9,7 +9,7 @@ class QrCodePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: RunshawAppBar(
+      appBar: const RunshawAppBar(
         title: "QR Code",
       ),
       body: Center(

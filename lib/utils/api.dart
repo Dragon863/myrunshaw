@@ -116,7 +116,6 @@ class BaseAPI extends ChangeNotifier {
     try {
       await _account.deleteSessions();
       _status = AccountStatus.unauthenticated;
-    } catch (e) {
     } finally {
       notifyListeners();
     }
@@ -309,7 +308,7 @@ class BaseAPI extends ChangeNotifier {
       functionId: "getname",
       path: "/user/name/get?id=$userId",
     );
-    final String response = await execution.responseBody;
+    final String response = execution.responseBody;
     return jsonDecode(response)["name"];
   }
 
@@ -359,6 +358,46 @@ class BaseAPI extends ChangeNotifier {
     Preferences currentPrefs = await account!.getPrefs();
     currentPrefs.data["onboarding_complete"] = true;
     await account!.updatePrefs(prefs: currentPrefs.data);
+  }
+
+  Future<void> closeAccount() async {
+    final Jwt jwtToken = await account!.createJWT();
+    final response = await http.post(
+      Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/account/close'),
+      headers: {
+        'Authorization': 'Bearer ${jwtToken.jwt}',
+      },
+    );
+
+    print(response.body);
+    final body = jsonDecode(response.body);
+
+    if (body["error"] != null) {
+      throw body["error"];
+    }
+    if (response.statusCode != 200) {
+      throw "Error closing account";
+    }
+  }
+
+  Future<String> resetPasswordWithoutAuth(
+      String studentId, String code, String newPassword) async {
+    final response = await http.post(
+      Uri.parse(
+          '${MyRunshawConfig.passwordResetMicroserviceUrl}/api/reset_password?user_id=$studentId&code=$code'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'new_password': newPassword}),
+    );
+    return jsonDecode(response.body)["message"];
+  }
+
+  Future<bool> userExists(String userId) async {
+    final response = await http.get(
+      Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/exists/$userId'),
+    );
+    return jsonDecode(response.body)["exists"];
   }
 
   User? get user => _currentUser;

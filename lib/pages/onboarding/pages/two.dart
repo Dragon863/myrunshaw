@@ -21,8 +21,11 @@ class OnBoardingStageTwo extends StatefulWidget implements OnboardingStage {
     final state = _stateKey.currentState;
     if (state != null) {
       final name = state.controller.text;
-      if (name.isNotEmpty) {
+      if (name != "") {
         await state.saveName(name);
+        return true;
+      } else {
+        return false;
       }
     }
     return true;

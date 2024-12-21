@@ -57,24 +57,27 @@ class _SplashPageState extends State<SplashPage> {
 
     if (status == AccountStatus.authenticated) {
       if (!await isOnBoarded()) {
-        return Navigator.of(context).pushReplacement(
+        return Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (context) => const OnBoardingPage(),
           ),
+          (r) => false,
         );
       }
-      Navigator.pushReplacement(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (context) => const MainPage(),
         ),
+        (r) => false,
       );
     } else {
-      Navigator.pushReplacement(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (context) => const StageOneLogin(),
         ),
+        (r) => false,
       );
     }
   }

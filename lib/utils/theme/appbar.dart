@@ -7,7 +7,7 @@ class RunshawAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
   final bool automaticallyImplyLeading;
 
-  RunshawAppBar({
+  const RunshawAppBar({
     required this.title,
     this.actions,
     this.automaticallyImplyLeading = true,
