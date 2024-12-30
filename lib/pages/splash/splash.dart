@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:appwrite/models.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/login/stage1.dart';
@@ -8,6 +9,7 @@ import 'package:runshaw/pages/main/main_view.dart';
 import 'package:runshaw/pages/nonetwork/no_network.dart';
 import 'package:runshaw/pages/onboarding/onboarding.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:http/http.dart' as http;
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -23,13 +25,28 @@ class _SplashPageState extends State<SplashPage> {
     _navigateToHome();
   }
 
-  Future<bool> hasNetwork() async {
-    try {
-      final result = await InternetAddress.lookup('appwrite.danieldb.uk');
-      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
-    } on SocketException catch (_) {
-      return false;
+  Future<bool> hasNetwork(String knownUrl) async {
+    if (kIsWeb) {
+      return _hasNetworkWeb(knownUrl);
+    } else {
+      return _hasNetworkMobile(knownUrl);
     }
+  }
+
+  Future<bool> _hasNetworkWeb(String knownUrl) async {
+    try {
+      final result = await http.get(Uri.parse(knownUrl));
+      if (result.statusCode == 200) return true;
+    } on SocketException catch (_) {}
+    return false;
+  }
+
+  Future<bool> _hasNetworkMobile(String knownUrl) async {
+    try {
+      final result = await InternetAddress.lookup(knownUrl);
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } on SocketException catch (_) {}
+    return false;
   }
 
   Future<bool> isOnBoarded() async {
@@ -42,7 +59,7 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   _navigateToHome() async {
-    if (!await hasNetwork()) {
+    if (!await hasNetwork("appwrite.danieldb.uk")) {
       return Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => const NoNetworkPage(),

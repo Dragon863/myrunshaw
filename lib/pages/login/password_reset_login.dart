@@ -147,7 +147,7 @@ class _PasswordResetLoginPageState extends State<PasswordResetLoginPage> {
               ),
               const SizedBox(height: 10),
               Center(
-                child: Text(
+                child: SelectableText(
                   code,
                   style: const TextStyle(
                     fontSize: 24,
