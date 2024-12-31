@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/main.dart';
+import 'package:runshaw/pages/login/password_reset_login.dart';
 import 'package:runshaw/pages/scan/controller.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
@@ -167,7 +168,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                         controller: controllerPwd,
                         obscureText: !showFieldOneText,
                         autocorrect: false,
-                        autofocus: true,
+                        autofocus: false,
                         decoration: InputDecoration(
                           labelText: "Password",
                           suffixIcon: IconButton(
@@ -275,7 +276,38 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                         ),
                       ),
                       Visibility(
-                          visible: exists, child: const SizedBox(height: 12)),
+                        visible: exists,
+                        child: const SizedBox(height: 6),
+                      ),
+                      Visibility(
+                        visible: exists,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("(or "),
+                            InkWell(
+                              child: const Text(
+                                'reset password here',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const PasswordResetLoginPage(),
+                                  ),
+                                );
+                              },
+                            ),
+                            const Text(")"),
+                          ],
+                        ),
+                      ),
+                      Visibility(
+                        visible: exists,
+                        child: const SizedBox(height: 6),
+                      ),
                       Visibility(
                         visible: agreesToPolicies || exists,
                         child: Align(
