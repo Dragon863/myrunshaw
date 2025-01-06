@@ -93,14 +93,15 @@ class _OnBoardingStageTwoState extends State<OnBoardingStageTwo> {
           TextField(
             controller: controller,
             decoration: InputDecoration(
-              hintText: "Full Name",
+              hintText: "Display Name",
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
           ),
           const SizedBox(height: 16),
-          const Text("(We'll use this as your display name to show to friends)")
+          const Text(
+              "(We'll use this to identify you to your friends. We recommend using your first and last name)"),
         ],
       ),
     );

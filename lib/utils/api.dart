@@ -349,6 +349,22 @@ class BaseAPI extends ChangeNotifier {
     return "RSP_UNK"; // Response: unknown (no idea where the bus is!)
   }
 
+  Future<Map<String, String?>> getBusBays() async {
+    final Jwt jwtToken = await account!.createJWT();
+    final response = await http.get(
+      Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/bus'),
+      headers: {
+        'Authorization': 'Bearer ${jwtToken.jwt}',
+      },
+    );
+    final body = jsonDecode(response.body);
+    Map<String, String?> bays = {};
+    for (var bus in body) {
+      bays[bus["bus_id"]] = bus["bus_bay"];
+    }
+    return bays;
+  }
+
   Future<bool> shouldSendNotification() async {
     Preferences currentPrefs = await account!.getPrefs();
     return currentPrefs.data["send_notifications"];

@@ -40,7 +40,7 @@ extension EventScheduleFiller on List<Event> {
           (index > 0 && this[index - 1].start.day != currentEvent.start.day)) {
         if (currentEvent.start.isAfter(dayStart)) {
           filledEvents.insert(
-            filledEvents.length - 1,
+            filledEvents.length - 1 > 0 ? filledEvents.length - 1 : 0,
             Event(
               summary: 'Aspire',
               description: 'Aspire (Free Period)',

@@ -3,7 +3,7 @@
 //  OneSignalNotificationServiceExtension
 //
 //  Created by Daniel Benge on 24/12/2024.
-//
+//  Modified by Daniel Benge on 06/01/2025 because I left in the [modified] section!
 
 import UserNotifications
 
@@ -17,8 +17,7 @@ class NotificationService: UNNotificationServiceExtension {
         bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
         
         if let bestAttemptContent = bestAttemptContent {
-            // Modify the notification content here...
-            bestAttemptContent.title = "\(bestAttemptContent.title) [modified]"
+            bestAttemptContent.title = "\(bestAttemptContent.title)"
             
             contentHandler(bestAttemptContent)
         }

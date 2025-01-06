@@ -9,7 +9,6 @@ import 'package:runshaw/pages/main/main_view.dart';
 import 'package:runshaw/pages/nonetwork/no_network.dart';
 import 'package:runshaw/pages/onboarding/onboarding.dart';
 import 'package:runshaw/utils/api.dart';
-import 'package:http/http.dart' as http;
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -35,11 +34,11 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<bool> _hasNetworkWeb(String knownUrl) async {
     return true; // How would we access the site without internet??
-    try {
-      final result = await http.get(Uri.parse("https://" + knownUrl));
-      if (result.statusCode == 200) return true;
-    } on SocketException catch (_) {}
-    return false;
+    // try {
+    //   final result = await http.get(Uri.parse("https://" + knownUrl));
+    //   if (result.statusCode == 200) return true;
+    // } on SocketException catch (_) {}
+    // return false;
   }
 
   Future<bool> _hasNetworkMobile(String knownUrl) async {
