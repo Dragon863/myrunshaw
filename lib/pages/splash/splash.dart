@@ -34,6 +34,7 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<bool> _hasNetworkWeb(String knownUrl) async {
+    return true; // How would we access the site without internet??
     try {
       final result = await http.get(Uri.parse("https://" + knownUrl));
       if (result.statusCode == 200) return true;
