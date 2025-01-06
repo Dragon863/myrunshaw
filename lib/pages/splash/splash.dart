@@ -35,7 +35,7 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<bool> _hasNetworkWeb(String knownUrl) async {
     try {
-      final result = await http.get(Uri.parse(knownUrl));
+      final result = await http.get(Uri.parse("https://" + knownUrl));
       if (result.statusCode == 200) return true;
     } on SocketException catch (_) {}
     return false;
