@@ -24,18 +24,18 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>This app needs camera access to scan the QR codes on Student ID Badges</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app needs photos access to select a profile picture from photo library</string>
-	<key>ITSAppUsesNonExemptEncryption</key>
-    <false/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This app needs location when in use to determine bus arrival times</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app needs photos access to select a profile picture from photo library</string>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
