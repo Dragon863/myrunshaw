@@ -29,12 +29,10 @@ class _MainPageState extends State<MainPage> {
   }
 
   void nextRoute() {
-    print("Next route: ${widget.nextRoute}");
     if (widget.nextRoute != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
           if (widget.nextRoute == "/bus") {
-            print("Going to bus page");
             _currentIndex = 1;
             title = "Buses";
           } else if (widget.nextRoute == "/friends") {
