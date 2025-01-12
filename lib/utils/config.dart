@@ -6,8 +6,7 @@ class MyRunshawConfig {
   static const String oneSignalAppId =
       "001b2238-9af7-49f1-bd60-6dfe630b7175"; //"72211047-33fc-4036-96d8-100c4a7bf85a";
 
-  static const String friendsMicroserviceUrl =
-      //"http://192.168.1.140:5005";
+  static const String friendsMicroserviceUrl = //"http://192.168.1.140:5005";
       "https://runshaw-api.danieldb.uk";
 
   static const String passwordResetMicroserviceUrl =
@@ -64,4 +63,7 @@ class MyRunshawConfig {
     '983',
     '998'
   ];
+
+  static const tutorialVideoUrl =
+      "https://appwrite.danieldb.uk/v1/storage/buckets/cdn/files/intro/view?project=66fdb56000209ea9ac18";
 }

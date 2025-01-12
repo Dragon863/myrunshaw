@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/onboarding/onboarding.dart';
+import 'package:runshaw/pages/onboarding/pages/video_tutorial.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
 
@@ -121,19 +123,35 @@ class _OnBoardingStageFourState extends State<OnBoardingStageFour> {
           onSubmitted: (value) => syncCalendar(),
         ),
         const SizedBox(height: 12),
-        FilledButton(
-          onPressed: syncCalendar,
-          style: ButtonStyle(
-            backgroundColor: WidgetStateProperty.all(Colors.red),
-          ),
-          child: const Text("Sync"),
+        Row(
+          children: [
+            FilledButton(
+              onPressed: syncCalendar,
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all(Colors.red),
+              ),
+              child: const Text("Sync"),
+            ),
+            const SizedBox(width: 8),
+            OutlinedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const VideoTutorial(),
+                  ),
+                );
+              },
+              child: const Text("Video Tutorial"),
+            )
+          ],
         ),
       ];
     });
 
     final api = context.read<BaseAPI>();
     final timetable = await api.fetchEvents();
-    if (timetable.length > 1) {
+    if (timetable.length > 1 && kDebugMode == false) {
       setState(() {
         _controller.text = "internal:complete";
         contents = [

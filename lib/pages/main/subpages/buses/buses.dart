@@ -152,7 +152,7 @@ class _BusesPageState extends State<BusesPage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 22),
                 SizedBox(
                   width: double.infinity,
                   child: Card(

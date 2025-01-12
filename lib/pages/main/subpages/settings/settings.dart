@@ -322,6 +322,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                       trailing: const Icon(Icons.gavel),
                     ),
+                    ListTile(
+                      onTap: () {
+                        Navigator.of(context).pushNamed("/about");
+                      },
+                      title: const Text(
+                        "About",
+                      ),
+                      trailing: const Icon(Icons.info_outline),
+                    ),
                   ],
                 ),
                 ExpansionTile(

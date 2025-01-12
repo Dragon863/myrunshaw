@@ -25,10 +25,12 @@ dependencies:
   http: ^1.2.2
   dropdown_button2: ^2.3.9
   firebase_core: ^3.8.0
-  onesignal_flutter: ^5.2.8
+  onesignal_flutter: ^5.2.9
   url_launcher: ^6.3.1
+  video_player: ^2.9.2
 
   flutter_cache_manager: any
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

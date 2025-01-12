@@ -11,7 +11,8 @@ import 'package:runshaw/pages/onboarding/onboarding.dart';
 import 'package:runshaw/utils/api.dart';
 
 class SplashPage extends StatefulWidget {
-  const SplashPage({super.key});
+  final String? nextRoute;
+  const SplashPage({super.key, this.nextRoute});
 
   @override
   _SplashPageState createState() => _SplashPageState();
@@ -81,10 +82,14 @@ class _SplashPageState extends State<SplashPage> {
           (r) => false,
         );
       }
+
+      print("Navigating to main page");
+      print("Next route: ${widget.nextRoute}");
+
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-          builder: (context) => const MainPage(),
+          builder: (context) => MainPage(nextRoute: widget.nextRoute),
         ),
         (r) => false,
       );

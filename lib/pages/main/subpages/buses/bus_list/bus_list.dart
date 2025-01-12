@@ -94,15 +94,26 @@ class _BusListPageState extends State<BusListPage> {
                         ),
                         trailing: const Icon(Icons.keyboard_arrow_right),
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => BusMapViewPage(
-                                bay: bay.toString(),
-                                busNumber: bus,
+                          if (bay == "0") {
+                            // Response-Not-Yet-Arrived
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Bus has not arrived yet",
+                                ),
                               ),
-                            ),
-                          );
+                            );
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BusMapViewPage(
+                                  bay: bay.toString(),
+                                  busNumber: bus,
+                                ),
+                              ),
+                            );
+                          }
                         },
                       );
                     },

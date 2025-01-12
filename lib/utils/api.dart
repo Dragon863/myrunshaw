@@ -45,7 +45,6 @@ class BaseAPI extends ChangeNotifier {
       _currentUser = user;
       _account = Account(_client);
       _status = AccountStatus.authenticated;
-      OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
       OneSignal.login(_currentUser.$id);
     } catch (e) {
       _status = AccountStatus.unauthenticated;
@@ -365,6 +364,19 @@ class BaseAPI extends ChangeNotifier {
     return bays;
   }
 
+  Future<String?> getBusFor(String userId) async {
+    final Jwt jwtToken = await account!.createJWT();
+    final response = await http.get(
+      Uri.parse(
+          '${MyRunshawConfig.friendsMicroserviceUrl}/api/bus/for?user_id=$userId'),
+      headers: {
+        'Authorization': 'Bearer ${jwtToken.jwt}',
+      },
+    );
+    final body = jsonDecode(response.body);
+    return body;
+  }
+
   Future<bool> shouldSendNotification() async {
     Preferences currentPrefs = await account!.getPrefs();
     return currentPrefs.data["send_notifications"];
@@ -385,7 +397,6 @@ class BaseAPI extends ChangeNotifier {
       },
     );
 
-    print(response.body);
     final body = jsonDecode(response.body);
 
     if (body["error"] != null) {

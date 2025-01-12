@@ -28,6 +28,7 @@ class IndividualFriendPage extends StatefulWidget {
 class _IndividualFriendPageState extends State<IndividualFriendPage> {
   List<Event> _events = [];
   String currentEvent = "Loading...";
+  String? bus;
 
   @override
   void initState() {
@@ -37,6 +38,12 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
 
   Future<void> _refresh() async {
     final BaseAPI api = context.read<BaseAPI>();
+    final busNumber = await api.getBusFor(widget.userId);
+
+    setState(() {
+      bus = busNumber;
+    });
+
     try {
       final List<Event> events = await api.fetchEvents(userId: widget.userId);
       if (events.isEmpty) {
@@ -83,6 +90,7 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
                     id: widget.userId,
                     name: widget.name,
                     profilePicUrl: widget.profilePicUrl,
+                    bus: bus ?? "Not set",
                   ),
                 ),
               );

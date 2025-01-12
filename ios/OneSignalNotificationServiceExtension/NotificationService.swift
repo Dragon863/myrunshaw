@@ -20,7 +20,7 @@ class NotificationService: UNNotificationServiceExtension {
             bestAttemptContent.title = "\(bestAttemptContent.title)"
             
             contentHandler(bestAttemptContent)
-        }
+        } 
     }
     
     override func serviceExtensionTimeWillExpire() {

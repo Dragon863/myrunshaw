@@ -6,7 +6,8 @@ import 'package:runshaw/utils/api.dart';
 import 'main_helpers.dart';
 
 class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+  final String? nextRoute;
+  const MainPage({super.key, this.nextRoute});
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -24,6 +25,27 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     loadNotifications();
     super.initState();
+    nextRoute();
+  }
+
+  void nextRoute() {
+    print("Next route: ${widget.nextRoute}");
+    if (widget.nextRoute != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          if (widget.nextRoute == "/bus") {
+            print("Going to bus page");
+            _currentIndex = 1;
+            title = "Buses";
+          } else if (widget.nextRoute == "/friends") {
+            _currentIndex = 2;
+            title = "Friends";
+          } else {
+            _currentIndex = 0;
+          }
+        });
+      });
+    }
   }
 
   Future<void> loadNotifications() async {

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:runshaw/pages/main/subpages/buses/bus_list/bus_map_view.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/individual_friend.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/list.dart';
@@ -26,12 +27,17 @@ class _HomePageState extends State<HomePage> {
   List<Widget> freeFriends = [];
   bool loading = false;
   List<Event> events = [];
+  Widget busWidget = const SizedBox.shrink();
 
   Future<void> loadPfp() async {
     final BaseAPI api = context.read<BaseAPI>();
     setState(() {
       if (api.user!.name != "") {
-        name = api.user!.name;
+        if (name.length > 15) {
+          name = "${api.user!.name.substring(0, 15)}...";
+        } else {
+          name = api.user!.name;
+        }
       } else {
         name = "Name not set";
       }
@@ -59,7 +65,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    loadPfp();
     loadData();
     loadEvents();
     super.initState();
@@ -82,6 +87,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> loadData() async {
+    loadPfp();
     if (loading) {
       return;
     }
@@ -96,12 +102,13 @@ class _HomePageState extends State<HomePage> {
           return event.start.isAfter(now);
         },
         orElse: () => Event(
-            summary: 'No Event',
-            location: '',
-            start: now,
-            end: now,
-            description: '',
-            uid: ''),
+          summary: 'No Event',
+          location: '',
+          start: now,
+          end: now,
+          description: '',
+          uid: '',
+        ),
       );
 
       if (next.summary == "No Event") {
@@ -116,6 +123,48 @@ class _HomePageState extends State<HomePage> {
               ? "No Description"
               : "${next.description!.replaceAll("Teacher: ", "")} in ${next.location}";
         });
+      }
+      final bus = await api.getBusNumber();
+
+      if (bus != null) {
+        final bay = await api.getBusBay(bus);
+        if (bay != "RSP_NYA") {
+          busWidget = Card.filled(
+            color: Colors.red,
+            child: ListTile(
+              title: Text(
+                'Your bus is in bay $bay!',
+                style: GoogleFonts.rubik(
+                    fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+              trailing: const Icon(Icons.directions_bus, color: Colors.white),
+              onTap: () async {
+                if (bay == "RSP_NYA") {
+                  // Response-Not-Yet-Arrived
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        "Bus has not arrived yet (this should be impossible, please report this)",
+                      ),
+                    ),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BusMapViewPage(
+                        bay: bay,
+                        busNumber: bus,
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
+          );
+        } else {
+          busWidget = const SizedBox.shrink();
+        }
       }
       final List friends = await api.getFriends();
       for (final friend in friends) {
@@ -188,6 +237,7 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(4),
             child: ListView(
               children: [
+                busWidget,
                 Row(
                   children: [
                     Expanded(

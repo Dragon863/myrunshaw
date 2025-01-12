@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:runshaw/pages/main/subpages/buses/bus_list/bus_map_view.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -10,12 +12,14 @@ class UserInfoPage extends StatefulWidget {
   final String id;
   final String name;
   final String profilePicUrl;
+  final String bus;
 
   const UserInfoPage({
     super.key,
     required this.id,
     required this.name,
     required this.profilePicUrl,
+    required this.bus,
   });
 
   @override
@@ -81,8 +85,46 @@ class _UserInfoPageState extends State<UserInfoPage> {
                   throw Exception('Could not launch email');
                 }
               },
-              title: const Text('Email'),
+              title: Text(
+                'Email',
+                style: GoogleFonts.rubik(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text('${widget.id}@student.runshaw.ac.uk'),
               trailing: const Icon(Icons.email),
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              title: Text(
+                'Bus',
+                style: GoogleFonts.rubik(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(widget.bus),
+              trailing: const Icon(Icons.directions_bus),
+              onTap: () async {
+                final BaseAPI api = context.read<BaseAPI>();
+                final String busBay = await api.getBusBay(widget.bus);
+
+                if (busBay == "RSP_NYA") {
+                  // Response-Not-Yet-Arrived
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        "Bus has not arrived yet",
+                      ),
+                    ),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BusMapViewPage(
+                        bay: busBay,
+                        busNumber: widget.bus,
+                      ),
+                    ),
+                  );
+                }
+              },
             ),
             const Spacer(),
             ListTile(
