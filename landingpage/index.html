@@ -41,7 +41,12 @@
         }
     </style>
     <script>
+
         document.addEventListener('DOMContentLoaded', () => {
+            if (document.location.search.includes("highseas")) {
+                document.getElementById("maintext").innerText = "The unofficial Runshaw student experience! Share your timetable with your friends, get reliable and fast bus notifications, all from your Student ID badge. \n\nHIGH SEAS: Demo login email is TES22222222 (8x2s) and password is 22222222 (8x2s).";
+            }
+
             const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
 
             $navbarBurgers.forEach(el => {
@@ -108,7 +113,8 @@
                             <div style="height: 100px;"></div>
                         </div>
                         <h1 class="title is-1 has-text-white rubik-bold">My Runshaw</h1>
-                        <p class="subtitle is-4 has-text-white rubik-regular" style="padding-top: 10px;">The unofficial
+                        <p class="subtitle is-4 has-text-white rubik-regular" style="padding-top: 10px;" id="maintext">
+                            The unofficial
                             Runshaw
                             student experience! Share your
                             timetable with your friends, get reliable and fast bus notifications, all from your Student

@@ -128,7 +128,8 @@ class _HomePageState extends State<HomePage> {
 
       if (bus != null) {
         final bay = await api.getBusBay(bus);
-        if (bay != "RSP_NYA") {
+        if (bay != "RSP_NYA" && DateTime.now().hour < 17) {
+          // Before 5PM
           busWidget = Card.filled(
             color: Colors.red,
             child: ListTile(
