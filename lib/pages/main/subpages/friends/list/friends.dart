@@ -60,13 +60,14 @@ class _FriendsPageState extends State<FriendsPage> {
                     FriendRequestsList(),
                   ],
                 ),
-                floatingActionButton: FloatingActionButton(
+                floatingActionButton: FloatingActionButton.extended(
+                  label: const Text("Add"),
                   onPressed: () {
                     Navigator.of(context).pushNamed('/friends/add').then(
                           (value) async => await addFriend(value as String?),
                         );
                   },
-                  child: const Icon(Icons.add),
+                  icon: const Icon(Icons.add),
                 ),
               ),
             ),

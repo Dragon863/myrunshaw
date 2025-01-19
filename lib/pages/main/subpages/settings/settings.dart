@@ -1,5 +1,6 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' as models;
+import 'package:crop_your_image/crop_your_image.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,8 +9,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:runshaw/pages/main/subpages/settings/extra_buses.dart';
+import 'package:runshaw/pages/main/subpages/settings/popup_crop.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -23,6 +28,7 @@ class _SettingsPageState extends State<SettingsPage> {
   String name = "Loading...";
   String email = "Loading...";
   String userId = "Loading...";
+  String appVersion = "Loading...";
   String? busNumber;
   String? profilePicUrl;
   final _formKey = GlobalKey<FormState>();
@@ -30,7 +36,16 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     fetchPrefs();
+    loadVersion();
     super.initState();
+  }
+
+  Future<void> loadVersion() async {
+    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    final String version = packageInfo.version;
+    setState(() {
+      appVersion = version;
+    });
   }
 
   Future<void> fetchPrefs() async {
@@ -108,19 +123,45 @@ class _SettingsPageState extends State<SettingsPage> {
     }
 
     final Uint8List bytes = await file.readAsBytes();
-    final InputFile profilePicture = InputFile.fromBytes(
-      bytes: bytes,
-      filename: file.name,
+    final result = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PopupCropPage(
+          imageBytes: bytes,
+        ),
+      ),
     );
-    await updateProfilePic(profilePicture);
-    final api = context.read<BaseAPI>();
+    if (result.runtimeType == CropSuccess) {
+      final Uint8List croppedBytes = (result as CropSuccess).croppedImage;
+      final InputFile profilePicture = InputFile.fromBytes(
+        bytes: croppedBytes,
+        filename: file.name,
+      );
 
-    setState(() {
-      profilePicUrl = "https://appwrite.danieldb.uk/v1/storage/buckets"
-          "/${MyRunshawConfig.profileBucketId}/files/${api.currentUser.$id}/"
-          "view?project=${MyRunshawConfig.projectId}"
-          "&ts=${DateTime.now().millisecondsSinceEpoch.toString()}";
-    });
+      await updateProfilePic(profilePicture);
+      final api = context.read<BaseAPI>();
+      await api.incrementPfpVersion();
+
+      setState(() {
+        profilePicUrl = "https://appwrite.danieldb.uk/v1/storage/buckets"
+            "/${MyRunshawConfig.profileBucketId}/files/${api.currentUser.$id}/"
+            "view?project=${MyRunshawConfig.projectId}"
+            "&ts=${DateTime.now().millisecondsSinceEpoch.toString()}";
+      });
+    } else if (result.runtimeType == CropFailure) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Error cropping image"),
+        ),
+      );
+      return;
+    } else if (result == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Cancelled"),
+        ),
+      );
+      return;
+    }
   }
 
   Future<void> updateProfilePic(InputFile profilePicture) async {
@@ -157,6 +198,57 @@ class _SettingsPageState extends State<SettingsPage> {
     }*/
   }
 
+  Future<void> deleteAction() async {
+    final bool? result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Delete Profile Picture"),
+          content: const Text(
+            "Are you sure you want to delete your profile picture?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text("Cancel"),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text("Delete"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result == true) {
+      final api = context.read<BaseAPI>();
+      final Storage storage = Storage(api.client);
+
+      try {
+        storage.getFile(bucketId: "profiles", fileId: api.currentUser.$id);
+        await storage.deleteFile(
+          bucketId: "profiles",
+          fileId: api.currentUser.$id,
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Error deleting profile picture"),
+          ),
+        );
+      }
+
+      setState(() {
+        profilePicUrl = null;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -173,32 +265,49 @@ class _SettingsPageState extends State<SettingsPage> {
                 const SizedBox(height: 18),
                 Stack(
                   children: [
-                    CircleAvatar(
-                      radius: 75,
-                      foregroundImage: profilePicUrl != null
-                          ? NetworkImage(profilePicUrl!)
-                          : null,
-                      child: Text(
-                        name[0].toUpperCase(),
-                        style: GoogleFonts.rubik(
-                          fontSize: 60,
-                          fontWeight: FontWeight.bold,
+                    Padding(
+                      padding: const EdgeInsets.only(left: 48.0, right: 48.0),
+                      child: CircleAvatar(
+                        radius: 75,
+                        foregroundImage: profilePicUrl != null
+                            ? NetworkImage(profilePicUrl!)
+                            : null,
+                        child: Text(
+                          name[0].toUpperCase(),
+                          style: GoogleFonts.rubik(
+                            fontSize: 60,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                     Positioned(
                       bottom: 0,
                       right: 0,
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.camera_alt,
-                          color: Colors.white,
-                        ),
-                        style: ButtonStyle(
-                          backgroundColor: WidgetStateProperty.all(Colors.red),
-                          shape: WidgetStateProperty.all(const CircleBorder()),
-                        ),
-                        onPressed: photoAction,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.camera_alt,
+                              color: Colors.white,
+                            ),
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  WidgetStateProperty.all(Colors.red),
+                              shape:
+                                  WidgetStateProperty.all(const CircleBorder()),
+                            ),
+                            onPressed: photoAction,
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.delete,
+                              color: Colors.grey.shade800,
+                            ),
+                            onPressed: deleteAction,
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -278,22 +387,131 @@ class _SettingsPageState extends State<SettingsPage> {
                   child: Divider(),
                 ),
                 const SizedBox(height: 9),
-                ListTile(
+                ExpansionTile(
                   title: const Text(
-                    "Bus Notifications",
+                    "Buses",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  trailing: Switch(
-                      value: showNotifs,
-                      onChanged: (bool value) async {
-                        setState(() {
-                          showNotifs = value;
-                        });
-                        OneSignal.User.addTagWithKey("bus_optout", !value);
-                      }),
+                  children: [
+                    ListTile(
+                      title: const Text(
+                        "Bus Notifications",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      trailing: Switch(
+                        value: showNotifs,
+                        onChanged: (bool value) async {
+                          setState(() {
+                            showNotifs = value;
+                          });
+                          OneSignal.User.addTagWithKey("bus_optout", !value);
+                        },
+                      ),
+                    ),
+                    Form(
+                      key: _formKey,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            DropdownButtonFormField2<String>(
+                              isExpanded: true,
+                              decoration: InputDecoration(
+                                enabled: busNumber != null,
+                                contentPadding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                              ),
+                              hint: const Text(
+                                'Select Your Bus Number',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              items: MyRunshawConfig.busNumbers
+                                  .map((item) => DropdownMenuItem<String>(
+                                        value: item.toString(),
+                                        child: Text(
+                                          item.toString(),
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ))
+                                  .toList(),
+                              validator: (value) {
+                                if (value == null) {
+                                  return 'Please select bus number.';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) async {
+                                final api = context.read<BaseAPI>();
+                                try {
+                                  await api.setBusNumber(value);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Bus number updated!"),
+                                    ),
+                                  );
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Error setting bus number"),
+                                    ),
+                                  );
+                                }
+                              },
+                              buttonStyleData: const ButtonStyleData(
+                                padding: EdgeInsets.only(right: 16),
+                              ),
+                              iconStyleData: const IconStyleData(
+                                icon: Icon(
+                                  Icons.arrow_drop_down,
+                                  color: Colors.black45,
+                                ),
+                                iconSize: 24,
+                              ),
+                              dropdownStyleData: DropdownStyleData(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                              ),
+                              menuItemStyleData: const MenuItemStyleData(
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                              ),
+                              value: busNumber,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    ListTile(
+                      title: const Text(
+                        "Add Extra Bus",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      subtitle: const Text(
+                        "(Experimental)",
+                      ),
+                      trailing: const Icon(Icons.add),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const ExtraBusPage(),
+                        ),
+                      ),
+                    )
+                  ],
                 ),
                 ExpansionTile(
                   title: const Text(
@@ -404,105 +622,64 @@ class _SettingsPageState extends State<SettingsPage> {
                     )
                   ],
                 ),
-                ListTile(
+                ExpansionTile(
                   title: const Text(
-                    "Reset Profile Pictures",
+                    "Other",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  onTap: () {
-                    DefaultCacheManager().emptyCache();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Profile pictures reset!"),
-                      ),
-                    );
-                  },
-                  trailing: const Icon(Icons.delete_outline),
-                ),
-                Form(
-                  key: _formKey,
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      left: 8.0,
-                      right: 8.0,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        DropdownButtonFormField2<String>(
-                          isExpanded: true,
-                          decoration: InputDecoration(
-                            enabled: busNumber != null,
-                            contentPadding:
-                                const EdgeInsets.symmetric(vertical: 16),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                          ),
-                          hint: const Text(
-                            'Select Your Bus Number',
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          items: MyRunshawConfig.busNumbers
-                              .map((item) => DropdownMenuItem<String>(
-                                    value: item.toString(),
-                                    child: Text(
-                                      item.toString(),
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ))
-                              .toList(),
-                          validator: (value) {
-                            if (value == null) {
-                              return 'Please select bus number.';
-                            }
-                            return null;
-                          },
-                          onChanged: (value) async {
-                            final api = context.read<BaseAPI>();
-                            try {
-                              await api.setBusNumber(value);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Bus number updated!"),
-                                ),
-                              );
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Error setting bus number"),
-                                ),
-                              );
-                            }
-                          },
-                          buttonStyleData: const ButtonStyleData(
-                            padding: EdgeInsets.only(right: 16),
-                          ),
-                          iconStyleData: const IconStyleData(
-                            icon: Icon(
-                              Icons.arrow_drop_down,
-                              color: Colors.black45,
-                            ),
-                            iconSize: 24,
-                          ),
-                          dropdownStyleData: DropdownStyleData(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                          ),
-                          menuItemStyleData: const MenuItemStyleData(
-                            padding: EdgeInsets.symmetric(horizontal: 16),
-                          ),
-                          value: busNumber,
+                  children: [
+                    ListTile(
+                      title: const Text(
+                        "Reset Profile Picture Cache",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
                         ),
-                      ],
+                      ),
+                      onTap: () {
+                        DefaultCacheManager().emptyCache();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Profile pictures reset!"),
+                          ),
+                        );
+                      },
+                      trailing: const Icon(Icons.delete_outline),
                     ),
-                  ),
+                    ListTile(
+                      title: const Text(
+                        "Report Bug",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      onTap: () async {
+                        final Uri emailLaunchUri = Uri(
+                          scheme: 'mailto',
+                          path: 'hi@danieldb.uk',
+                          query:
+                              "subject=My Runshaw Bug Report&body=Please describe the bug you encountered here:",
+                        );
+                        await launchUrl(emailLaunchUri);
+                      },
+                      trailing: const Icon(Icons.bug_report_outlined),
+                    ),
+                    ListTile(
+                      title: const Text(
+                        "App Version",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      subtitle: Text(appVersion),
+                      trailing: const Icon(Icons.info_outline),
+                    )
+                  ],
                 ),
               ],
             ),

@@ -20,6 +20,8 @@ class BaseAPI extends ChangeNotifier {
 
   final Client _client = Client();
   late Account _account;
+  late Map cachedTimetables;
+  late Map cachedPfpVersions;
 
   User get currentUser => _currentUser;
   AccountStatus get status => _status;
@@ -95,6 +97,52 @@ class BaseAPI extends ChangeNotifier {
     await account!.updatePrefs(prefs: {"code": code});
   }
 
+  Future<void> cacheTimetables() async {
+    final Jwt jwtToken = await account!.createJWT();
+    final friends = await getFriends();
+
+    List<String> userIds = [];
+    for (var friend in friends) {
+      userIds.add(friend["userid"]);
+    }
+
+    final response = await http.post(
+      Uri.parse(
+          '${MyRunshawConfig.friendsMicroserviceUrl}/api/timetable/batch_get'),
+      headers: {
+        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'user_ids': userIds,
+      }),
+    );
+    cachedTimetables = jsonDecode(response.body);
+  }
+
+  Future<void> cachePfpVersions() async {
+    final Jwt jwtToken = await account!.createJWT();
+    final friends = await getFriends();
+
+    List<String> userIds = [];
+    for (var friend in friends) {
+      userIds.add(friend["userid"]);
+    }
+
+    final response = await http.post(
+      Uri.parse(
+          '${MyRunshawConfig.friendsMicroserviceUrl}/api/cache/get/pfp-versions'),
+      headers: {
+        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'user_ids': userIds,
+      }),
+    );
+    cachedPfpVersions = jsonDecode(response.body);
+  }
+
   Future<void> createEmailSession(
       {required String email, required String password}) async {
     if (email.contains("-")) {
@@ -109,6 +157,30 @@ class BaseAPI extends ChangeNotifier {
     _currentUser = await Account(_client).get();
     OneSignal.login(_currentUser.$id);
     _status = AccountStatus.authenticated;
+    await cachePfpVersions();
+    await cacheTimetables();
+  }
+
+  String getPfpUrl(String userId) {
+    if (cachedPfpVersions.containsKey(userId)) {
+      return "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/$userId/view?project=${MyRunshawConfig.projectId}&version=${cachedPfpVersions[userId]}";
+    }
+    return "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/$userId/view?project=${MyRunshawConfig.projectId}";
+  }
+
+  Future<void> incrementPfpVersion() async {
+    final Jwt jwtToken = await account!.createJWT();
+    final response = await http.post(
+      Uri.parse(
+          '${MyRunshawConfig.friendsMicroserviceUrl}/api/cache/update/pfp-version'),
+      headers: {
+        'Authorization': 'Bearer ${jwtToken.jwt}',
+      },
+    );
+    if (response.statusCode != 200) {
+      throw "Error incrementing pfp version";
+    }
+    await cachePfpVersions();
   }
 
   Future<void> signOut() async {
@@ -148,8 +220,14 @@ class BaseAPI extends ChangeNotifier {
     return;
   }
 
-  Future<List<Event>> fetchEvents(
-      {String? userId, bool includeAll = false}) async {
+  Future<void> refreshUser() async {
+    _currentUser = await account!.get();
+  }
+
+  Future<List<Event>> fetchEvents({
+    String? userId,
+    bool includeAll = false,
+  }) async {
     userId ??= user!.$id;
 
     List<Event> timetable = [];
@@ -157,23 +235,29 @@ class BaseAPI extends ChangeNotifier {
     if (userId != user!.$id) {
       query = "?user_id=$userId";
     }
-    final Jwt jwtToken = await account!.createJWT();
-    final response = await http.get(
-      Uri.parse(
-          '${MyRunshawConfig.friendsMicroserviceUrl}/api/timetable$query'),
-      headers: {
-        'Authorization': 'Bearer ${jwtToken.jwt}',
-      },
-    );
 
-    if (response.statusCode != 200) {
-      return [];
+    Map events;
+
+    if (!cachedTimetables.containsKey(userId)) {
+      print("Fetching timetable for $userId");
+      final Jwt jwtToken = await account!.createJWT();
+      final response = await http.get(
+        Uri.parse(
+            '${MyRunshawConfig.friendsMicroserviceUrl}/api/timetable$query'),
+        headers: {
+          'Authorization': 'Bearer ${jwtToken.jwt}',
+        },
+      );
+
+      if (response.statusCode != 200) {
+        return [];
+      }
+      events = jsonDecode(response.body)["timetable"];
+    } else {
+      events = cachedTimetables[userId];
     }
 
-    //final events = jsonDecode(myDocument!.data["data"]);
-    final events = jsonDecode(response.body);
-
-    for (final event in events["timetable"]["data"]) {
+    for (final event in events["data"]) {
       final String start = event["dtstart"]["dt"];
       final String end = event["dtend"]["dt"];
 
@@ -302,13 +386,22 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<String> getName(String userId) async {
-    final Functions functions = Functions(client);
-    final Execution execution = await functions.createExecution(
-      functionId: "getname",
-      path: "/user/name/get?id=$userId",
+    // final Functions functions = Functions(client);
+    // final Execution execution = await functions.createExecution(
+    //   functionId: "getname",
+    //   path: "/user/name/get?id=$userId",
+    // );
+    // final String response = execution.responseBody;
+    // return jsonDecode(response)["name"];
+    final Jwt jwtToken = await account!.createJWT();
+    final response = await http.get(
+      Uri.parse(
+          '${MyRunshawConfig.friendsMicroserviceUrl}/api/name/get/$userId'),
+      headers: {
+        'Authorization': 'Bearer ${jwtToken.jwt}',
+      },
     );
-    final String response = execution.responseBody;
-    return jsonDecode(response)["name"];
+    return jsonDecode(response.body)["name"];
   }
 
   Future<void> setBusNumber(String? number) async {
@@ -425,6 +518,55 @@ class BaseAPI extends ChangeNotifier {
       Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/exists/$userId'),
     );
     return jsonDecode(response.body)["exists"];
+  }
+
+  Future<List<String>> getExtraBuses() async {
+    final Jwt jwtToken = await account!.createJWT();
+    final response = await http.get(
+      Uri.parse(
+          '${MyRunshawConfig.friendsMicroserviceUrl}/api/extra_buses/get'),
+      headers: {
+        'Authorization': 'Bearer ${jwtToken.jwt}',
+      },
+    );
+    final body = jsonDecode(response.body);
+    List<String> buses = [];
+    for (var bus in body) {
+      buses.add(bus["bus"]);
+    }
+    return buses;
+  }
+
+  Future<void> addExtraBus(String busId) async {
+    final Jwt jwtToken = await account!.createJWT();
+    final response = await http.post(
+      Uri.parse(
+          '${MyRunshawConfig.friendsMicroserviceUrl}/api/extra_buses/add'),
+      headers: {
+        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'bus_number': busId}),
+    );
+    if (response.statusCode != 201) {
+      throw "Error adding extra bus";
+    }
+  }
+
+  Future<void> removeExtraBus(String busId) async {
+    final Jwt jwtToken = await account!.createJWT();
+    final response = await http.post(
+      Uri.parse(
+          '${MyRunshawConfig.friendsMicroserviceUrl}/api/extra_buses/remove'),
+      headers: {
+        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'bus_number': busId}),
+    );
+    if (response.statusCode != 201) {
+      throw "Error removing extra bus";
+    }
   }
 
   User? get user => _currentUser;

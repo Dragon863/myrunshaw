@@ -9,7 +9,6 @@ import 'package:runshaw/pages/main/subpages/timetable/widgets/list.dart';
 import 'package:runshaw/pages/qr/qr_page.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
-import 'package:runshaw/utils/config.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -31,6 +30,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> loadPfp() async {
     final BaseAPI api = context.read<BaseAPI>();
+    await api.refreshUser();
     setState(() {
       if (api.user!.name != "") {
         if (name.length > 15) {
@@ -41,9 +41,8 @@ class _HomePageState extends State<HomePage> {
       } else {
         name = "Name not set";
       }
-      pfpUrl =
-          "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/${api.user!.$id}/view?project=${MyRunshawConfig.projectId}";
       userId = api.user!.$id;
+      pfpUrl = api.getPfpUrl(userId);
     });
   }
 
@@ -67,11 +66,15 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     loadData();
     loadEvents();
+    loadPfp();
     super.initState();
   }
 
   Future<String> loadCurrentEventFor(String userId) async {
     final BaseAPI api = context.read<BaseAPI>();
+    if (api.cachedPfpVersions.isEmpty) {
+      await api.cachePfpVersions();
+    }
     try {
       final List<Event> events = await api.fetchEvents(userId: userId);
       final String current = fetchCurrentEvent(events);
@@ -87,7 +90,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> loadData() async {
-    loadPfp();
     if (loading) {
       return;
     }
@@ -190,8 +192,7 @@ class _HomePageState extends State<HomePage> {
                       builder: (context) => IndividualFriendPage(
                         userId: uid,
                         name: name,
-                        profilePicUrl:
-                            "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/$uid/view?project=${MyRunshawConfig.projectId}",
+                        profilePicUrl: api.getPfpUrl(userId),
                       ),
                     ),
                   );
@@ -201,7 +202,7 @@ class _HomePageState extends State<HomePage> {
                   child: CircleAvatar(
                     radius: 25,
                     foregroundImage: CachedNetworkImageProvider(
-                      "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/$uid/view?project=${MyRunshawConfig.projectId}",
+                      api.getPfpUrl(uid),
                       errorListener: (error) {},
                     ),
                     child: Text(
@@ -437,14 +438,12 @@ class _HomePageState extends State<HomePage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                // Display free friends
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Row(
-                      children: freeFriends,
-                    ),
+                // Display free friends (wrap to flow to next line if necessary)
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Wrap(
+                    runSpacing: 2,
+                    children: freeFriends,
                   ),
                 ),
                 // Conditional display of today's events
@@ -487,7 +486,9 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: loadData,
+        onPressed: () {
+          loadData();
+        },
         child: const Icon(Icons.refresh),
       ),
     );

@@ -74,6 +74,12 @@ class _SplashPageState extends State<SplashPage> {
     final status = api.status;
 
     if (status == AccountStatus.authenticated) {
+      try {
+        await api.cacheTimetables();
+        await api.cachePfpVersions();
+      } catch (e) {
+        print("Error caching timetables: $e");
+      }
       if (!await isOnBoarded()) {
         return Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(

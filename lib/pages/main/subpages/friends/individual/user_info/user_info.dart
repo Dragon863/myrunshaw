@@ -144,7 +144,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                 }
               },
               title: Text(
-                'Block "${widget.name}"',
+                'Unfriend "${widget.name}"',
                 style: const TextStyle(color: Colors.red),
               ),
               trailing: const Icon(Icons.block, color: Colors.red),

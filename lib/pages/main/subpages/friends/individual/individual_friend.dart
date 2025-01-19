@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/user_info/user_info.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/events_card.dart';
+import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
@@ -183,6 +184,7 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
                               ]
                             : _events
                                 .fillGaps()
+                                .sortEvents()
                                 .groupByDay()
                                 .entries
                                 .map((entry) {

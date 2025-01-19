@@ -49,7 +49,6 @@ class _FriendRequestTileState extends State<FriendRequestTile> {
     }
     final api = context.read<BaseAPI>();
     setState(() {
-      name = "Loading...";
       disableButtons = true;
     });
     final bool result =
@@ -62,14 +61,14 @@ class _FriendRequestTileState extends State<FriendRequestTile> {
         SnackBar(
           content: Text(
             response
-                ? "Accepted friend request from $name"
-                : "Declined friend request from $name",
+                ? "Accepted friend request from $name!"
+                : "Declined friend request from $name!",
           ),
         ),
       );
     }
     setState(() {
-      name = "[Deleted]";
+      name = response ? "Accepted" : "Declined";
     });
   }
 
@@ -79,7 +78,7 @@ class _FriendRequestTileState extends State<FriendRequestTile> {
       leading: CircleAvatar(
         foregroundImage: CachedNetworkImageProvider(
           widget.profilePicUrl!,
-          errorListener: (error) {},
+          cacheKey: widget.uid,
         ),
         child: Text(
           name[0].toUpperCase(),
@@ -94,15 +93,19 @@ class _FriendRequestTileState extends State<FriendRequestTile> {
           ? Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                IconButton(
-                  onPressed: () async => await respond(false),
-                  icon: const Icon(Icons.close, color: Colors.red),
-                ),
-                const SizedBox(width: 10),
-                IconButton(
+                // IconButton(
+                //   onPressed: () async => await respond(false),
+                //   icon: const Icon(Icons.close, color: Colors.red),
+                // ),
+                // const SizedBox(width: 10),
+                // Disable the accept button for now, as it's not implemented properly. Can be re added if necessary
+                TextButton(
                   onPressed: () async => await respond(true),
-                  icon: const Icon(Icons.check, color: Colors.green),
-                )
+                  style: const ButtonStyle(
+                    foregroundColor: WidgetStatePropertyAll(Colors.green),
+                  ),
+                  child: const Text("Accept"),
+                ),
               ],
             )
           : null,

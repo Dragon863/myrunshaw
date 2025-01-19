@@ -2,7 +2,7 @@ name: runshaw
 description: "My Runshaw mobile app"
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
-version: 1.2.3
+version: 1.2.4
 
 environment:
   sdk: ^3.5.1
@@ -30,6 +30,7 @@ dependencies:
   video_player: ^2.9.2
 
   flutter_cache_manager: any
+  crop_your_image: ^2.0.0
 
 dev_dependencies:
   flutter_test:

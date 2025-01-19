@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/events_card.dart';
+import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 
 class TimetableList extends StatefulWidget {
@@ -62,6 +63,7 @@ class _TimetableListState extends State<TimetableList> {
             ]
           : widget.events
               .fillGaps(today: widget.todayOnly)
+              .sortEvents()
               .groupByDay(todayOnly: widget.todayOnly)
               .entries
               .map(

@@ -67,4 +67,9 @@ extension EventScheduleFiller on List<Event> {
             event.start.isAfter(todayStart) && event.end.isBefore(todayEnd))
         .toList();
   }
+
+  List<Event> sortEvents() {
+    sort((a, b) => a.start.compareTo(b.start));
+    return this;
+  }
 }

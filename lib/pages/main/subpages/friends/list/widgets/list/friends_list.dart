@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/widgets/list/friend_tile.dart';
 import 'package:runshaw/utils/api.dart';
-import 'package:runshaw/utils/config.dart';
 
 class FriendsList extends StatefulWidget {
   const FriendsList({super.key});
@@ -81,11 +80,12 @@ class _FriendsListState extends State<FriendsList> {
           child: ListView.builder(
             cacheExtent: 9999,
             itemBuilder: (context, index) {
+              final BaseAPI api = context.read<BaseAPI>();
+
               final friend = friends[index];
               return FriendTile(
                 uid: friend["id"],
-                profilePicUrl:
-                    "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/${friend["id"]}/view?project=${MyRunshawConfig.projectId}",
+                profilePicUrl: api.getPfpUrl(friend["id"]),
                 freeOnly: freeOnly,
                 inFiveMinutesNotifier: inFiveMinutesNotifier,
               );
