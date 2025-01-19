@@ -192,7 +192,8 @@ class _HomePageState extends State<HomePage> {
                       builder: (context) => IndividualFriendPage(
                         userId: uid,
                         name: name,
-                        profilePicUrl: api.getPfpUrl(userId),
+                        profilePicUrl: api.getPfpUrl(
+                            uid), // NOT userId as I learned when everybody's picture turned into a cat!
                       ),
                     ),
                   );

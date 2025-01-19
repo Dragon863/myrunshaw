@@ -162,10 +162,11 @@ class BaseAPI extends ChangeNotifier {
   }
 
   String getPfpUrl(String userId) {
+    print("For user $userId, version is ${cachedPfpVersions[userId]}");
     if (cachedPfpVersions.containsKey(userId)) {
       return "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/$userId/view?project=${MyRunshawConfig.projectId}&version=${cachedPfpVersions[userId]}";
     }
-    return "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/$userId/view?project=${MyRunshawConfig.projectId}";
+    return "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/$userId/view?project=${MyRunshawConfig.projectId}&version=0";
   }
 
   Future<void> incrementPfpVersion() async {

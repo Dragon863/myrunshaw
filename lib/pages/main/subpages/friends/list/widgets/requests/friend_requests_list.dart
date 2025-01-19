@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/widgets/requests/friend_req_tile.dart';
 import 'package:runshaw/utils/api.dart';
-import 'package:runshaw/utils/config.dart';
 
 class FriendRequestsList extends StatefulWidget {
   const FriendRequestsList({super.key});
@@ -13,17 +12,20 @@ class FriendRequestsList extends StatefulWidget {
 
 class _FriendRequestsListState extends State<FriendRequestsList> {
   List<Map> requests = [];
+  String profilePicUrl = "";
 
   Future<void> loadFriends() async {
     // Load friends from API
     final api = context.read<BaseAPI>();
     final response = await api.getFriendRequests();
     for (final friendRequest in response) {
+      final String url = api.getPfpUrl(friendRequest["sender_id"]);
       if (mounted) {
         setState(() {
           requests.add({
             "id": friendRequest["sender_id"],
             "req_id": friendRequest["id"],
+            "pfpUrl": url,
           });
         });
       }
@@ -44,8 +46,7 @@ class _FriendRequestsListState extends State<FriendRequestsList> {
         return FriendRequestTile(
           uid: friend["id"],
           id: friend["req_id"],
-          profilePicUrl:
-              "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/${friend["id"]}/view?project=${MyRunshawConfig.projectId}",
+          profilePicUrl: friend["pfpUrl"],
         );
       },
       itemCount: requests.length,
