@@ -176,6 +176,7 @@ class _SettingsPageState extends State<SettingsPage> {
         bucketId: "profiles",
         fileId: api.currentUser.$id,
       );
+      await api.incrementPfpVersion();
     } catch (e) {
       // ignore
     }
