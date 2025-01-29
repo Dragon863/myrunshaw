@@ -94,6 +94,7 @@ class BaseApp extends StatelessWidget {
         textTheme: GoogleFonts.rubikTextTheme(
           Theme.of(context).textTheme,
         ),
+        scaffoldBackgroundColor: Colors.white,
       ),
       home: SplashPage(
         nextRoute: nextRoute,

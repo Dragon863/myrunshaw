@@ -19,6 +19,7 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
+  String loadingStageText = "";
   @override
   void initState() {
     super.initState();
@@ -26,6 +27,9 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<bool> hasNetwork(String knownUrl) async {
+    setState(() {
+      loadingStageText = "Checking internet access...";
+    });
     if (kIsWeb) {
       return _hasNetworkWeb(knownUrl);
     } else {
@@ -75,7 +79,17 @@ class _SplashPageState extends State<SplashPage> {
 
     if (status == AccountStatus.authenticated) {
       try {
+        setState(() {
+          loadingStageText = "Loading names...";
+        });
+        await api.cacheNames();
+        setState(() {
+          loadingStageText = "Loading timetables...";
+        });
         await api.cacheTimetables();
+        setState(() {
+          loadingStageText = "Loading profile picture versions...";
+        });
         await api.cachePfpVersions();
       } catch (e) {
         print("Error caching timetables: $e");
@@ -88,9 +102,6 @@ class _SplashPageState extends State<SplashPage> {
           (r) => false,
         );
       }
-
-      print("Navigating to main page");
-      print("Next route: ${widget.nextRoute}");
 
       Navigator.pushAndRemoveUntil(
         context,
@@ -112,13 +123,13 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            CircleAvatar(
+            const CircleAvatar(
               radius: 120,
               backgroundColor: Colors.white,
               child: CircleAvatar(
@@ -126,12 +137,17 @@ class _SplashPageState extends State<SplashPage> {
                 backgroundImage: AssetImage('assets/img/logo.png'),
               ),
             ),
-            SizedBox(height: 45),
-            CircularProgressIndicator(),
-            SizedBox(height: 30),
-            Text(
+            const SizedBox(height: 45),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 30),
+            const Text(
               'Welcome to My Runshaw!',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              loadingStageText,
+              style: const TextStyle(fontSize: 16),
             ),
           ],
         ),

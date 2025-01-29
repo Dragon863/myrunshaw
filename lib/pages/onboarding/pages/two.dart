@@ -91,6 +91,7 @@ class _OnBoardingStageTwoState extends State<OnBoardingStageTwo> {
           ),
           const SizedBox(height: 16),
           TextField(
+            autofillHints: const [AutofillHints.name],
             controller: controller,
             decoration: InputDecoration(
               hintText: "Display Name",

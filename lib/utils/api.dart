@@ -7,6 +7,7 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:http/http.dart' as http;
 import 'package:runshaw/utils/config.dart';
+import 'package:runshaw/utils/logging.dart';
 
 enum AccountStatus {
   uninitialized,
@@ -19,9 +20,11 @@ class BaseAPI extends ChangeNotifier {
   AccountStatus _status = AccountStatus.uninitialized;
 
   final Client _client = Client();
+  String? _jwt;
   late Account _account;
   late Map cachedTimetables;
   late Map cachedPfpVersions;
+  late Map cachedNames;
 
   User get currentUser => _currentUser;
   AccountStatus get status => _status;
@@ -52,6 +55,44 @@ class BaseAPI extends ChangeNotifier {
       _status = AccountStatus.unauthenticated;
     }
     notifyListeners();
+  }
+
+  String getJsonFromJWT(String splitToken) {
+    String normalizedSource = base64Url.normalize(splitToken);
+    return utf8.decode(base64Url.decode(normalizedSource));
+  }
+
+  Future<String> getJwt() async {
+    // As of v1.2.5, this is the preferred way to get a JWT for API requests as it prevents unnecessary API calls
+    // to get a new JWT if the current one is still valid.
+    if (_jwt == null) {
+      // Normal on first API call after cold start
+      _jwt = await _account.createJWT().then((jwt) => jwt.jwt);
+      debugLog("JWT is null, creating new one");
+      debugLog("New JWT: $_jwt");
+      return _jwt!;
+    }
+    // Split the JWT into its three parts - header, payload, signature
+    final String splitToken = _jwt!.split(".")[1]; // Payload
+
+    final maybeValidJwt = getJsonFromJWT(splitToken);
+
+    if (jsonDecode(maybeValidJwt)["exp"] <
+        DateTime.now().millisecondsSinceEpoch / 1000) {
+      // Appwrite uses seconds, not milliseconds, since epoch
+
+      // JWT is expired
+      debugLog("JWT is expired, creating new one");
+      debugLog(
+          "Original expired at ${jsonDecode(maybeValidJwt)["exp"]}, now is ${DateTime.now().millisecondsSinceEpoch / 1000}");
+      String _jwt = await _account.createJWT().then((Jwt jwt) => jwt.jwt);
+      debugLog("New JWT: $_jwt");
+      return _jwt;
+    } else {
+      // JWT is still valid
+      debugLog("JWT is still valid");
+      return _jwt!;
+    }
   }
 
   Future<User?> createUser(
@@ -98,7 +139,7 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<void> cacheTimetables() async {
-    final Jwt jwtToken = await account!.createJWT();
+    final String jwtToken = await getJwt();
     final friends = await getFriends();
 
     List<String> userIds = [];
@@ -110,7 +151,7 @@ class BaseAPI extends ChangeNotifier {
       Uri.parse(
           '${MyRunshawConfig.friendsMicroserviceUrl}/api/timetable/batch_get'),
       headers: {
-        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Authorization': 'Bearer $jwtToken',
         'Content-Type': 'application/json',
       },
       body: jsonEncode({
@@ -121,7 +162,7 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<void> cachePfpVersions() async {
-    final Jwt jwtToken = await account!.createJWT();
+    final String jwtToken = await getJwt();
     final friends = await getFriends();
 
     List<String> userIds = [];
@@ -133,7 +174,7 @@ class BaseAPI extends ChangeNotifier {
       Uri.parse(
           '${MyRunshawConfig.friendsMicroserviceUrl}/api/cache/get/pfp-versions'),
       headers: {
-        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Authorization': 'Bearer $jwtToken',
         'Content-Type': 'application/json',
       },
       body: jsonEncode({
@@ -141,6 +182,28 @@ class BaseAPI extends ChangeNotifier {
       }),
     );
     cachedPfpVersions = jsonDecode(response.body);
+  }
+
+  Future<void> cacheNames() async {
+    final String jwtToken = await getJwt();
+    final friends = await getFriends();
+
+    List<String> userIds = [];
+    for (var friend in friends) {
+      userIds.add(friend["userid"]);
+    }
+
+    final response = await http.post(
+      Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/name/get/batch'),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'user_ids': userIds,
+      }),
+    );
+    cachedNames = jsonDecode(response.body);
   }
 
   Future<void> createEmailSession(
@@ -159,10 +222,10 @@ class BaseAPI extends ChangeNotifier {
     _status = AccountStatus.authenticated;
     await cachePfpVersions();
     await cacheTimetables();
+    await cacheNames();
   }
 
   String getPfpUrl(String userId) {
-    print("For user $userId, version is ${cachedPfpVersions[userId]}");
     if (cachedPfpVersions.containsKey(userId)) {
       return "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/$userId/view?project=${MyRunshawConfig.projectId}&version=${cachedPfpVersions[userId]}";
     }
@@ -170,12 +233,12 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<void> incrementPfpVersion() async {
-    final Jwt jwtToken = await account!.createJWT();
+    final String jwtToken = await getJwt();
     final response = await http.post(
       Uri.parse(
           '${MyRunshawConfig.friendsMicroserviceUrl}/api/cache/update/pfp-version'),
       headers: {
-        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Authorization': 'Bearer $jwtToken',
       },
     );
     if (response.statusCode != 200) {
@@ -187,6 +250,7 @@ class BaseAPI extends ChangeNotifier {
   Future<void> signOut() async {
     try {
       await _account.deleteSessions();
+      _jwt = null;
       _status = AccountStatus.unauthenticated;
     } finally {
       notifyListeners();
@@ -206,16 +270,16 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<void> syncTimetable(timetable) async {
-    final Jwt jwtToken = await account!.createJWT();
+    final String jwtToken = await getJwt();
     final response = await http.post(
       Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/timetable'),
       headers: {
-        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Authorization': 'Bearer $jwtToken',
         'Content-Type': 'application/json',
       },
       body: jsonEncode({'timetable': timetable}),
     );
-    if (response.statusCode == 200) {
+    if (response.statusCode != 201) {
       throw "Error syncing timetable";
     }
     return;
@@ -240,13 +304,14 @@ class BaseAPI extends ChangeNotifier {
     Map events;
 
     if (!cachedTimetables.containsKey(userId)) {
-      print("Fetching timetable for $userId");
-      final Jwt jwtToken = await account!.createJWT();
+      debugLog("Fetching timetable for $userId");
+      final String jwtToken = await getJwt();
+
       final response = await http.get(
         Uri.parse(
             '${MyRunshawConfig.friendsMicroserviceUrl}/api/timetable$query'),
         headers: {
-          'Authorization': 'Bearer ${jwtToken.jwt}',
+          'Authorization': 'Bearer $jwtToken',
         },
       );
 
@@ -255,7 +320,12 @@ class BaseAPI extends ChangeNotifier {
       }
       events = jsonDecode(response.body)["timetable"];
     } else {
-      events = cachedTimetables[userId];
+      if (cachedTimetables[userId].runtimeType == String) {
+        // Legacy API support; not sure why this happend but sometimes the timetable is a string and sometimes it's a map :/
+        events = jsonDecode(cachedTimetables[userId]);
+      } else {
+        events = cachedTimetables[userId];
+      }
     }
 
     for (final event in events["data"]) {
@@ -294,12 +364,13 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<String> sendFriendRequest(String userId) async {
-    final Jwt jwtToken = await account!.createJWT();
+    final String jwtToken = await getJwt();
+
     final response = await http.post(
       Uri.parse(
           '${MyRunshawConfig.friendsMicroserviceUrl}/api/friend-requests'),
       headers: {
-        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Authorization': 'Bearer $jwtToken',
         'Content-Type': 'application/json',
       },
       body: jsonEncode({'receiver_id': userId}),
@@ -308,11 +379,11 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<void> blockUser(String userId) async {
-    final Jwt jwtToken = await account!.createJWT();
+    final String jwtToken = await getJwt();
     final response = await http.post(
       Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/block'),
       headers: {
-        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Authorization': 'Bearer $jwtToken',
         'Content-Type': 'application/json',
       },
       body: jsonEncode({'blocked_id': userId}),
@@ -325,12 +396,12 @@ class BaseAPI extends ChangeNotifier {
 
   Future<bool> respondToFriendRequest(
       String userId, bool accept, int id) async {
-    final Jwt jwtToken = await account!.createJWT();
+    final String jwtToken = await getJwt();
     final response = await http.put(
       Uri.parse(
           '${MyRunshawConfig.friendsMicroserviceUrl}/api/friend-requests/${id.toString()}'),
       headers: {
-        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Authorization': 'Bearer $jwtToken',
         'Content-Type': 'application/json',
       },
       body: jsonEncode({
@@ -341,15 +412,16 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<List> getFriends() async {
-    final Jwt jwtToken = await account!.createJWT();
+    final String jwtToken = await getJwt();
     List<Map> friends = [];
 
     final response = await http.get(
       Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/friends'),
       headers: {
-        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Authorization': 'Bearer $jwtToken',
       },
     );
+    print("QAAAA");
     for (final friend in jsonDecode(response.body)) {
       if (friend["receiver_id"] == user!.$id) {
         friends.add({
@@ -375,18 +447,19 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<List> getFriendRequests() async {
-    final Jwt jwtToken = await account!.createJWT();
+    final String jwtToken = await getJwt();
     final response = await http.get(
       Uri.parse(
           '${MyRunshawConfig.friendsMicroserviceUrl}/api/friend-requests?status=pending'),
       headers: {
-        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Authorization': 'Bearer $jwtToken',
       },
     );
     return jsonDecode(response.body);
   }
 
   Future<String> getName(String userId) async {
+    // LEGACY:
     // final Functions functions = Functions(client);
     // final Execution execution = await functions.createExecution(
     //   functionId: "getname",
@@ -394,12 +467,15 @@ class BaseAPI extends ChangeNotifier {
     // );
     // final String response = execution.responseBody;
     // return jsonDecode(response)["name"];
-    final Jwt jwtToken = await account!.createJWT();
+    if (cachedNames.containsKey(userId)) {
+      return cachedNames[userId];
+    }
+    final String jwtToken = await getJwt();
     final response = await http.get(
       Uri.parse(
           '${MyRunshawConfig.friendsMicroserviceUrl}/api/name/get/$userId'),
       headers: {
-        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Authorization': 'Bearer $jwtToken',
       },
     );
     return jsonDecode(response.body)["name"];
@@ -422,11 +498,11 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<String> getBusBay(String busNumber) async {
-    final Jwt jwtToken = await account!.createJWT();
+    final String jwtToken = await getJwt();
     final response = await http.get(
       Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/bus'),
       headers: {
-        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Authorization': 'Bearer $jwtToken',
       },
     );
     final body = jsonDecode(response.body);
@@ -443,11 +519,11 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<Map<String, String?>> getBusBays() async {
-    final Jwt jwtToken = await account!.createJWT();
+    final String jwtToken = await getJwt();
     final response = await http.get(
       Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/bus'),
       headers: {
-        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Authorization': 'Bearer $jwtToken',
       },
     );
     final body = jsonDecode(response.body);
@@ -459,12 +535,12 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<String?> getBusFor(String userId) async {
-    final Jwt jwtToken = await account!.createJWT();
+    final String jwtToken = await getJwt();
     final response = await http.get(
       Uri.parse(
           '${MyRunshawConfig.friendsMicroserviceUrl}/api/bus/for?user_id=$userId'),
       headers: {
-        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Authorization': 'Bearer $jwtToken',
       },
     );
     final body = jsonDecode(response.body);
@@ -483,11 +559,11 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<void> closeAccount() async {
-    final Jwt jwtToken = await account!.createJWT();
+    final String jwtToken = await getJwt();
     final response = await http.post(
       Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/account/close'),
       headers: {
-        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Authorization': 'Bearer $jwtToken',
       },
     );
 
@@ -522,12 +598,12 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<List<String>> getExtraBuses() async {
-    final Jwt jwtToken = await account!.createJWT();
+    final String jwtToken = await getJwt();
     final response = await http.get(
       Uri.parse(
           '${MyRunshawConfig.friendsMicroserviceUrl}/api/extra_buses/get'),
       headers: {
-        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Authorization': 'Bearer $jwtToken',
       },
     );
     final body = jsonDecode(response.body);
@@ -539,12 +615,12 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<void> addExtraBus(String busId) async {
-    final Jwt jwtToken = await account!.createJWT();
+    final String jwtToken = await getJwt();
     final response = await http.post(
       Uri.parse(
           '${MyRunshawConfig.friendsMicroserviceUrl}/api/extra_buses/add'),
       headers: {
-        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Authorization': 'Bearer $jwtToken',
         'Content-Type': 'application/json',
       },
       body: jsonEncode({'bus_number': busId}),
@@ -555,12 +631,12 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<void> removeExtraBus(String busId) async {
-    final Jwt jwtToken = await account!.createJWT();
+    final String jwtToken = await getJwt();
     final response = await http.post(
       Uri.parse(
           '${MyRunshawConfig.friendsMicroserviceUrl}/api/extra_buses/remove'),
       headers: {
-        'Authorization': 'Bearer ${jwtToken.jwt}',
+        'Authorization': 'Bearer $jwtToken',
         'Content-Type': 'application/json',
       },
       body: jsonEncode({'bus_number': busId}),

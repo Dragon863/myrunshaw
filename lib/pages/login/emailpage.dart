@@ -56,6 +56,7 @@ class _EmailPageState extends State<EmailPage> {
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                   ),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 5),
                 const Text("Let's get you logged in"),
@@ -83,8 +84,12 @@ class _EmailPageState extends State<EmailPage> {
                 ),
                 const SizedBox(height: 20),
                 TextField(
+                  autofillHints: const [
+                    AutofillHints.email,
+                    AutofillHints.username
+                  ],
                   decoration: const InputDecoration(
-                    labelText: 'College Email',
+                    labelText: 'College Email / Student ID',
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.emailAddress,
@@ -92,6 +97,7 @@ class _EmailPageState extends State<EmailPage> {
                 ),
                 const SizedBox(height: 12),
                 TextField(
+                  autofillHints: const [AutofillHints.password],
                   decoration: const InputDecoration(
                     labelText: 'Password',
                     border: OutlineInputBorder(),
@@ -129,6 +135,16 @@ class _EmailPageState extends State<EmailPage> {
                         (r) => false,
                       );
                     } on AppwriteException catch (e) {
+                      if (e.message != null) {
+                        if (e.message!.contains("a session is active")) {
+                          // Sometimes happens when something fails after logging in with appwrite but before redirecting
+                          await api.signOut();
+                          await api.createEmailSession(
+                            email: emailController.text,
+                            password: passwordController.text,
+                          );
+                        }
+                      }
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(e.message ?? 'An error occurred'),

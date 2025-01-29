@@ -496,14 +496,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     ListTile(
                       title: const Text(
-                        "Add Extra Bus",
+                        "Add Extra Buses",
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.normal,
                         ),
                       ),
                       subtitle: const Text(
-                        "(Experimental)",
+                        "(notifications only)",
                       ),
                       trailing: const Icon(Icons.add),
                       onTap: () => Navigator.of(context).push(

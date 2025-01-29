@@ -45,35 +45,27 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
       bus = busNumber;
     });
 
-    try {
-      final List<Event> events = await api.fetchEvents(userId: widget.userId);
-      if (events.isEmpty) {
-        events.add(
-          Event(
-            summary: 'Events not found',
-            location: '',
-            start: DateTime.now(),
-            end: DateTime.now(),
-            description: '${widget.name} has not synced their timetable yet',
-            uid: '',
-          ),
-        );
-        setState(() {
-          _events = events;
-          currentEvent = "Not synced";
-        });
-      } else {
-        setState(() {
-          _events = events;
-          currentEvent = fetchCurrentEvent(_events);
-        });
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("An error occurred whilst syncing: $e"),
+    final List<Event> events = await api.fetchEvents(userId: widget.userId);
+    if (events.isEmpty) {
+      events.add(
+        Event(
+          summary: 'Events not found',
+          location: '',
+          start: DateTime.now(),
+          end: DateTime.now(),
+          description: '${widget.name} has not synced their timetable yet',
+          uid: '',
         ),
       );
+      setState(() {
+        _events = events;
+        currentEvent = "Not synced";
+      });
+    } else {
+      setState(() {
+        _events = events;
+        currentEvent = fetchCurrentEvent(_events);
+      });
     }
   }
 
