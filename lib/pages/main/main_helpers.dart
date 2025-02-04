@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:runshaw/pages/main/subpages/buses/buses.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/friends.dart';
 import 'package:runshaw/pages/main/subpages/home/home.dart';
+import 'package:runshaw/pages/main/subpages/map/map.dart';
 import 'package:runshaw/pages/main/subpages/settings/settings.dart';
 import 'package:runshaw/pages/main/subpages/timetable/timetable.dart';
 // import 'package:grace/src/pages/main/subpages/notifications/notifications.dart';
@@ -13,6 +14,7 @@ List<Widget> getPages(bool showNotifs) {
     const Center(child: BusesPage()),
     const FriendsPage(),
     const TimetablePage(),
+    const MapPage(),
     const Center(child: SettingsPage()),
   ];
 }
@@ -104,6 +106,12 @@ class _SliderViewState extends State<SliderView> {
                           color: Colors.black,
                         ),
                         'Timetable'),
+                    Menu(
+                        const Icon(
+                          Icons.map_outlined,
+                          color: Colors.black,
+                        ),
+                        'Map'),
                     Menu(
                         const Icon(
                           Icons.settings_outlined,

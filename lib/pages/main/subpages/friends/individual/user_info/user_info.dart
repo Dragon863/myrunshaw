@@ -101,6 +101,9 @@ class _UserInfoPageState extends State<UserInfoPage> {
               subtitle: Text(widget.bus),
               trailing: const Icon(Icons.directions_bus),
               onTap: () async {
+                if (widget.bus == "Not Set") {
+                  return;
+                }
                 final BaseAPI api = context.read<BaseAPI>();
                 final String busBay = await api.getBusBay(widget.bus);
 

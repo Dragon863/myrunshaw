@@ -17,6 +17,7 @@ class EmailPage extends StatefulWidget {
 class _EmailPageState extends State<EmailPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool loading = false;
 
   @override
   void initState() {
@@ -120,6 +121,11 @@ class _EmailPageState extends State<EmailPage> {
                 const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () async {
+                    setState(() {
+                      loading = true;
+                    });
+                    await Future.delayed(const Duration(seconds: 2));
+
                     final BaseAPI api = context.read<BaseAPI>();
 
                     try {
@@ -127,6 +133,9 @@ class _EmailPageState extends State<EmailPage> {
                         email: emailController.text,
                         password: passwordController.text,
                       );
+                      setState(() {
+                        loading = false;
+                      });
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
@@ -143,6 +152,9 @@ class _EmailPageState extends State<EmailPage> {
                             email: emailController.text,
                             password: passwordController.text,
                           );
+                          setState(() {
+                            loading = false;
+                          });
                         }
                       }
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -150,9 +162,26 @@ class _EmailPageState extends State<EmailPage> {
                           content: Text(e.message ?? 'An error occurred'),
                         ),
                       );
+                      setState(() {
+                        loading = false;
+                      });
                     }
                   },
-                  child: const Text('Sign In'),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Sign In'),
+                      loading ? const SizedBox(width: 10)
+                      : const SizedBox.shrink(),
+                      loading ? const SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(strokeWidth: 3)
+                        )
+                      : const SizedBox.shrink(),
+                    ],
+                  ),
                 ),
               ],
             ),

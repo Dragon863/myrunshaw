@@ -90,7 +90,6 @@ class BaseAPI extends ChangeNotifier {
       return _jwt;
     } else {
       // JWT is still valid
-      debugLog("JWT is still valid");
       return _jwt!;
     }
   }
@@ -421,7 +420,6 @@ class BaseAPI extends ChangeNotifier {
         'Authorization': 'Bearer $jwtToken',
       },
     );
-    print("QAAAA");
     for (final friend in jsonDecode(response.body)) {
       if (friend["receiver_id"] == user!.$id) {
         friends.add({
