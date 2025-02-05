@@ -183,11 +183,6 @@ class BaseAPI extends ChangeNotifier {
     cachedPfpVersions = jsonDecode(response.body);
   }
 
-  String utf8convert(String text) {
-    List<int> bytes = text.toString().codeUnits;
-    return utf8.decode(bytes);
-  }
-
   Future<void> cacheNames() async {
     final String jwtToken = await getJwt();
     final friends = await getFriends();
@@ -473,8 +468,7 @@ class BaseAPI extends ChangeNotifier {
     // final String response = execution.responseBody;
     // return jsonDecode(response)["name"];
     if (cachedNames.containsKey(userId)) {
-      return utf8convert(cachedNames[userId].toString())
-          .toString(); // Fixes emojis but for some reason raises the error "Invalid argument(s): string is not well-formed UTF-16". We can fix
+      return cachedNames[userId].toString();
     }
     final String jwtToken = await getJwt();
     final response = await http.get(
