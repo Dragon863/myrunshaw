@@ -4,6 +4,7 @@ import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/timetable/subpages/individual_event.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/events_card.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
+import 'package:runshaw/pages/sync/sync.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 
 class TimetableList extends StatefulWidget {
@@ -129,6 +130,18 @@ class _TimetableListState extends State<TimetableList> {
                             color: Colors.green.shade400,
                             dense: widget.dense,
                             onTap: () {
+                              if (event.description != null) {
+                                if (event.description!
+                                    .toLowerCase()
+                                    .contains("try syncing your timetable")) {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => const SyncPage(),
+                                    ),
+                                  );
+                                  return;
+                                }
+                              }
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) => IndividualEventPage(

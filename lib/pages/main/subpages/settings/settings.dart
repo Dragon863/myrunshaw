@@ -663,7 +663,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           scheme: 'mailto',
                           path: 'hi@danieldb.uk',
                           query:
-                              "subject=My Runshaw Bug Report&body=Please describe the bug you encountered here:",
+                              "subject=My Runshaw Bug Report&body=App version: v$appVersion\nBefore sending, please check you are on the latest version of the app from the App Store or Google Play Store. Describe the bug you encountered here:",
                         );
                         await launchUrl(emailLaunchUri);
                       },

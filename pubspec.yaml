@@ -2,7 +2,7 @@ name: runshaw
 description: "My Runshaw mobile app"
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
-version: 1.2.6+1
+version: 1.2.6+5
 
 environment:
   sdk: ^3.5.1

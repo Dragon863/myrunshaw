@@ -40,8 +40,7 @@ class _TimetablePageState extends State<TimetablePage> {
               location: '',
               start: DateTime.now(),
               end: DateTime.now(),
-              description:
-                  'Try syncing your timetable with the button in the bottom right',
+              description: 'Try syncing your timetable by tapping this card',
               uid: ''),
         );
         setState(() {

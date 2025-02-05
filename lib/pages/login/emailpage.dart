@@ -124,8 +124,6 @@ class _EmailPageState extends State<EmailPage> {
                     setState(() {
                       loading = true;
                     });
-                    await Future.delayed(const Duration(seconds: 2));
-
                     final BaseAPI api = context.read<BaseAPI>();
 
                     try {
@@ -133,6 +131,7 @@ class _EmailPageState extends State<EmailPage> {
                         email: emailController.text,
                         password: passwordController.text,
                       );
+                      print("Created email session");
                       setState(() {
                         loading = false;
                       });
@@ -147,11 +146,6 @@ class _EmailPageState extends State<EmailPage> {
                       if (e.message != null) {
                         if (e.message!.contains("a session is active")) {
                           // Sometimes happens when something fails after logging in with appwrite but before redirecting
-                          await api.signOut();
-                          await api.createEmailSession(
-                            email: emailController.text,
-                            password: passwordController.text,
-                          );
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
@@ -159,14 +153,24 @@ class _EmailPageState extends State<EmailPage> {
                               ),
                             ),
                           );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(e.message ?? 'An error occurred'),
+                            ),
+                          );
                         }
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(e.message ?? 'An error occurred'),
-                          ),
-                        );
                       }
+
+                      setState(() {
+                        loading = false;
+                      });
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('An error occurred: ${e.toString()}'),
+                        ),
+                      );
                       setState(() {
                         loading = false;
                       });
