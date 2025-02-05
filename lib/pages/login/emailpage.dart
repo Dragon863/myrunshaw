@@ -152,16 +152,21 @@ class _EmailPageState extends State<EmailPage> {
                             email: emailController.text,
                             password: passwordController.text,
                           );
-                          setState(() {
-                            loading = false;
-                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                "Please fully close the app and try again",
+                              ),
+                            ),
+                          );
                         }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(e.message ?? 'An error occurred'),
+                          ),
+                        );
                       }
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(e.message ?? 'An error occurred'),
-                        ),
-                      );
                       setState(() {
                         loading = false;
                       });
@@ -172,14 +177,15 @@ class _EmailPageState extends State<EmailPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text('Sign In'),
-                      loading ? const SizedBox(width: 10)
-                      : const SizedBox.shrink(),
-                      loading ? const SizedBox(
-                        width: 12,
-                        height: 12,
-                        child: CircularProgressIndicator(strokeWidth: 3)
-                        )
-                      : const SizedBox.shrink(),
+                      loading
+                          ? const SizedBox(width: 10)
+                          : const SizedBox.shrink(),
+                      loading
+                          ? const SizedBox(
+                              width: 12,
+                              height: 12,
+                              child: CircularProgressIndicator(strokeWidth: 3))
+                          : const SizedBox.shrink(),
                     ],
                   ),
                 ),

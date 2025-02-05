@@ -169,6 +169,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                         obscureText: !showFieldOneText,
                         autocorrect: false,
                         autofocus: false,
+                        autofillHints: const [AutofillHints.password],
                         decoration: InputDecoration(
                           labelText: "Password",
                           suffixIcon: IconButton(

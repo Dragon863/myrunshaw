@@ -481,6 +481,23 @@ class _HomePageState extends State<HomePage> {
                         todayOnly: true,
                       )
                     : const SizedBox(),
+                const SizedBox(height: 8),
+                if (userId == "row23207169")
+                  // easter egg for a friend
+                  RotatedBox(
+                    quarterTurns: 1,
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: CachedNetworkImage(
+                        imageUrl:
+                            "https://appwrite.danieldb.uk/v1/storage/buckets/cdn/files/charlie/view?project=66fdb56000209ea9ac18",
+                        width: 80,
+                        height: 80,
+                      ),
+                    ),
+                  )
+                else
+                  const SizedBox(),
               ],
             ),
           ),

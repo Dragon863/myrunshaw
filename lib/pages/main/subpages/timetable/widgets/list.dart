@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
+import 'package:runshaw/pages/main/subpages/timetable/subpages/individual_event.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/events_card.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
@@ -84,34 +85,67 @@ class _TimetableListState extends State<TimetableList> {
                           ),
                         ),
                       ),
-                    ...events.map((event) {
-                      if (event.location != "") {
-                        String eventDetails;
-                        if (event.description != null) {
-                          eventDetails =
-                              "${event.description!.replaceAll("Teacher: ", "")} in ${event.location}";
+                    ...events.map(
+                      (event) {
+                        if (event.location != "") {
+                          String eventDetails;
+                          if (event.description != null) {
+                            eventDetails =
+                                "${event.description!.replaceAll("Teacher: ", "")} in ${event.location}";
+                          } else {
+                            eventDetails = event.location ?? 'Undefined';
+                          }
+                          return EventsCard(
+                            lessonName:
+                                event.summary == '' ? "Exam" : event.summary,
+                            roomAndTeacher: eventDetails,
+                            timing: _humaniseTime(event.start, event.end),
+                            color:
+                                event.summary != "" ? Colors.blue : Colors.red,
+                            dense: widget.dense,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => IndividualEventPage(
+                                    eventName: event.summary,
+                                    eventDescription: event.description,
+                                    eventLocation: event.location,
+                                    dtStart: event.start,
+                                    dtEnd: event.end,
+                                    color: event.summary != ""
+                                        ? Colors.blue
+                                        : Colors.red,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
                         } else {
-                          eventDetails = event.location ?? 'Undefined';
+                          return EventsCard(
+                            lessonName:
+                                event.summary == '' ? "Exam" : event.summary,
+                            roomAndTeacher: event.description ?? '',
+                            timing: _humaniseTime(event.start, event.end),
+                            color: Colors.green.shade400,
+                            dense: widget.dense,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => IndividualEventPage(
+                                    eventName: event.summary,
+                                    eventDescription: event.description,
+                                    eventLocation: event.location,
+                                    dtStart: event.start,
+                                    dtEnd: event.end,
+                                    color: Colors.green.shade400,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
                         }
-                        return EventsCard(
-                          lessonName:
-                              event.summary == '' ? "Exam" : event.summary,
-                          roomAndTeacher: eventDetails,
-                          timing: _humaniseTime(event.start, event.end),
-                          color: event.summary != "" ? Colors.blue : Colors.red,
-                          dense: widget.dense,
-                        );
-                      } else {
-                        return EventsCard(
-                          lessonName:
-                              event.summary == '' ? "Exam" : event.summary,
-                          roomAndTeacher: event.description ?? '',
-                          timing: _humaniseTime(event.start, event.end),
-                          color: Colors.green.shade400,
-                          dense: widget.dense,
-                        );
-                      }
-                    }),
+                      },
+                    ),
                   ],
                 );
               },

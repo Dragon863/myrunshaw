@@ -33,6 +33,7 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
 
   @override
   void initState() {
+    print(widget.name);
     _refresh();
     super.initState();
   }

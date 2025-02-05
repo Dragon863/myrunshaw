@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:appwrite/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/login/stage1.dart';
 import 'package:runshaw/pages/main/main_view.dart';
@@ -123,6 +124,11 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      // Just in case the map page is opened which on android can cause the app to stay landscape
+    ]);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(

@@ -25,13 +25,8 @@ class _IndividualBuildingMapPageState extends State<IndividualBuildingMapPage> {
       ),
       body: SingleChildScrollView(
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              InteractiveViewer(
-                child: Image.asset('assets/img/map/${widget.fileName}.png'),
-              ),
-            ],
+          child: InteractiveViewer(
+            child: Image.asset('assets/img/map/${widget.fileName}.png'),
           ),
         ),
       ),
