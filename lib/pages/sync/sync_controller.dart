@@ -29,5 +29,6 @@ Future<void> syncFromUrl(String icalUrl, BuildContext context) async {
       ICalendar.fromString(response.body.replaceAll("PROID", "PRODID"));
 
   await api.syncTimetable(events);
+  await api.associateTimetableUrl(icalUrl);
   await api.cacheTimetables();
 }

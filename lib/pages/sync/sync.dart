@@ -84,7 +84,7 @@ class _SyncPageState extends State<SyncPage> {
             TextField(
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                labelText: 'Calendar URL',
+                labelText: 'Timetable URL',
               ),
               controller: _controller,
               onSubmitted: (value) => syncCalendar(),

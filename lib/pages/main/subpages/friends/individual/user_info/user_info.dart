@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/buses/bus_list/bus_map_view.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/pfp_helper.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -51,7 +52,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                         errorListener: (error) {},
                       ),
                       child: Text(
-                        widget.name[0].toUpperCase(),
+                        getFirstNameCharacter(widget.name),
                         style: GoogleFonts.rubik(
                           fontSize: 100,
                           fontWeight: FontWeight.bold,

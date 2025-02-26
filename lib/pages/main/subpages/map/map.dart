@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_image_map/flutter_image_map.dart';
 import 'package:runshaw/pages/main/subpages/map/individual_map.dart';
 import 'package:runshaw/pages/main/subpages/map/locations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -55,6 +56,32 @@ class _MapPageState extends State<MapPage> {
         );
       },
     );
+  }
+
+  void maybeDisplayHelp() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (!prefs.containsKey('map_help_shown')) {
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Map Page"),
+            content: const Text(
+              "Tap on a building to view its floorplan, or scroll down to search for a room below. This page uses landscape mode so the floorplans are easier to view.",
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+      await prefs.setBool('map_help_shown', true);
+    }
   }
 
   @override
@@ -152,15 +179,17 @@ class _MapPageState extends State<MapPage> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    "Tap on a building to view its floorplan, or search for a room below",
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      "Tap on a building to view its floorplan, or search for a room below",
+                    ),
                   ),
-                  const SizedBox(height: 4),
                   Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(8.0),
                     child: SearchBar(
                       controller: _searchController,
-                      hintText: "Search a Room Number",
+                      hintText: "Search a room number...",
                       trailing: [
                         IconButton(
                           icon: const Icon(Icons.search),
@@ -180,6 +209,12 @@ class _MapPageState extends State<MapPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    maybeDisplayHelp();
   }
 
   @override

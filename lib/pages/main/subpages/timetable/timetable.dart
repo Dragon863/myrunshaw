@@ -36,12 +36,13 @@ class _TimetablePageState extends State<TimetablePage> {
       } else {
         events.add(
           Event(
-              summary: 'Events not found',
-              location: '',
-              start: DateTime.now(),
-              end: DateTime.now(),
-              description: 'Try syncing your timetable by tapping this card',
-              uid: ''),
+            summary: 'Events not found',
+            location: '',
+            start: DateTime.now(),
+            end: DateTime.now(),
+            description: 'Try syncing your timetable by tapping this card',
+            uid: '',
+          ),
         );
         setState(() {
           _events = events;
@@ -64,12 +65,13 @@ class _TimetablePageState extends State<TimetablePage> {
         return event.start.isBefore(now) && event.end.isAfter(now);
       },
       orElse: () => Event(
-          summary: 'No Event',
-          location: '',
-          start: now,
-          end: now,
-          description: '',
-          uid: ''),
+        summary: 'No Event',
+        location: '',
+        start: now,
+        end: now,
+        description: '',
+        uid: '',
+      ),
     );
     return currentEvent.summary;
   }

@@ -84,10 +84,6 @@ class _MainPageState extends State<MainPage> {
                   await loadNotifications();
                 }),
             appBar: SliderAppBar(
-              appBarHeight: 50,
-              appBarColor: Colors.red, //const Color.fromARGB(255, 230, 51, 18),
-              appBarPadding: const EdgeInsets.only(top: 4),
-              drawerIconColor: Colors.white,
               title: Text(
                 title,
                 style: GoogleFonts.rubik(
@@ -96,6 +92,11 @@ class _MainPageState extends State<MainPage> {
                   color: Colors.white,
                 ),
               ),
+
+              appBarHeight: 50,
+              appBarColor: Colors.red, //const Color.fromARGB(255, 230, 51, 18),
+              appBarPadding: const EdgeInsets.only(top: 4),
+              drawerIconColor: Colors.white,
             ),
             child: getPages(showNotifs)[_currentIndex],
           ),

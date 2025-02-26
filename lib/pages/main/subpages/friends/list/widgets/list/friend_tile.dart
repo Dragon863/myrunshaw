@@ -6,6 +6,7 @@ import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/individual_friend.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/pfp_helper.dart';
 
 class FriendTile extends StatefulWidget {
   final String uid;
@@ -125,7 +126,7 @@ class _FriendTileState extends State<FriendTile> {
             errorListener: (error) {},
           ),
           child: Text(
-            name[0].toUpperCase(),
+            getFirstNameCharacter(name),
             style: GoogleFonts.rubik(
               fontSize: 18,
               fontWeight: FontWeight.bold,

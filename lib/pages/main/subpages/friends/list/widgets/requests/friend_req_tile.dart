@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/pfp_helper.dart';
 
 class FriendRequestTile extends StatefulWidget {
   final String uid;
@@ -81,7 +82,7 @@ class _FriendRequestTileState extends State<FriendRequestTile> {
           cacheKey: widget.uid,
         ),
         child: Text(
-          name[0].toUpperCase(),
+          getFirstNameCharacter(name),
           style: GoogleFonts.rubik(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -89,22 +90,22 @@ class _FriendRequestTileState extends State<FriendRequestTile> {
         ),
       ),
       title: Text(name),
+      subtitle: const Text("Received"),
       trailing: !responded
           ? Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // IconButton(
-                //   onPressed: () async => await respond(false),
-                //   icon: const Icon(Icons.close, color: Colors.red),
-                // ),
-                // const SizedBox(width: 10),
-                // Disable the accept button for now, as it's not implemented properly. Can be re added if necessary
                 TextButton(
                   onPressed: () async => await respond(true),
                   style: const ButtonStyle(
                     foregroundColor: WidgetStatePropertyAll(Colors.green),
                   ),
                   child: const Text("Accept"),
+                ),
+                const SizedBox(width: 10),
+                IconButton(
+                  onPressed: () async => await respond(false),
+                  icon: const Icon(Icons.close, color: Colors.red),
                 ),
               ],
             )

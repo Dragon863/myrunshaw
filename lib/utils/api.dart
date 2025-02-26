@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:appwrite/models.dart';
+import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/widgets.dart';
 import 'package:appwrite/appwrite.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
@@ -8,6 +9,7 @@ import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:http/http.dart' as http;
 import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/logging.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum AccountStatus {
   uninitialized,
@@ -67,7 +69,7 @@ class BaseAPI extends ChangeNotifier {
     // to get a new JWT if the current one is still valid.
     if (_jwt == null) {
       // Normal on first API call after cold start
-      _jwt = await _account.createJWT().then((jwt) => jwt.jwt);
+      _jwt = await _account.createJWT().then((Jwt jwt) => jwt.jwt);
       debugLog("JWT is null, creating new one");
       debugLog("New JWT: $_jwt");
       return _jwt!;
@@ -77,19 +79,20 @@ class BaseAPI extends ChangeNotifier {
 
     final maybeValidJwt = getJsonFromJWT(splitToken);
 
-    if (jsonDecode(maybeValidJwt)["exp"] <
-        DateTime.now().millisecondsSinceEpoch / 1000) {
+    if ((jsonDecode(maybeValidJwt)["exp"] * 1000) <
+        DateTime.now().millisecondsSinceEpoch) {
       // Appwrite uses seconds, not milliseconds, since epoch
 
       // JWT is expired
       debugLog("JWT is expired, creating new one");
       debugLog(
-          "Original expired at ${jsonDecode(maybeValidJwt)["exp"]}, now is ${DateTime.now().millisecondsSinceEpoch / 1000}");
-      String _jwt = await _account.createJWT().then((Jwt jwt) => jwt.jwt);
+          "Original expired at ${jsonDecode(maybeValidJwt)["exp"] * 1000}, now is ${DateTime.now().millisecondsSinceEpoch}");
+      _jwt = await _account.createJWT().then((Jwt jwt) => jwt.jwt);
       debugLog("New JWT: $_jwt");
-      return _jwt;
+      return _jwt!;
     } else {
       // JWT is still valid
+      debugLog("JWT is still valid");
       return _jwt!;
     }
   }
@@ -203,7 +206,6 @@ class BaseAPI extends ChangeNotifier {
       }),
     );
 
-    print(jsonDecode(response.body));
     cachedNames = jsonDecode(response.body);
   }
 
@@ -246,6 +248,9 @@ class BaseAPI extends ChangeNotifier {
       throw "Error incrementing pfp version";
     }
     await cachePfpVersions();
+    await Aptabase.instance.trackEvent(
+      "updated-pfp",
+    );
   }
 
   Future<void> signOut() async {
@@ -283,6 +288,29 @@ class BaseAPI extends ChangeNotifier {
     if (response.statusCode != 201) {
       throw "Error syncing timetable";
     }
+    await Aptabase.instance.trackEvent(
+      "synced-timetable",
+    );
+    return;
+  }
+
+  Future<void> associateTimetableUrl(String url) async {
+    final String jwtToken = await getJwt();
+    final response = await http.post(
+      Uri.parse(
+          '${MyRunshawConfig.friendsMicroserviceUrl}/api/timetable/associate'),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'url': url}),
+    );
+    if (response.statusCode != 201) {
+      throw "Error associating timetable";
+    }
+    await Aptabase.instance.trackEvent(
+      "associated-timetable",
+    );
     return;
   }
 
@@ -482,14 +510,57 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<void> setBusNumber(String? number) async {
-    Preferences currentPrefs = await account!.getPrefs();
-    await OneSignal.User.addTagWithKey("bus", number);
+    // LEGACY CODE, should not be run
+    // Preferences currentPrefs = await account!.getPrefs();
+    // await OneSignal.User.addTagWithKey("bus", number);
 
-    if (currentPrefs.data["bus_number"] == number) {
+    // if (currentPrefs.data["bus_number"] == number) {
+    //   return;
+    // }
+    // currentPrefs.data["bus_number"] = number;
+    // await account!.updatePrefs(prefs: currentPrefs.data);
+  }
+
+  Future<void> migrateBuses() async {
+    // This is a one-time migration to remove the bus_number key from the prefs, and move to the new approach
+    // which is to use the extra_buses endpoint and OneSignal's external IDs
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    bool migrated = prefs.getBool("migrated_buses") ?? false;
+    if (migrated) {
       return;
     }
-    currentPrefs.data["bus_number"] = number;
-    await account!.updatePrefs(prefs: currentPrefs.data);
+
+    try {
+      // Primary bus was stored in Appwrite preferences
+      Preferences currentPrefs = await account!.getPrefs();
+
+      // Remove the bus tag from OneSignal
+      await OneSignal.User.removeTag("bus");
+
+      // Check if bus_number exists and is not null before adding it as an extra bus
+      String? busNumber = currentPrefs.data["bus_number"];
+      if (busNumber != null && busNumber.isNotEmpty) {
+        await addExtraBus(busNumber);
+      }
+
+      // Remove the bus number from the prefs if it exists
+      currentPrefs.data.remove("bus_number");
+
+      // Update the prefs
+      await account!.updatePrefs(prefs: currentPrefs.data);
+
+      // Set the migration flag
+      await prefs.setBool("migrated_buses", true);
+      await Aptabase.instance.trackEvent(
+        "migrated-buses",
+      );
+    } catch (e) {
+      debugLog("Error migrating buses: $e");
+      await Aptabase.instance.trackEvent("migrate-buses-error", {
+        "error": e.toString(),
+      });
+    }
   }
 
   Future<String?> getBusNumber() async {
@@ -556,6 +627,9 @@ class BaseAPI extends ChangeNotifier {
     Preferences currentPrefs = await account!.getPrefs();
     currentPrefs.data["onboarding_complete"] = true;
     await account!.updatePrefs(prefs: currentPrefs.data);
+    await Aptabase.instance.trackEvent(
+      "onboarding-complete",
+    );
   }
 
   Future<void> closeAccount() async {
@@ -575,6 +649,9 @@ class BaseAPI extends ChangeNotifier {
     if (response.statusCode != 200) {
       throw "Error closing account";
     }
+    await Aptabase.instance.trackEvent(
+      "close-account",
+    );
   }
 
   Future<String> resetPasswordWithoutAuth(
@@ -587,6 +664,9 @@ class BaseAPI extends ChangeNotifier {
       },
       body: jsonEncode({'new_password': newPassword}),
     );
+    await Aptabase.instance.trackEvent(
+      "reset-password",
+    );
     return jsonDecode(response.body)["message"];
   }
 
@@ -597,7 +677,7 @@ class BaseAPI extends ChangeNotifier {
     return jsonDecode(response.body)["exists"];
   }
 
-  Future<List<String>> getExtraBuses() async {
+  Future<List<String>> getAllBuses() async {
     final String jwtToken = await getJwt();
     final response = await http.get(
       Uri.parse(

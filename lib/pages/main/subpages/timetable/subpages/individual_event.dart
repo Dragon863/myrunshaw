@@ -8,6 +8,8 @@ import 'package:runshaw/pages/main/subpages/map/individual_map.dart';
 import 'package:runshaw/pages/main/subpages/map/locations.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/logging.dart';
+import 'package:runshaw/utils/pfp_helper.dart';
 
 class IndividualEventPage extends StatefulWidget {
   final String eventName;
@@ -86,23 +88,84 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
         events,
         widget.dtStart.add(const Duration(minutes: 1)),
       );
-      if ((current == "No Event" ||
-                  current.contains("Aspire")) // No event, or a free
-              &&
-              events.length > 1 // Timetable is synced
-          ) {
+
+      if ((current == "No Event" || current.contains("Aspire")) &&
+          events
+                  .where(
+                    (Event element) =>
+                        element.start.microsecondsSinceEpoch >=
+                        widget.dtStart.microsecondsSinceEpoch,
+                  )
+                  .length >
+              1) {
+        // Find the free time range
+        DateTime? freeStart;
+        DateTime? freeEnd;
+
+        // Sort events just in case
+        events.sort((a, b) => a.start.compareTo(b.start));
+
+        DateTime? latestEndBeforeStart;
+        DateTime? earliestStartAfterStart;
+
+        // Find the relevant events
+        for (final event in events) {
+          if (event.end.isBefore(widget.dtStart) ||
+              event.end.isAtSameMomentAs(widget.dtStart)) {
+            // Add a minute because the events often start at the same time
+            latestEndBeforeStart =
+                event.end; // Track the latest event that ended before dtStart
+          } else if (event.start.isAfter(widget.dtStart)) {
+            earliestStartAfterStart =
+                event.start; // Find the first event that starts after dtStart
+            break; // No need to check further
+          }
+        }
+
+        // Assign the free period
+        // If there are no events that end before the start of the event, then the user is probablly free from the start of the event
+        // If there are no events that start after the start of the event, then the user is probably free until the end of the event
+        freeStart = latestEndBeforeStart ?? widget.dtStart;
+        freeEnd = earliestStartAfterStart ?? widget.dtEnd;
+
+        debugLog("$name Free from $freeStart to $freeEnd");
+
+        Widget subtitle;
+
+        if (
+            // Has any events today
+            events
+                    .where((element) => element.start.day == widget.dtStart.day)
+                    .where((element) =>
+                        element.start.month == widget.dtStart.month)
+                    .where(
+                        (element) => element.start.year == widget.dtStart.year)
+                    .length >
+                1) {
+          if (freeStart.day < freeEnd.day // Started being free before today
+              ) {
+            subtitle = Text(
+                "Free until ${freeEnd.hour.toString().padLeft(2, '0')}:${freeEnd.minute.toString().padLeft(2, '0')}");
+          } else {
+            subtitle = Text(
+                "Between ${freeStart.hour.toString().padLeft(2, '0')}:${freeStart.minute.toString().padLeft(2, '0')} "
+                "and ${freeEnd.hour.toString().padLeft(2, '0')}:${freeEnd.minute.toString().padLeft(2, '0')}");
+          }
+        } else {
+          // Free for the whole day
+          subtitle = const Text("Free all day");
+        }
+
         friendsList.add(
           ListTile(
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 8.0,
-            ), // Half the default padding, looks better
+            contentPadding: const EdgeInsets.symmetric(horizontal: 8.0),
             leading: CircleAvatar(
               foregroundImage: CachedNetworkImageProvider(
                 pfpUrl,
                 errorListener: (error) {},
               ),
               child: Text(
-                name[0].toUpperCase(),
+                getFirstNameCharacter(name),
                 style: GoogleFonts.rubik(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -110,6 +173,7 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
               ),
             ),
             title: Text(name),
+            subtitle: subtitle,
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -129,7 +193,7 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
       setState(() {
         friends = [
           const ListTile(
-            title: Text("No friends are free during this period"),
+            title: Text("No friends are free during this event"),
           )
         ];
       });

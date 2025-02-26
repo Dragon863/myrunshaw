@@ -1,14 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/buses/bus_list/bus_map_view.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/individual_friend.dart';
+import 'package:runshaw/pages/main/subpages/home/inapp/inapp.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/list.dart';
 import 'package:runshaw/pages/qr/qr_page.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/pfp_helper.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -26,7 +29,7 @@ class _HomePageState extends State<HomePage> {
   List<Widget> freeFriends = [];
   bool loading = false;
   List<Event> events = [];
-  Widget busWidget = const SizedBox.shrink();
+  List<Widget> busWidgets = [];
 
   Future<void> loadPfp() async {
     final BaseAPI api = context.read<BaseAPI>();
@@ -68,6 +71,7 @@ class _HomePageState extends State<HomePage> {
     loadEvents();
     loadPfp();
     super.initState();
+    checkInAppAlerts(context);
   }
 
   Future<String> loadCurrentEventFor(String userId) async {
@@ -126,49 +130,116 @@ class _HomePageState extends State<HomePage> {
               : "${next.description!.replaceAll("Teacher: ", "")} in ${next.location}";
         });
       }
-      final bus = await api.getBusNumber();
+      final busNumber = await api.getBusNumber();
+      final List<String> extraBuses = await api.getAllBuses();
+      extraBuses.add(busNumber ?? "");
 
-      if (bus != null) {
-        final bay = await api.getBusBay(bus);
-        if (bay != "RSP_NYA" && DateTime.now().hour < 17) {
+      setState(() => busWidgets.clear());
+
+      final List<Color> colors = [
+        Colors.red,
+        Colors.blue,
+        Colors.purple,
+        Colors.orange,
+        Colors.pink,
+        Colors.teal,
+        Colors.amber,
+        Colors.cyan,
+        Colors.lime,
+      ];
+      int index = 0;
+      final busBays = await api.getBusBays();
+
+      for (final bus in busBays.keys) {
+        if (!extraBuses.contains(bus)) {
+          continue;
+        }
+        final bay = busBays[bus];
+        if ((bay != "RSP_NYA" && bay != null && DateTime.now().hour < 17) ||
+            kDebugMode) {
           // Before 5PM
-          busWidget = Card.filled(
-            color: Colors.red,
-            child: ListTile(
-              title: Text(
-                'Your bus is in bay $bay!',
-                style: GoogleFonts.rubik(
-                    fontWeight: FontWeight.bold, color: Colors.white),
+          setState(() {
+            busWidgets.add(
+              Card.filled(
+                color: colors[index % colors.length],
+                child: ListTile(
+                  title: Text(
+                    'The $bus is in bay $bay!',
+                    style: GoogleFonts.rubik(
+                        fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                  trailing:
+                      const Icon(Icons.directions_bus, color: Colors.white),
+                  onTap: () async {
+                    if (bay == "RSP_NYA") {
+                      // Response-Not-Yet-Arrived
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "Bus has not arrived yet (this should be impossible, please report this)",
+                          ),
+                        ),
+                      );
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BusMapViewPage(
+                            bay: bay!,
+                            busNumber: bus,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
               ),
-              trailing: const Icon(Icons.directions_bus, color: Colors.white),
-              onTap: () async {
-                if (bay == "RSP_NYA") {
-                  // Response-Not-Yet-Arrived
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        "Bus has not arrived yet (this should be impossible, please report this)",
-                      ),
-                    ),
-                  );
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BusMapViewPage(
-                        bay: bay,
-                        busNumber: bus,
-                      ),
-                    ),
-                  );
-                }
-              },
-            ),
-          );
-        } else {
-          busWidget = const SizedBox.shrink();
+            );
+          });
+          index++;
         }
       }
+      // if (bus != null) {
+      //   final bay = await api.getBusBay(bus);
+      //   if (bay != "RSP_NYA" && DateTime.now().hour < 17) {
+      //     // Before 5PM
+      //     busWidget = Card.filled(
+      //       color: Colors.red,
+      //       child: ListTile(
+      //         title: Text(
+      //           'Your bus is in bay $bay!',
+      //           style: GoogleFonts.rubik(
+      //               fontWeight: FontWeight.bold, color: Colors.white),
+      //         ),
+      //         trailing: const Icon(Icons.directions_bus, color: Colors.white),
+      //         onTap: () async {
+      //           if (bay == "RSP_NYA") {
+      //             // Response-Not-Yet-Arrived
+      //             ScaffoldMessenger.of(context).showSnackBar(
+      //               const SnackBar(
+      //                 content: Text(
+      //                   "Bus has not arrived yet (this should be impossible, please report this)",
+      //                 ),
+      //               ),
+      //             );
+      //           } else {
+      //             Navigator.push(
+      //               context,
+      //               MaterialPageRoute(
+      //                 builder: (context) => BusMapViewPage(
+      //                   bay: bay,
+      //                   busNumber: bus,
+      //                 ),
+      //               ),
+      //             );
+      //           }
+      //         },
+      //       ),
+      //     );
+      //   } else {
+      //     busWidget = const SizedBox.shrink();
+      //   }
+      // }
       final List friends = await api.getFriends();
       for (final friend in friends) {
         final String uid = friend["userid"];
@@ -207,7 +278,7 @@ class _HomePageState extends State<HomePage> {
                       errorListener: (error) {},
                     ),
                     child: Text(
-                      name[0].toUpperCase(),
+                      getFirstNameCharacter(name),
                       style: GoogleFonts.rubik(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -237,10 +308,14 @@ class _HomePageState extends State<HomePage> {
             maxWidth: 500,
           ),
           child: Padding(
-            padding: const EdgeInsets.all(4),
+            padding: const EdgeInsets.only(
+              top: 6,
+              left: 6,
+              right: 6,
+            ),
             child: ListView(
               children: [
-                busWidget,
+                ...busWidgets,
                 Row(
                   children: [
                     Expanded(
@@ -264,7 +339,7 @@ class _HomePageState extends State<HomePage> {
                                       errorListener: (error) {},
                                     ),
                                     child: Text(
-                                      name[0].toUpperCase(),
+                                      getFirstNameCharacter(name),
                                       style: GoogleFonts.rubik(
                                         fontSize: 48,
                                         fontWeight: FontWeight.bold,

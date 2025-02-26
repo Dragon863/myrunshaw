@@ -117,7 +117,7 @@ class _OnBoardingStageFourState extends State<OnBoardingStageFour> {
         TextField(
           decoration: const InputDecoration(
             border: OutlineInputBorder(),
-            labelText: 'Calendar URL',
+            labelText: 'Timetable URL',
           ),
           controller: _controller,
           onSubmitted: (value) => syncCalendar(),

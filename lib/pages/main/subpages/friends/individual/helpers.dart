@@ -40,7 +40,6 @@ String formatDayTitle(DateTime date) {
   return dateFormatted;
 }
 
-
 String humaniseTime(DateTime start, DateTime end) {
   return '${start.hour.toString().padLeft(2, '0')}:${start.minute.toString().padLeft(2, '0')} - ${end.hour.toString().padLeft(2, '0')}:${end.minute.toString().padLeft(2, '0')}';
 }
@@ -62,10 +61,11 @@ String fetchCurrentEvent(events) {
   return currentEvent.summary;
 }
 
-String fetchCurrentEventAt(events, DateTime time) {
+String fetchCurrentEventAt(List<Event> events, DateTime time) {
   final currentEvent = events.firstWhere(
     (event) {
-      return event.start.isBefore(time) && event.end.isAfter(time);
+      return event.start.isAtSameMomentAs(time) ||
+          (event.start.isBefore(time) && event.end.isAfter(time));
     },
     orElse: () => Event(
         summary: 'No Event',

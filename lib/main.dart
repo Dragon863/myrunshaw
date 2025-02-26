@@ -1,3 +1,5 @@
+import 'package:aptabase_flutter/aptabase_flutter.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -17,6 +19,15 @@ void main() async {
 
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   String? nextRoute;
+
+  // Initialise Aptabase
+  await Aptabase.init(
+    MyRunshawConfig.aptabaseProjectId,
+    const InitOptions(
+      host: MyRunshawConfig.aptabaseHost,
+      printDebugMessages: kDebugMode, // Only print debug messages in debug mode
+    ),
+  );
 
   // Get onesignal ready...
   OneSignal.initialize(MyRunshawConfig.oneSignalAppId);

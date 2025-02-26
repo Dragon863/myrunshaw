@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:appwrite/models.dart';
+import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,7 @@ import 'package:runshaw/pages/main/main_view.dart';
 import 'package:runshaw/pages/nonetwork/no_network.dart';
 import 'package:runshaw/pages/onboarding/onboarding.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/logging.dart';
 
 class SplashPage extends StatefulWidget {
   final String? nextRoute;
@@ -80,6 +82,8 @@ class _SplashPageState extends State<SplashPage> {
 
     if (status == AccountStatus.authenticated) {
       try {
+        await api
+            .migrateBuses(); // Migrate buses from old system - this is a good place to do it as it only runs once
         setState(() {
           loadingStageText = "Loading names...";
         });
@@ -93,7 +97,7 @@ class _SplashPageState extends State<SplashPage> {
         });
         await api.cachePfpVersions();
       } catch (e) {
-        print("Error caching timetables: $e");
+        debugLog("Error caching timetables: $e");
       }
       if (!await isOnBoarded()) {
         return Navigator.of(context).pushAndRemoveUntil(
@@ -110,6 +114,9 @@ class _SplashPageState extends State<SplashPage> {
           builder: (context) => MainPage(nextRoute: widget.nextRoute),
         ),
         (r) => false,
+      );
+      await Aptabase.instance.trackEvent(
+        "app_open",
       );
     } else {
       Navigator.pushAndRemoveUntil(

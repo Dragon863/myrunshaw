@@ -1,0 +1,2 @@
+/home/daniel/Documents/apps/Runshaw/runshaw/android/app/.cxx/RelWithDebInfo/4i4e1738/armeabi-v7a/CMakeFiles/edit_cache.dir
+/home/daniel/Documents/apps/Runshaw/runshaw/android/app/.cxx/RelWithDebInfo/4i4e1738/armeabi-v7a/CMakeFiles/rebuild_cache.dir

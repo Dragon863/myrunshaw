@@ -40,16 +40,43 @@ class _FriendRequestsListState extends State<FriendRequestsList> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemBuilder: (context, index) {
-        final friend = requests[index];
-        return FriendRequestTile(
-          uid: friend["id"],
-          id: friend["req_id"],
-          profilePicUrl: friend["pfpUrl"],
-        );
+    return RefreshIndicator(
+      onRefresh: () async {
+        setState(() {
+          requests = [];
+        });
+        loadFriends();
       },
-      itemCount: requests.length,
+      child: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                final friend = requests[index];
+                return FriendRequestTile(
+                  uid: friend["id"],
+                  id: friend["req_id"],
+                  profilePicUrl: friend["pfpUrl"],
+                );
+              },
+              itemCount: requests.length,
+            ),
+            requests.isEmpty ? const SizedBox(height: 12) : const SizedBox(),
+            Center(
+              child: requests.isEmpty
+                  ? TextButton(
+                      onPressed: () {
+                        loadFriends();
+                      },
+                      child: const Text("No friend requests, tap to refresh"),
+                    )
+                  : const SizedBox(),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

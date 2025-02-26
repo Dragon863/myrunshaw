@@ -1,3 +1,4 @@
+import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -91,6 +92,9 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
                 onPressed: () async {
                   final api = context.read<BaseAPI>();
                   await api.onboardComplete();
+                  await Aptabase.instance.trackEvent(
+                    "onboarding-timetable-skip",
+                  );
                   Navigator.pushReplacementNamed(context, '/splash');
                 },
                 child: const Text("Yes"),

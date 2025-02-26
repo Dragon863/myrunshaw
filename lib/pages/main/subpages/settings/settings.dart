@@ -1,7 +1,6 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' as models;
 import 'package:crop_your_image/crop_your_image.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -9,10 +8,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:runshaw/pages/main/subpages/settings/extra_buses.dart';
+import 'package:runshaw/pages/main/subpages/settings/add_buses.dart';
 import 'package:runshaw/pages/main/subpages/settings/popup_crop.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
+import 'package:runshaw/utils/pfp_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -31,21 +31,12 @@ class _SettingsPageState extends State<SettingsPage> {
   String appVersion = "Loading...";
   String? busNumber;
   String? profilePicUrl;
-  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     fetchPrefs();
     loadVersion();
     super.initState();
-  }
-
-  Future<void> loadVersion() async {
-    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    final String version = packageInfo.version;
-    setState(() {
-      appVersion = version;
-    });
   }
 
   Future<void> fetchPrefs() async {
@@ -79,6 +70,16 @@ class _SettingsPageState extends State<SettingsPage> {
         this.showNotifs = !showNotifs;
       });
     }
+  }
+
+  Future<void> loadVersion() async {
+    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+    final String version = "v${packageInfo.version}";
+
+    setState(() {
+      appVersion = version;
+    });
   }
 
   Future<void> photoAction() async {
@@ -269,12 +270,12 @@ class _SettingsPageState extends State<SettingsPage> {
                     Padding(
                       padding: const EdgeInsets.only(left: 48.0, right: 48.0),
                       child: CircleAvatar(
-                        radius: 75,
+                        radius: 100,
                         foregroundImage: profilePicUrl != null
                             ? NetworkImage(profilePicUrl!)
                             : null,
                         child: Text(
-                          name[0].toUpperCase(),
+                          getFirstNameCharacter(name),
                           style: GoogleFonts.rubik(
                             fontSize: 60,
                             fontWeight: FontWeight.bold,
@@ -284,7 +285,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     Positioned(
                       bottom: 0,
-                      right: 0,
+                      right: 6,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -379,6 +380,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     const SizedBox(width: 10),
                   ],
                 ),
+                Text(
+                  email.replaceAll("@student.runshaw.ac.uk", ""),
+                  style: GoogleFonts.rubik(
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.grey.shade800,
+                  ),
+                ),
                 const SizedBox(height: 9),
                 const Padding(
                   padding: EdgeInsets.only(
@@ -415,97 +424,18 @@ class _SettingsPageState extends State<SettingsPage> {
                         },
                       ),
                     ),
-                    Form(
-                      key: _formKey,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            DropdownButtonFormField2<String>(
-                              isExpanded: true,
-                              decoration: InputDecoration(
-                                enabled: busNumber != null,
-                                contentPadding:
-                                    const EdgeInsets.symmetric(vertical: 16),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                              ),
-                              hint: const Text(
-                                'Select Your Bus Number',
-                                style: TextStyle(fontSize: 14),
-                              ),
-                              items: MyRunshawConfig.busNumbers
-                                  .map((item) => DropdownMenuItem<String>(
-                                        value: item.toString(),
-                                        child: Text(
-                                          item.toString(),
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ))
-                                  .toList(),
-                              validator: (value) {
-                                if (value == null) {
-                                  return 'Please select bus number.';
-                                }
-                                return null;
-                              },
-                              onChanged: (value) async {
-                                final api = context.read<BaseAPI>();
-                                try {
-                                  await api.setBusNumber(value);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text("Bus number updated!"),
-                                    ),
-                                  );
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text("Error setting bus number"),
-                                    ),
-                                  );
-                                }
-                              },
-                              buttonStyleData: const ButtonStyleData(
-                                padding: EdgeInsets.only(right: 16),
-                              ),
-                              iconStyleData: const IconStyleData(
-                                icon: Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Colors.black45,
-                                ),
-                                iconSize: 24,
-                              ),
-                              dropdownStyleData: DropdownStyleData(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                              ),
-                              menuItemStyleData: const MenuItemStyleData(
-                                padding: EdgeInsets.symmetric(horizontal: 16),
-                              ),
-                              value: busNumber,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
                     ListTile(
                       title: const Text(
-                        "Add Extra Buses",
+                        "Add Your Buses",
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.normal,
                         ),
                       ),
                       subtitle: const Text(
-                        "(notifications only)",
+                        "For notifications and tracking",
                       ),
-                      trailing: const Icon(Icons.add),
+                      trailing: const Icon(Icons.keyboard_arrow_right),
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => const ExtraBusPage(),
@@ -663,24 +593,19 @@ class _SettingsPageState extends State<SettingsPage> {
                           scheme: 'mailto',
                           path: 'hi@danieldb.uk',
                           query:
-                              "subject=My Runshaw Bug Report&body=App version: v$appVersion\nBefore sending, please check you are on the latest version of the app from the App Store or Google Play Store. Describe the bug you encountered here:",
+                              "subject=My Runshaw Bug Report&body=App version: $appVersion\nBefore sending, please check you are on the latest version of the app from the App Store or Google Play Store. Describe the bug you encountered here:",
                         );
                         await launchUrl(emailLaunchUri);
                       },
                       trailing: const Icon(Icons.bug_report_outlined),
                     ),
-                    ListTile(
-                      title: const Text(
-                        "App Version",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                      subtitle: Text(appVersion),
-                      trailing: const Icon(Icons.info_outline),
-                    )
                   ],
+                ),
+                const SizedBox(height: 8),
+                Center(
+                  child: Text(
+                    "App $appVersion, © Daniel Benge",
+                  ),
                 ),
               ],
             ),

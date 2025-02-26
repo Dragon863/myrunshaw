@@ -8,6 +8,7 @@ import 'package:runshaw/pages/main/subpages/timetable/widgets/events_card.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/pfp_helper.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
 
 class IndividualFriendPage extends StatefulWidget {
@@ -98,7 +99,7 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
                   errorListener: (error) {},
                 ),
                 child: Text(
-                  widget.name != "" ? widget.name[0].toUpperCase() : "?",
+                  getFirstNameCharacter(widget.name),
                   style: GoogleFonts.rubik(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

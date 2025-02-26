@@ -1,5 +1,6 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
@@ -18,12 +19,12 @@ class _ExtraBusPageState extends State<ExtraBusPage> {
   final _formKey = GlobalKey<FormState>();
   String? busNumber;
 
-  Future<void> fetchCurrentExtraBuses() async {
+  Future<void> fetchCurrentBuses() async {
     setState(() {
       _loading = true;
     });
     final api = context.read<BaseAPI>();
-    final response = await api.getExtraBuses();
+    final response = await api.getAllBuses();
 
     setState(() {
       _extraBuses = response;
@@ -33,7 +34,7 @@ class _ExtraBusPageState extends State<ExtraBusPage> {
 
   @override
   void initState() {
-    fetchCurrentExtraBuses();
+    fetchCurrentBuses();
     super.initState();
   }
 
@@ -43,7 +44,7 @@ class _ExtraBusPageState extends State<ExtraBusPage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text("Add Bus"),
+            title: const Text("Add a Bus"),
             content: Form(
               key: _formKey,
               child: Padding(
@@ -124,7 +125,7 @@ class _ExtraBusPageState extends State<ExtraBusPage> {
                       );
                     }
                     Navigator.pop(context);
-                    fetchCurrentExtraBuses();
+                    fetchCurrentBuses();
                   }
                 },
                 child: const Text("Add"),
@@ -137,7 +138,7 @@ class _ExtraBusPageState extends State<ExtraBusPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const RunshawAppBar(title: "Extra Buses"),
+      appBar: const RunshawAppBar(title: "My Buses"),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Center(
@@ -151,8 +152,12 @@ class _ExtraBusPageState extends State<ExtraBusPage> {
               child: Column(
                 children: [
                   const SizedBox(height: 18),
-                  const Text(
-                      "If you want to be notified for extra buses, please add them below. This is an experimental feature, so reliability is not guaranteed."),
+                  Text(
+                    "Use this page to add or remove extra buses you want push notifications for! These will show up in the 'Buses' page on the sidebar.",
+                    style: GoogleFonts.rubik(
+                      fontSize: 16,
+                    ),
+                  ),
                   const SizedBox(height: 18),
                   ListView.builder(
                     shrinkWrap: true,
@@ -166,7 +171,7 @@ class _ExtraBusPageState extends State<ExtraBusPage> {
                               await context.read<BaseAPI>().removeExtraBus(
                                     _extraBuses[index],
                                   );
-                              fetchCurrentExtraBuses();
+                              fetchCurrentBuses();
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(

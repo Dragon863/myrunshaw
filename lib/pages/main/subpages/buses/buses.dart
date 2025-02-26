@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -13,52 +15,198 @@ class BusesPage extends StatefulWidget {
 }
 
 class _BusesPageState extends State<BusesPage> {
-  String myBus = 'bus tracker';
-  List<String> toDisplay = ["is", "loading..."];
   bool loading = true;
-  bool showPin = false;
-  double xPercentage = 0.0;
-  double yPercentage = 0.0;
+  List<Widget> busPins = [];
   Map<String, String?> allBuses = {};
+  List<Widget> richTextWidgets = [
+    RichText(
+      textAlign: TextAlign.center,
+      text: TextSpan(
+        text: 'The ',
+        style: GoogleFonts.rubik(
+          fontSize: 24,
+          fontWeight: FontWeight.normal,
+          color: Colors.black,
+        ),
+        children: [
+          TextSpan(
+            text: 'bus tracker',
+            style: GoogleFonts.rubik(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.red,
+            ),
+          ),
+          const TextSpan(text: ' is loading...'),
+        ],
+      ),
+    ),
+  ];
+  Timer? timer;
 
   Future<void> loadData() async {
-    setState(() {
-      loading = true;
-    });
+    setState(() => loading = true);
+    int index = 0;
+
     final api = context.read<BaseAPI>();
     final busNumber = await api.getBusNumber();
-
-    if (busNumber != null) {
-      final bay = await api.getBusBay(busNumber);
-      if (bay == "RSP_NYA" || bay == "RSP_UNK") {
-        setState(() {
-          toDisplay = ["has", "not yet arrived"];
-          showPin = false;
-        });
-      } else {
-        xPercentage = calculatePosition(bay)[0];
-        yPercentage = calculatePosition(bay)[1];
-
-        setState(() {
-          toDisplay = ["is at stand", bay];
-          showPin = true;
-        });
-      }
+    final List<String> allBuses = await api.getAllBuses();
+    if (busNumber != null && !allBuses.contains(busNumber) && busNumber != "") {
+      allBuses.add(busNumber);
     }
+    final List<Color> colors = [
+      Colors.red,
+      Colors.blue,
+      Colors.purple,
+      Colors.orange,
+      Colors.pink,
+      Colors.teal,
+      Colors.amber,
+      Colors.cyan,
+      Colors.lime,
+    ];
+    final busBays = await api.getBusBays();
+
+    List<Widget> pins = [];
+
+    if (busNumber == null) {}
 
     setState(() {
-      if (busNumber == null) {
-        myBus = 'settings menu';
-        toDisplay = ["allows you to set your", "bus number"];
+      richTextWidgets = [];
+      busPins = [];
+    });
+
+    if (allBuses.isEmpty) {
+      setState(() {
+        richTextWidgets = [
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              text: 'Use the ',
+              style: GoogleFonts.rubik(
+                fontSize: 24,
+                fontWeight: FontWeight.normal,
+                color: Colors.black,
+              ),
+              children: [
+                TextSpan(
+                  text: 'settings',
+                  style: GoogleFonts.rubik(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red,
+                  ),
+                ),
+                const TextSpan(text: ' to add a bus!'),
+              ],
+            ),
+          ),
+        ];
+        loading = false;
+      });
+      return;
+    }
+
+    busBays.forEach((String bus, String? bay) {
+      if (!allBuses.contains(bus)) {
+        return;
+      }
+
+      if (bay != null && bay != "RSP_NYA" && bay != "RSP_UNK") {
+        final busColor = colors[index % colors.length];
+        richTextWidgets.add(
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              text: 'The ',
+              style: GoogleFonts.rubik(
+                fontSize: 24,
+                fontWeight: FontWeight.normal,
+                color: Colors.black,
+              ),
+              children: [
+                TextSpan(
+                  text: bus,
+                  style: GoogleFonts.rubik(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: busColor,
+                  ),
+                ),
+                const TextSpan(text: ' is in bay '),
+                TextSpan(
+                  text: bay,
+                  style: GoogleFonts.rubik(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+
+        final position = calculatePosition(bay);
+        final xPercentage = position[0];
+        final yPercentage = position[1];
+
+        pins.add(
+          Positioned.fill(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                    top: constraints.biggest.height * yPercentage,
+                    bottom: constraints.biggest.height * (1 - yPercentage),
+                    left: xPercentage > 0
+                        ? constraints.biggest.width * xPercentage
+                        : 0,
+                    right: xPercentage < 0
+                        ? constraints.biggest.width * -xPercentage
+                        : 0,
+                  ),
+                  child: Icon(
+                    Icons.location_pin,
+                    size: constraints.biggest.height * 0.15,
+                    color: busColor,
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+
+        index++;
       } else {
-        myBus = busNumber;
+        richTextWidgets.add(
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              text: 'The ',
+              style: GoogleFonts.rubik(
+                fontSize: 24,
+                fontWeight: FontWeight.normal,
+                color: Colors.black,
+              ),
+              children: [
+                TextSpan(
+                  text: bus,
+                  style: GoogleFonts.rubik(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: colors[index],
+                  ),
+                ),
+                const TextSpan(text: ' hasn\'t arrived yet'),
+              ],
+            ),
+          ),
+        );
       }
     });
 
-    Map<String, String?> completeBusMap = await api.getBusBays();
-
     setState(() {
-      allBuses = completeBusMap;
+      busPins = pins;
       loading = false;
     });
   }
@@ -66,7 +214,17 @@ class _BusesPageState extends State<BusesPage> {
   @override
   void initState() {
     loadData();
+    timer = Timer.periodic(
+      const Duration(seconds: 10),
+      (Timer t) => loadData(),
+    );
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -82,171 +240,93 @@ class _BusesPageState extends State<BusesPage> {
             ),
             child: Column(
               children: [
-                Center(
-                  child: Stack(
-                    children: [
-                      Image.asset(
-                        "assets/img/busesmap.png",
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                      Visibility(
-                        visible: showPin,
-                        child: Positioned.fill(
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              return Padding(
-                                padding: EdgeInsets.only(
-                                    top: constraints.biggest.height *
-                                        yPercentage,
-                                    bottom: constraints.biggest.height *
-                                        (1 - yPercentage),
-                                    left: xPercentage > 0
-                                        ? constraints.biggest.width *
-                                            xPercentage
-                                        : 0,
-                                    right: xPercentage < 0
-                                        ? constraints.biggest.width *
-                                            -xPercentage
-                                        : 0),
-                                child: Icon(
-                                  Icons.location_pin,
-                                  size: constraints.biggest.height * 0.15,
-                                  color: Colors.red,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                Stack(
+                  children: [
+                    Image.asset(
+                      "assets/img/busesmap.png",
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                    ...busPins,
+                  ],
                 ),
                 const SizedBox(height: 12),
-                RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(
-                    text: 'The ',
-                    style: GoogleFonts.rubik(
-                      fontSize: 24,
-                      fontWeight: FontWeight.normal,
-                      color: Colors.black,
-                    ),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: myBus,
-                        style: GoogleFonts.rubik(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                        ),
-                      ),
-                      TextSpan(text: " ${toDisplay[0]}"),
-                      TextSpan(
-                        text: ' ${toDisplay[1]}',
-                        style: GoogleFonts.rubik(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                ...richTextWidgets,
                 const SizedBox(height: 22),
-                SizedBox(
-                  width: double.infinity,
-                  child: Card(
-                    elevation: 1,
-                    child: InkWell(
-                      splashColor: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(8),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const BusListPage(),
-                          ),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Row(
+                _buildCard("View all buses", Icons.directions_bus, () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const BusListPage()),
+                  );
+                }),
+                _buildCard("CCTV Policy", Icons.videocam, () async {
+                  await showModalBottomSheet(
+                    context: context,
+                    builder: (context) {
+                      return const Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: Column(
                           children: [
-                            const Icon(Icons.directions_bus),
-                            const SizedBox(width: 12),
                             Text(
-                              "View all buses",
-                              style: GoogleFonts.rubik(
-                                fontSize: 16,
-                                fontWeight: FontWeight.normal,
+                              "CCTV Recording",
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  child: Card(
-                    elevation: 1,
-                    child: InkWell(
-                      splashColor: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(8),
-                      onTap: () async {
-                        // Show drawer
-                        await showModalBottomSheet(
-                          context: context,
-                          builder: (context) {
-                            return const Padding(
-                                padding: EdgeInsets.all(12.0),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      "CCTV Recording",
-                                      style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    SizedBox(height: 12),
-                                    Text(
-                                        """Please note that College bus services may have CCTV surveillance systems fitted. These may record images as well as audio. The College can request access to these recordings in order to ensure the safety of students and in order to meet any crime detection and prevention obligations placed upon us by relevant law enforcement agencies. For more information please review the relevant signage affixed to your college bus and the bus operators privacy notices. """),
-                                  ],
-                                ));
-                          },
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.videocam),
-                            const SizedBox(width: 12),
+                            SizedBox(height: 12),
                             Text(
-                              "CCTV Policy",
-                              style: GoogleFonts.rubik(
-                                fontSize: 16,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
+                                "Please note that College bus services may have CCTV surveillance systems fitted. "
+                                "These may record images as well as audio. The College can request access "
+                                "to these recordings in order to ensure the safety of students and in order "
+                                "to meet any crime detection and prevention obligations placed upon us by relevant "
+                                "law enforcement agencies. For more information please review the relevant signage "
+                                "affixed to your college bus and the bus operators privacy notices. "),
                           ],
                         ),
-                      ),
-                    ),
-                  ),
-                ),
+                      );
+                    },
+                  );
+                }),
               ],
             ),
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        onPressed: loadData,
         child: const Icon(Icons.refresh),
-        onPressed: () async {
-          await loadData();
-        },
+      ),
+    );
+  }
+
+  Widget _buildCard(String text, IconData icon, VoidCallback onTap) {
+    return SizedBox(
+      width: double.infinity,
+      child: Card(
+        elevation: 1,
+        child: InkWell(
+          splashColor: Colors.grey.shade300,
+          borderRadius: BorderRadius.circular(8),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                Icon(icon),
+                const SizedBox(width: 12),
+                Text(
+                  text,
+                  style: GoogleFonts.rubik(
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

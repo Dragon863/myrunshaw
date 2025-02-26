@@ -1,0 +1,2 @@
+/home/daniel/Documents/apps/Runshaw/runshaw/android/app/.cxx/RelWithDebInfo/4i4e1738/x86_64/CMakeFiles/edit_cache.dir
+/home/daniel/Documents/apps/Runshaw/runshaw/android/app/.cxx/RelWithDebInfo/4i4e1738/x86_64/CMakeFiles/rebuild_cache.dir
