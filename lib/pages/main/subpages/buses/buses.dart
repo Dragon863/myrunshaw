@@ -54,6 +54,15 @@ class _BusesPageState extends State<BusesPage> {
     if (busNumber != null && !allBuses.contains(busNumber) && busNumber != "") {
       allBuses.add(busNumber);
     }
+
+    // This expression gets the buses, replaces the letters with nothing, then sorts them by number.
+    // This is so that the buses are in numerical order, and while it is a litte messy, it works well.
+    allBuses.sort(
+      (a, b) => int.parse(a.replaceAll(RegExp(r'[A-Z]'), "")).compareTo(
+        int.parse(b.replaceAll(RegExp(r'[A-Z]'), "")),
+      ),
+    );
+
     final List<Color> colors = [
       Colors.red,
       Colors.blue,
@@ -112,7 +121,7 @@ class _BusesPageState extends State<BusesPage> {
         return;
       }
 
-      if (bay != null && bay != "RSP_NYA" && bay != "RSP_UNK") {
+      if (bay != null && bay != "RSP_NYA" && bay != "RSP_UNK" && bay != "0") {
         final busColor = colors[index % colors.length];
         richTextWidgets.add(
           RichText(
@@ -175,8 +184,6 @@ class _BusesPageState extends State<BusesPage> {
             ),
           ),
         );
-
-        index++;
       } else {
         richTextWidgets.add(
           RichText(
@@ -203,6 +210,7 @@ class _BusesPageState extends State<BusesPage> {
           ),
         );
       }
+      index++;
     });
 
     setState(() {
@@ -277,12 +285,13 @@ class _BusesPageState extends State<BusesPage> {
                             ),
                             SizedBox(height: 12),
                             Text(
-                                "Please note that College bus services may have CCTV surveillance systems fitted. "
-                                "These may record images as well as audio. The College can request access "
-                                "to these recordings in order to ensure the safety of students and in order "
-                                "to meet any crime detection and prevention obligations placed upon us by relevant "
-                                "law enforcement agencies. For more information please review the relevant signage "
-                                "affixed to your college bus and the bus operators privacy notices. "),
+                              "Please note that College bus services may have CCTV surveillance systems fitted. "
+                              "These may record images as well as audio. The College can request access "
+                              "to these recordings in order to ensure the safety of students and in order "
+                              "to meet any crime detection and prevention obligations placed upon us by relevant "
+                              "law enforcement agencies. For more information please review the relevant signage "
+                              "affixed to your college bus and the bus operators privacy notices. ",
+                            ),
                           ],
                         ),
                       );

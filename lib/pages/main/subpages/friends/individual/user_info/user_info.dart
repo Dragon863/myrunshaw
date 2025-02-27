@@ -108,7 +108,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                 final BaseAPI api = context.read<BaseAPI>();
                 final String busBay = await api.getBusBay(widget.bus);
 
-                if (busBay == "RSP_NYA") {
+                if (busBay == "RSP_NYA" || busBay == "0") {
                   // Response-Not-Yet-Arrived
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(

@@ -1,5 +1,6 @@
 {
     "yaml.schemas": {
         "https://json.schemastore.org/pubspec.json": "file:///home/daniel/Documents/apps/Runshaw/runshaw/pubspec.yaml"
-    }
+    },
+    "cmake.ignoreCMakeListsMissing": true
 }

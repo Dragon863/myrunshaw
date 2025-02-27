@@ -132,7 +132,19 @@ class _HomePageState extends State<HomePage> {
       }
       final busNumber = await api.getBusNumber();
       final List<String> extraBuses = await api.getAllBuses();
-      extraBuses.add(busNumber ?? "");
+      if (busNumber != null &&
+          !extraBuses.contains(busNumber) &&
+          busNumber != "") {
+        extraBuses.add(busNumber);
+      }
+
+      // This expression gets the buses, replaces the letters with nothing, then sorts them by number.
+      // This is so that the buses are in numerical order, and while it is a litte messy, it works well.
+      extraBuses.sort(
+        (a, b) => int.parse(a.replaceAll(RegExp(r'[A-Z]'), "")).compareTo(
+          int.parse(b.replaceAll(RegExp(r'[A-Z]'), "")),
+        ),
+      );
 
       setState(() => busWidgets.clear());
 
@@ -147,6 +159,7 @@ class _HomePageState extends State<HomePage> {
         Colors.cyan,
         Colors.lime,
       ];
+
       int index = 0;
       final busBays = await api.getBusBays();
 
@@ -154,10 +167,13 @@ class _HomePageState extends State<HomePage> {
         if (!extraBuses.contains(bus)) {
           continue;
         }
+
         final bay = busBays[bus];
-        if ((bay != "RSP_NYA" && bay != null && DateTime.now().hour < 17) ||
-            kDebugMode) {
-          // Before 5PM
+        if ((bay != "RSP_NYA" &&
+            bay != null &&
+            bay != "0" &&
+            (DateTime.now().hour < 17 || kDebugMode))) {
+          // Before 5PM, and bus has arrived
           setState(() {
             busWidgets.add(
               Card.filled(
@@ -166,12 +182,14 @@ class _HomePageState extends State<HomePage> {
                   title: Text(
                     'The $bus is in bay $bay!',
                     style: GoogleFonts.rubik(
-                        fontWeight: FontWeight.bold, color: Colors.white),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                   trailing:
                       const Icon(Icons.directions_bus, color: Colors.white),
                   onTap: () async {
-                    if (bay == "RSP_NYA") {
+                    if (bay == "RSP_NYA" || bay == "0") {
                       // Response-Not-Yet-Arrived
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -185,7 +203,7 @@ class _HomePageState extends State<HomePage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => BusMapViewPage(
-                            bay: bay!,
+                            bay: bay,
                             busNumber: bus,
                           ),
                         ),
@@ -199,47 +217,7 @@ class _HomePageState extends State<HomePage> {
           index++;
         }
       }
-      // if (bus != null) {
-      //   final bay = await api.getBusBay(bus);
-      //   if (bay != "RSP_NYA" && DateTime.now().hour < 17) {
-      //     // Before 5PM
-      //     busWidget = Card.filled(
-      //       color: Colors.red,
-      //       child: ListTile(
-      //         title: Text(
-      //           'Your bus is in bay $bay!',
-      //           style: GoogleFonts.rubik(
-      //               fontWeight: FontWeight.bold, color: Colors.white),
-      //         ),
-      //         trailing: const Icon(Icons.directions_bus, color: Colors.white),
-      //         onTap: () async {
-      //           if (bay == "RSP_NYA") {
-      //             // Response-Not-Yet-Arrived
-      //             ScaffoldMessenger.of(context).showSnackBar(
-      //               const SnackBar(
-      //                 content: Text(
-      //                   "Bus has not arrived yet (this should be impossible, please report this)",
-      //                 ),
-      //               ),
-      //             );
-      //           } else {
-      //             Navigator.push(
-      //               context,
-      //               MaterialPageRoute(
-      //                 builder: (context) => BusMapViewPage(
-      //                   bay: bay,
-      //                   busNumber: bus,
-      //                 ),
-      //               ),
-      //             );
-      //           }
-      //         },
-      //       ),
-      //     );
-      //   } else {
-      //     busWidget = const SizedBox.shrink();
-      //   }
-      // }
+
       final List friends = await api.getFriends();
       for (final friend in friends) {
         final String uid = friend["userid"];
@@ -309,7 +287,6 @@ class _HomePageState extends State<HomePage> {
           ),
           child: Padding(
             padding: const EdgeInsets.only(
-              top: 6,
               left: 6,
               right: 6,
             ),

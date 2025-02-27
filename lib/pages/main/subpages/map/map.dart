@@ -30,6 +30,7 @@ class _MapPageState extends State<MapPage> {
                 builder: (context) => IndividualBuildingMapPage(
                   fileName: floor['img'],
                   subtext: location.key,
+                  referredByMainMap: true,
                 ),
               ),
             );
@@ -138,6 +139,7 @@ class _MapPageState extends State<MapPage> {
                             builder: (context) => IndividualBuildingMapPage(
                               fileName: roomObjList[0]['img'],
                               subtext: roomObjList[0]['title'],
+                              referredByMainMap: true,
                             ),
                           ),
                         );
@@ -162,6 +164,7 @@ class _MapPageState extends State<MapPage> {
                                                 IndividualBuildingMapPage(
                                               fileName: roomObj['img'],
                                               subtext: roomObj['title'],
+                                              referredByMainMap: true,
                                             ),
                                           ),
                                         );

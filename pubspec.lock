@@ -282,10 +282,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_slider_drawer
-      sha256: "7e34f47a6d37c7518791fa1e242492df23e75ccbc600eeda4abfd5641aeea709"
+      sha256: "41a627bc3a87c981ca128c0ec4e0f2135244c8e13a78bf472db4d59a1ed9896f"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.3"
+    version: "3.0.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter

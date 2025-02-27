@@ -124,8 +124,10 @@ class _ExtraBusPageState extends State<ExtraBusPage> {
                         ),
                       );
                     }
-                    Navigator.pop(context);
-                    fetchCurrentBuses();
+                    if (mounted) {
+                      Navigator.pop(context);
+                    }
+                    await fetchCurrentBuses();
                   }
                 },
                 child: const Text("Add"),

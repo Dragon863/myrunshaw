@@ -72,11 +72,12 @@ class _SliderViewState extends State<SliderView> {
                       }
                     },
                     child: const CircleAvatar(
-                      radius: 62,
+                      radius: 72,
                       backgroundColor: Colors.white,
                       child: CircleAvatar(
-                        radius: 60,
-                        backgroundImage: AssetImage('assets/img/logo.png'),
+                        radius: 70,
+                        backgroundImage:
+                            AssetImage('assets/img/logo-muted.png'),
                       ),
                     ),
                   ),

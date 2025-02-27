@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -71,6 +73,7 @@ class _MainPageState extends State<MainPage> {
           body: SliderDrawer(
             key: _sliderDrawerKey,
             sliderOpenSize: 200,
+            isDraggable: Platform.isIOS,
             slider: SliderView(
                 currentIndex: _currentIndex,
                 notification: notification,
@@ -84,19 +87,20 @@ class _MainPageState extends State<MainPage> {
                   await loadNotifications();
                 }),
             appBar: SliderAppBar(
-              title: Text(
-                title,
-                style: GoogleFonts.rubik(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
+              config: SliderAppBarConfig(
+                title: Text(
+                  title,
+                  style: GoogleFonts.rubik(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
+                backgroundColor: Colors.red,
+                padding: const EdgeInsets.only(top: 4),
+                drawerIconColor: Colors.white,
               ),
-
-              appBarHeight: 50,
-              appBarColor: Colors.red, //const Color.fromARGB(255, 230, 51, 18),
-              appBarPadding: const EdgeInsets.only(top: 4),
-              drawerIconColor: Colors.white,
             ),
             child: getPages(showNotifs)[_currentIndex],
           ),

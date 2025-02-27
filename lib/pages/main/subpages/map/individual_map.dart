@@ -5,11 +5,13 @@ import 'package:runshaw/utils/theme/appbar.dart';
 class IndividualBuildingMapPage extends StatefulWidget {
   final String fileName;
   final String subtext;
+  final bool referredByMainMap;
 
   const IndividualBuildingMapPage({
     super.key,
     required this.fileName,
     required this.subtext,
+    this.referredByMainMap = false,
   });
 
   @override
@@ -43,10 +45,13 @@ class _IndividualBuildingMapPageState extends State<IndividualBuildingMapPage> {
 
   @override
   void dispose() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
+    if (widget.referredByMainMap == false) {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    }
+
     super.dispose();
     // reset the orientation to portrait when the page is closed
   }

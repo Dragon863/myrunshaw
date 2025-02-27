@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:appwrite/models.dart';
 import 'package:aptabase_flutter/aptabase_flutter.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:appwrite/appwrite.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
@@ -527,7 +528,8 @@ class BaseAPI extends ChangeNotifier {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     bool migrated = prefs.getBool("migrated_buses") ?? false;
-    if (migrated) {
+    debugLog("Has migrated buses: $migrated");
+    if (migrated && !kDebugMode) {
       return;
     }
 
@@ -540,15 +542,19 @@ class BaseAPI extends ChangeNotifier {
 
       // Check if bus_number exists and is not null before adding it as an extra bus
       String? busNumber = currentPrefs.data["bus_number"];
+      debugLog("Migrating bus number: $busNumber");
       if (busNumber != null && busNumber.isNotEmpty) {
         await addExtraBus(busNumber);
+        debugLog("Added bus number as extra bus");
       }
 
       // Remove the bus number from the prefs if it exists
       currentPrefs.data.remove("bus_number");
+      debugLog("Removed bus number from prefs");
 
       // Update the prefs
       await account!.updatePrefs(prefs: currentPrefs.data);
+      debugLog("Updated prefs");
 
       // Set the migration flag
       await prefs.setBool("migrated_buses", true);
