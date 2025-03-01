@@ -101,34 +101,35 @@ class _UserInfoPageState extends State<UserInfoPage> {
               ),
               subtitle: Text(widget.bus),
               trailing: const Icon(Icons.directions_bus),
-              onTap: () async {
-                if (widget.bus == "Not Set") {
-                  return;
-                }
-                final BaseAPI api = context.read<BaseAPI>();
-                final String busBay = await api.getBusBay(widget.bus);
+              // Legacy from when the app supported only one bus. TODO: Will rewrite in v1.3.1 to have a popup
+              //   onTap: () async {
+              //     if (widget.bus == "Not Set") {
+              //       return;
+              //     }
+              //     final BaseAPI api = context.read<BaseAPI>();
+              //     final String busBay = await api.getBusBay(widget.bus);
 
-                if (busBay == "RSP_NYA" || busBay == "0") {
-                  // Response-Not-Yet-Arrived
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        "Bus has not arrived yet",
-                      ),
-                    ),
-                  );
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BusMapViewPage(
-                        bay: busBay,
-                        busNumber: widget.bus,
-                      ),
-                    ),
-                  );
-                }
-              },
+              //     if (busBay == "RSP_NYA" || busBay == "0") {
+              //       // Response-Not-Yet-Arrived
+              //       ScaffoldMessenger.of(context).showSnackBar(
+              //         const SnackBar(
+              //           content: Text(
+              //             "Bus has not arrived yet",
+              //           ),
+              //         ),
+              //       );
+              //     } else {
+              //       Navigator.push(
+              //         context,
+              //         MaterialPageRoute(
+              //           builder: (context) => BusMapViewPage(
+              //             bay: busBay,
+              //             busNumber: widget.bus,
+              //           ),
+              //         ),
+              //       );
+              //     }
+              //   },
             ),
             const Spacer(),
             ListTile(
