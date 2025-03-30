@@ -123,9 +123,17 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
         }
 
         // Assign the free period
-        // If there are no events that end before the start of the event, then the user is probablly free from the start of the event
-        // If there are no events that start after the start of the event, then the user is probably free until the end of the event
-        freeStart = latestEndBeforeStart ?? widget.dtStart;
+        // If the last event was on a different day, assume free from dtStart
+        if (latestEndBeforeStart != null &&
+            latestEndBeforeStart.day == widget.dtStart.day &&
+            latestEndBeforeStart.month == widget.dtStart.month &&
+            latestEndBeforeStart.year == widget.dtStart.year) {
+          freeStart = latestEndBeforeStart;
+        } else {
+          freeStart =
+              widget.dtStart; // Free from the start of the current event
+        }
+
         freeEnd = earliestStartAfterStart ?? widget.dtEnd;
 
         debugLog("$name Free from $freeStart to $freeEnd");

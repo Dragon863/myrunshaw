@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:appwrite/models.dart';
 import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/login/stage1.dart';
 import 'package:runshaw/pages/main/main_view.dart';
@@ -26,6 +26,11 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      // Just in case the map page is opened which on android can cause the app to stay landscape
+    ]);
     _navigateToHome();
   }
 
@@ -59,11 +64,8 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<bool> isOnBoarded() async {
     final api = context.read<BaseAPI>();
-    Preferences? currentPrefs = await api.account?.getPrefs();
-    if (currentPrefs == null) {
-      return false;
-    }
-    return currentPrefs.data["onboarding_complete"] == true;
+    final currentPrefs = await api.account?.getPrefs();
+    return currentPrefs?.data["onboarding_complete"] == true;
   }
 
   _navigateToHome() async {
@@ -84,18 +86,12 @@ class _SplashPageState extends State<SplashPage> {
       try {
         await api
             .migrateBuses(); // Migrate buses from old system - this is a good place to do it as it only runs once
-        setState(() {
-          loadingStageText = "Loading names...";
-        });
-        await api.cacheNames();
-        setState(() {
-          loadingStageText = "Loading timetables...";
-        });
-        await api.cacheTimetables();
-        setState(() {
-          loadingStageText = "Loading profile picture versions...";
-        });
-        await api.cachePfpVersions();
+        setState(() => loadingStageText = "Loading data...");
+        await Future.wait([
+          api.cacheNames(),
+          api.cacheTimetables(),
+          api.cachePfpVersions(),
+        ]);
       } catch (e) {
         debugLog("Error caching timetables: $e");
       }
@@ -108,12 +104,19 @@ class _SplashPageState extends State<SplashPage> {
         );
       }
 
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MainPage(nextRoute: widget.nextRoute),
+      setState(() {
+        loadingStageText = "Let's go!";
+      });
+      Navigator.of(context).pushAndRemoveUntil(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => MainPage(
+            nextRoute: widget.nextRoute,
+          ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+              FadeTransition(opacity: animation, child: child),
+          transitionDuration: const Duration(milliseconds: 300),
         ),
-        (r) => false,
+        (route) => false,
       );
       await Aptabase.instance.trackEvent(
         "app_open",
@@ -131,37 +134,36 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-      // Just in case the map page is opened which on android can cause the app to stay landscape
-    ]);
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.red,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            const Spacer(),
             const CircleAvatar(
               radius: 120,
-              backgroundColor: Colors.white,
-              child: CircleAvatar(
-                radius: 120,
-                backgroundImage: AssetImage('assets/img/logo.png'),
-              ),
+              backgroundImage: AssetImage('assets/img/logo-muted.png'),
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.red,
             ),
-            const SizedBox(height: 45),
-            const CircularProgressIndicator(),
-            const SizedBox(height: 30),
-            const Text(
-              'Welcome to My Runshaw!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
+            const Spacer(),
             Text(
               loadingStageText,
-              style: const TextStyle(fontSize: 16),
+              style: GoogleFonts.rubik(
+                color: Colors.white,
+              ),
             ),
+            if (kDebugMode)
+              Text(
+                "Debug mode!",
+                style: GoogleFonts.rubik(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+            const SizedBox(height: 25),
           ],
         ),
       ),

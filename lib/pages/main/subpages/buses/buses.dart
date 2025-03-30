@@ -127,32 +127,62 @@ class _BusesPageState extends State<BusesPage> {
           RichText(
             textAlign: TextAlign.center,
             text: TextSpan(
-              text: 'The ',
-              style: GoogleFonts.rubik(
-                fontSize: 24,
-                fontWeight: FontWeight.normal,
+              style: const TextStyle(
+                fontSize: 24.0,
                 color: Colors.black,
               ),
               children: [
                 TextSpan(
-                  text: bus,
+                  text: 'The ',
                   style: GoogleFonts.rubik(
                     fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: busColor,
+                    fontWeight: FontWeight.normal,
                   ),
                 ),
-                const TextSpan(text: ' is in bay '),
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.middle,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
+                    decoration: BoxDecoration(
+                      color: busColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      bus,
+                      style: GoogleFonts.rubik(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                ),
+                TextSpan(
+                  text: ' is in bay ',
+                  style: GoogleFonts.rubik(
+                    fontSize: 24,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
                 TextSpan(
                   text: bay,
                   style: GoogleFonts.rubik(
-                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
+                ),
+                TextSpan(
+                  text: "!",
+                  style: GoogleFonts.rubik(),
                 ),
               ],
             ),
           ),
+        );
+
+        richTextWidgets.add(
+          // Spacer
+          const SizedBox(height: 2),
         );
 
         final position = calculatePosition(bay);
@@ -196,21 +226,42 @@ class _BusesPageState extends State<BusesPage> {
                 color: Colors.black,
               ),
               children: [
-                TextSpan(
-                  text: bus,
-                  style: GoogleFonts.rubik(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: colors[index],
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.middle,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
+                    decoration: BoxDecoration(
+                      color: colors[index % colors.length],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      bus,
+                      style: GoogleFonts.rubik(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
                   ),
                 ),
-                const TextSpan(text: ' hasn\'t arrived yet'),
+                TextSpan(
+                  text: " hasn't arrived yet",
+                  style: GoogleFonts.rubik(
+                    fontSize: 24,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
               ],
             ),
           ),
         );
       }
       index++;
+      richTextWidgets.add(
+        // Spacer
+        const SizedBox(height: 2),
+      );
     });
 
     setState(() {

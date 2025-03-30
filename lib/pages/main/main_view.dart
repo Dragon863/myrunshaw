@@ -22,10 +22,16 @@ class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
   String notification = "";
   bool showNotifs = true;
+  bool isDraggable = false;
 
   @override
   void initState() {
     loadNotifications();
+    try {
+      isDraggable = Platform.isIOS;
+    } catch (e) {
+      isDraggable = false;
+    }
     super.initState();
     nextRoute();
   }

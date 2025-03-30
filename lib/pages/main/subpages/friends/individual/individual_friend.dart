@@ -227,7 +227,9 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
                                               event.description ?? '',
                                           timing: humaniseTime(
                                               event.start, event.end),
-                                          color: Colors.green.shade400,
+                                          color: event.summary == ''
+                                              ? Colors.red
+                                              : Colors.green.shade400,
                                         );
                                       }
                                     }),
