@@ -79,7 +79,7 @@ class _MainPageState extends State<MainPage> {
           body: SliderDrawer(
             key: _sliderDrawerKey,
             sliderOpenSize: 200,
-            isDraggable: Platform.isIOS,
+            isDraggable: isDraggable,
             slider: SliderView(
                 currentIndex: _currentIndex,
                 notification: notification,
