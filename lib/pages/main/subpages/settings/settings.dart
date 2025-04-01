@@ -254,7 +254,6 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Center(
           child: Container(
@@ -385,7 +384,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   style: GoogleFonts.rubik(
                     fontSize: 16,
                     fontWeight: FontWeight.normal,
-                    color: Colors.grey.shade800,
+                    color: MediaQuery.of(context).platformBrightness ==
+                            Brightness.light
+                        ? Colors.grey.shade800
+                        : null,
                   ),
                 ),
                 const SizedBox(height: 9),

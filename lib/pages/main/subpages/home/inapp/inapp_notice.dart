@@ -16,7 +16,6 @@ class InAppNotice extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       insetPadding: const EdgeInsets.all(6),
-      backgroundColor: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Container(

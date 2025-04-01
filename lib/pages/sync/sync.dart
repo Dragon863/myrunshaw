@@ -59,7 +59,6 @@ class _SyncPageState extends State<SyncPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: const RunshawAppBar(title: "Calendar Sync"),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

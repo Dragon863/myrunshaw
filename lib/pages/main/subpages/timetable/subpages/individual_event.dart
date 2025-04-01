@@ -223,7 +223,6 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
         centerTitle: true,
         title: const Text("Event Details"),
       ),

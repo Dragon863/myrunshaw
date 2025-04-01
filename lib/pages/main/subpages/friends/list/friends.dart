@@ -29,7 +29,6 @@ class _FriendsPageState extends State<FriendsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.only(left: 6, right: 6),
@@ -41,7 +40,6 @@ class _FriendsPageState extends State<FriendsPage> {
             child: DefaultTabController(
               length: 2,
               child: Scaffold(
-                backgroundColor: Colors.white,
                 appBar: const TabBar(
                   tabs: [
                     Tab(text: "Friends"),

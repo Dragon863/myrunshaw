@@ -48,95 +48,99 @@ class _SliderViewState extends State<SliderView> {
         border: Border(
           right: BorderSide(color: Colors.grey.withOpacity(0.3)),
         ),
-        color: Colors.white,
+        color: Theme.of(context).scaffoldBackgroundColor,
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                physics: const ScrollPhysics(),
-                children: <Widget>[
-                  GestureDetector(
-                    onTap: () {
-                      if (counter < 20) {
-                        counter++;
-                      } else {
-                        counter = 0;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Stop pressing me!'),
-                          ),
-                        );
-                      }
-                    },
-                    child: const CircleAvatar(
-                      radius: 72,
-                      backgroundColor: Colors.white,
+        child: Theme(
+          data: Theme.of(context).copyWith(
+              iconTheme: IconThemeData(
+            color: MediaQuery.of(context).platformBrightness == Brightness.light
+                ? Colors.black
+                : Colors.white,
+          )),
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  physics: const ScrollPhysics(),
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: () {
+                        if (counter < 20) {
+                          counter++;
+                        } else {
+                          counter = 0;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Stop pressing me!'),
+                            ),
+                          );
+                        }
+                      },
                       child: CircleAvatar(
-                        radius: 70,
-                        backgroundImage:
-                            AssetImage('assets/img/logo-muted.png'),
+                        radius: 72,
+                        backgroundColor:
+                            Theme.of(context).scaffoldBackgroundColor,
+                        child: const CircleAvatar(
+                          radius: 70,
+                          backgroundImage:
+                              AssetImage('assets/img/logo-muted.png'),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  ...[
-                    Menu(
-                        const Icon(
-                          Icons.home_outlined,
-                          color: Colors.black,
-                        ),
-                        'Home'),
-                    Menu(
-                        const Icon(
-                          Icons.directions_bus_outlined,
-                          color: Colors.black,
-                        ),
-                        'Buses'),
-                    Menu(
-                        const Icon(
-                          Icons.people_alt_outlined,
-                          color: Colors.black,
-                        ),
-                        'Friends${widget.notification}'),
-                    Menu(
-                        const Icon(
-                          Icons.calendar_month_outlined,
-                          color: Colors.black,
-                        ),
-                        'Timetable'),
-                    Menu(
-                        const Icon(
-                          Icons.map_outlined,
-                          color: Colors.black,
-                        ),
-                        'Map'),
-                    Menu(
-                        const Icon(
-                          Icons.settings_outlined,
-                          color: Colors.black,
-                        ),
-                        'Settings'),
-                  ].asMap().entries.map((entry) => _SliderMenuItem(
-                        title: entry.value.title,
-                        iconData: entry.value.iconData,
-                        onTap: widget.onItemClick,
-                        index: entry.key,
-                        currentIndex: widget.currentIndex,
-                      )),
-                ],
+                    const SizedBox(height: 20),
+                    ...[
+                      Menu(
+                          const Icon(
+                            Icons.home_outlined,
+                          ),
+                          'Home'),
+                      Menu(
+                          const Icon(
+                            Icons.directions_bus_outlined,
+                          ),
+                          'Buses'),
+                      Menu(
+                          const Icon(
+                            Icons.people_alt_outlined,
+                          ),
+                          'Friends${widget.notification}'),
+                      Menu(
+                          const Icon(
+                            Icons.calendar_month_outlined,
+                          ),
+                          'Timetable'),
+                      Menu(
+                          const Icon(
+                            Icons.map_outlined,
+                          ),
+                          'Map'),
+                      Menu(
+                          const Icon(
+                            Icons.settings_outlined,
+                          ),
+                          'Settings'),
+                    ].asMap().entries.map((entry) => _SliderMenuItem(
+                          title: entry.value.title,
+                          iconData: entry.value.iconData,
+                          onTap: widget.onItemClick,
+                          index: entry.key,
+                          currentIndex: widget.currentIndex,
+                        )),
+                  ],
+                ),
               ),
-            ),
-            ListTile(
-              onTap: () async {
-                await logOut(context);
-              },
-              title: const Text('Log Out', style: TextStyle(color: Colors.red)),
-              leading: const Icon(Icons.logout, color: Colors.red),
-            ),
-          ],
+              ListTile(
+                onTap: () async {
+                  await logOut(context);
+                },
+                title:
+                    const Text('Log Out', style: TextStyle(color: Colors.red)),
+                leading: const Icon(Icons.logout, color: Colors.red),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -150,24 +154,33 @@ class _SliderMenuItem extends StatelessWidget {
   final int index;
   final int currentIndex;
 
-  const _SliderMenuItem(
-      {required this.title,
-      required this.iconData,
-      required this.onTap,
-      required this.index,
-      required this.currentIndex});
+  const _SliderMenuItem({
+    required this.title,
+    required this.iconData,
+    required this.onTap,
+    required this.index,
+    required this.currentIndex,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: index == currentIndex
-            ? const Color.fromARGB(255, 255, 209, 209)
-            : Colors.white,
+            ? MediaQuery.of(context).platformBrightness == Brightness.light
+                ? const Color.fromARGB(255, 255, 209, 209)
+                : Colors.red
+            : Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(20),
       ),
       child: ListTile(
-        title: Text(title, style: const TextStyle(color: Colors.black)),
+        title: Text(title,
+            style: TextStyle(
+              color:
+                  MediaQuery.of(context).platformBrightness == Brightness.light
+                      ? Colors.black
+                      : Colors.white,
+            )),
         leading: iconData,
         onTap: () => onTap?.call(title, index),
       ),

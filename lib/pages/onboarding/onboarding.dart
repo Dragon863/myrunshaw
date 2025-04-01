@@ -136,7 +136,6 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const RunshawAppBar(title: "Introduction"),
-      backgroundColor: Colors.white,
       body: Center(
         child: Container(
           constraints: const BoxConstraints(

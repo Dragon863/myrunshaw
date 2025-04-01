@@ -18,6 +18,7 @@ class _BusesPageState extends State<BusesPage> {
   bool loading = true;
   List<Widget> busPins = [];
   Map<String, String?> allBuses = {};
+
   List<Widget> richTextWidgets = [
     RichText(
       textAlign: TextAlign.center,
@@ -26,7 +27,6 @@ class _BusesPageState extends State<BusesPage> {
         style: GoogleFonts.rubik(
           fontSize: 24,
           fontWeight: FontWeight.normal,
-          color: Colors.black,
         ),
         children: [
           TextSpan(
@@ -95,7 +95,7 @@ class _BusesPageState extends State<BusesPage> {
               style: GoogleFonts.rubik(
                 fontSize: 24,
                 fontWeight: FontWeight.normal,
-                color: Colors.black,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
               ),
               children: [
                 TextSpan(
@@ -106,7 +106,11 @@ class _BusesPageState extends State<BusesPage> {
                     color: Colors.red,
                   ),
                 ),
-                const TextSpan(text: ' to add a bus!'),
+                TextSpan(
+                  text: ' to add a bus!',
+                  style: GoogleFonts.rubik(
+                      color: Theme.of(context).colorScheme.onPrimaryContainer),
+                ),
               ],
             ),
           ),
@@ -127,9 +131,9 @@ class _BusesPageState extends State<BusesPage> {
           RichText(
             textAlign: TextAlign.center,
             text: TextSpan(
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24.0,
-                color: Colors.black,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
               ),
               children: [
                 TextSpan(
@@ -137,6 +141,7 @@ class _BusesPageState extends State<BusesPage> {
                   style: GoogleFonts.rubik(
                     fontSize: 24,
                     fontWeight: FontWeight.normal,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
                   ),
                 ),
                 WidgetSpan(
@@ -163,17 +168,21 @@ class _BusesPageState extends State<BusesPage> {
                   style: GoogleFonts.rubik(
                     fontSize: 24,
                     fontWeight: FontWeight.normal,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
                   ),
                 ),
                 TextSpan(
                   text: bay,
                   style: GoogleFonts.rubik(
                     fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
                   ),
                 ),
                 TextSpan(
                   text: "!",
-                  style: GoogleFonts.rubik(),
+                  style: GoogleFonts.rubik(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
                 ),
               ],
             ),
@@ -223,7 +232,7 @@ class _BusesPageState extends State<BusesPage> {
               style: GoogleFonts.rubik(
                 fontSize: 24,
                 fontWeight: FontWeight.normal,
-                color: Colors.black,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
               ),
               children: [
                 WidgetSpan(
@@ -250,6 +259,7 @@ class _BusesPageState extends State<BusesPage> {
                   style: GoogleFonts.rubik(
                     fontSize: 24,
                     fontWeight: FontWeight.normal,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
                   ),
                 ),
               ],
@@ -289,7 +299,6 @@ class _BusesPageState extends State<BusesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Center(
           child: Container(
@@ -301,11 +310,18 @@ class _BusesPageState extends State<BusesPage> {
               children: [
                 Stack(
                   children: [
-                    Image.asset(
-                      "assets/img/busesmap.png",
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
+                    MediaQuery.of(context).platformBrightness ==
+                            Brightness.light
+                        ? Image.asset(
+                            "assets/img/busesmap.png",
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.asset(
+                            "assets/img/busesmap-dark.png",
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
                     ...busPins,
                   ],
                 ),

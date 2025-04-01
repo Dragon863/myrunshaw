@@ -186,8 +186,10 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.white,
                     ),
                   ),
-                  trailing:
-                      const Icon(Icons.directions_bus, color: Colors.white),
+                  trailing: const Icon(
+                    Icons.directions_bus,
+                    color: Colors.white,
+                  ),
                   onTap: () async {
                     if (bay == "RSP_NYA" || bay == "0") {
                       // Response-Not-Yet-Arrived
@@ -278,7 +280,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: Center(
         child: Container(
           constraints: const BoxConstraints(
@@ -369,7 +370,6 @@ class _HomePageState extends State<HomePage> {
                                       style: GoogleFonts.rubik(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.black,
                                       ),
                                       overflow: TextOverflow.visible,
                                     ),
@@ -401,7 +401,6 @@ class _HomePageState extends State<HomePage> {
                                       style: GoogleFonts.rubik(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.black,
                                       ),
                                       overflow: TextOverflow.visible,
                                     ),
@@ -467,7 +466,6 @@ class _HomePageState extends State<HomePage> {
                                   "QR Code",
                                   style: GoogleFonts.rubik(
                                     fontSize: 22,
-                                    color: Colors.black,
                                   ),
                                 ),
                               ],

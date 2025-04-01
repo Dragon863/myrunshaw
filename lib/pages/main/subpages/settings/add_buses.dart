@@ -141,7 +141,6 @@ class _ExtraBusPageState extends State<ExtraBusPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const RunshawAppBar(title: "My Buses"),
-      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Center(
           child: Padding(

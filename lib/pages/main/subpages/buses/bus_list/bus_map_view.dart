@@ -33,7 +33,6 @@ class _BusMapViewPageState extends State<BusMapViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: RunshawAppBar(title: "${widget.busNumber} Bus"),
-      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Center(
           child: Container(

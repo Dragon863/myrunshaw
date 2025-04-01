@@ -8,7 +8,6 @@ class StageOneLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
         child: SingleChildScrollView(

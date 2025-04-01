@@ -79,7 +79,6 @@ class _TimetablePageState extends State<TimetablePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: Column(
         children: [
           SizedBox(
@@ -100,7 +99,7 @@ class _TimetablePageState extends State<TimetablePage> {
                       style: GoogleFonts.rubik(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
                       ),
                     ),
                   ],

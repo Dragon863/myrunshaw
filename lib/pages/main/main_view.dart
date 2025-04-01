@@ -75,7 +75,6 @@ class _MainPageState extends State<MainPage> {
       color: Colors.red,
       child: SafeArea(
         child: Scaffold(
-          backgroundColor: Colors.white,
           body: SliderDrawer(
             key: _sliderDrawerKey,
             sliderOpenSize: 200,

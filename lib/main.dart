@@ -110,10 +110,38 @@ class BaseApp extends StatelessWidget {
           seedColor: Colors.red,
         ),
         fontFamily: 'Rubik',
-        textTheme: GoogleFonts.rubikTextTheme(
+        primaryTextTheme: GoogleFonts.rubikTextTheme(
           Theme.of(context).textTheme,
         ),
         scaffoldBackgroundColor: Colors.white,
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        colorScheme: const ColorScheme(
+          brightness: Brightness.dark,
+          surface: Color(0xFF121212),
+          primary: Color(0xFFFF6659),
+          secondary: Color(0xFFB39DDB),
+          tertiary: Color(0xFF80CBC4),
+          surfaceContainerHighest: Color(0xFF1E1E1E),
+          primaryContainer: Color.fromARGB(255, 212, 87, 83),
+          secondaryContainer: Color(0xFF5E35B1),
+          tertiaryContainer: Color(0xFF004D40),
+          // on
+          onPrimary: Color(0xFF1B1B1B),
+          onSecondary: Color(0xFF1B1B1B),
+          onTertiary: Color(0xFF1B1B1B),
+          onSurface: Color(0xFFE0E0E0),
+          onPrimaryContainer: Color(0xFFFFFFFF),
+          onSecondaryContainer: Color(0xFFFFFFFF),
+          onTertiaryContainer: Color(0xFFFFFFFF),
+          error: Colors.red,
+          onError: Colors.yellow,
+        ),
+        fontFamily: 'Rubik',
+        primaryTextTheme:
+            GoogleFonts.rubikTextTheme(Theme.of(context).textTheme),
+        scaffoldBackgroundColor: const Color(0xFF1E1E1E),
       ),
       home: SplashPage(
         nextRoute: nextRoute,

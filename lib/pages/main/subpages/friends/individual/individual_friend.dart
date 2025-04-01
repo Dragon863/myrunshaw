@@ -140,7 +140,6 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
                             style: GoogleFonts.rubik(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
                             ),
                           ),
                         ],
