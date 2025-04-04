@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:runshaw/pages/login/emailpage.dart';
 import 'package:runshaw/pages/scan/scan.dart';
+import 'package:runshaw/utils/theme/theme_provider.dart';
 
 class StageOneLogin extends StatelessWidget {
   const StageOneLogin({super.key});
@@ -31,11 +33,13 @@ class StageOneLogin extends StatelessWidget {
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                       fontFamily: "Rubik",
-                      color: Colors.black,
                     ),
                   ),
                   const SizedBox(height: 20),
                   FloatingActionButton.extended(
+                    backgroundColor: context.read<ThemeProvider>().isDarkMode
+                        ? Colors.red
+                        : null,
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -61,7 +65,12 @@ class StageOneLogin extends StatelessWidget {
                         ),
                       );
                     },
-                    child: const Text("Or Use Email"),
+                    child: Text("Or Use Email",
+                        style: TextStyle(
+                          color: context.read<ThemeProvider>().isDarkMode
+                              ? Colors.white
+                              : null,
+                        )),
                   ),
                 ],
               ),

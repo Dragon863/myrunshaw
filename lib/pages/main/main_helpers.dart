@@ -48,7 +48,7 @@ class _SliderViewState extends State<SliderView> {
       padding: const EdgeInsets.only(top: 30),
       decoration: BoxDecoration(
         border: Border(
-          right: BorderSide(color: Colors.grey.withOpacity(0.3)),
+          right: BorderSide(color: Colors.grey.withValues(alpha: .3)),
         ),
         color: Theme.of(context).scaffoldBackgroundColor,
       ),
@@ -94,42 +94,45 @@ class _SliderViewState extends State<SliderView> {
                     const SizedBox(height: 20),
                     ...[
                       Menu(
-                          const Icon(
-                            Icons.home_outlined,
-                          ),
-                          'Home'),
+                        Icons.home_outlined,
+                        Icons.home,
+                        'Home',
+                      ),
                       Menu(
-                          const Icon(
-                            Icons.directions_bus_outlined,
-                          ),
-                          'Buses'),
+                        Icons.directions_bus_outlined,
+                        Icons.directions_bus,
+                        'Buses',
+                      ),
                       Menu(
-                          const Icon(
-                            Icons.people_alt_outlined,
-                          ),
-                          'Friends${widget.notification}'),
+                        Icons.people_alt_outlined,
+                        Icons.people_alt,
+                        'Friends${widget.notification}',
+                      ),
                       Menu(
-                          const Icon(
-                            Icons.calendar_month_outlined,
-                          ),
-                          'Timetable'),
+                        Icons.calendar_month_outlined,
+                        Icons.calendar_month,
+                        'Timetable',
+                      ),
                       Menu(
-                          const Icon(
-                            Icons.map_outlined,
-                          ),
-                          'Map'),
+                        Icons.map_outlined,
+                        Icons.map,
+                        'Map',
+                      ),
                       Menu(
-                          const Icon(
-                            Icons.settings_outlined,
+                        Icons.settings_outlined,
+                        Icons.settings,
+                        'Settings',
+                      ),
+                    ].asMap().entries.map(
+                          (entry) => _SliderMenuItem(
+                            title: entry.value.title,
+                            inactiveIcon: entry.value.inactiveIcon,
+                            activeIcon: entry.value.activeIcon,
+                            onTap: widget.onItemClick,
+                            index: entry.key,
+                            currentIndex: widget.currentIndex,
                           ),
-                          'Settings'),
-                    ].asMap().entries.map((entry) => _SliderMenuItem(
-                          title: entry.value.title,
-                          iconData: entry.value.iconData,
-                          onTap: widget.onItemClick,
-                          index: entry.key,
-                          currentIndex: widget.currentIndex,
-                        )),
+                        ),
                   ],
                 ),
               ),
@@ -137,8 +140,10 @@ class _SliderViewState extends State<SliderView> {
                 onTap: () async {
                   await logOut(context);
                 },
-                title:
-                    const Text('Log Out', style: TextStyle(color: Colors.red)),
+                title: const Text(
+                  'Log Out',
+                  style: TextStyle(color: Colors.red),
+                ),
                 leading: const Icon(Icons.logout, color: Colors.red),
               ),
             ],
@@ -151,14 +156,16 @@ class _SliderViewState extends State<SliderView> {
 
 class _SliderMenuItem extends StatelessWidget {
   final String title;
-  final Widget iconData;
+  final IconData inactiveIcon;
+  final IconData activeIcon;
   final Function(String, int)? onTap;
   final int index;
   final int currentIndex;
 
   const _SliderMenuItem({
     required this.title,
-    required this.iconData,
+    required this.inactiveIcon,
+    required this.activeIcon,
     required this.onTap,
     required this.index,
     required this.currentIndex,
@@ -171,25 +178,23 @@ class _SliderMenuItem extends StatelessWidget {
         color: index == currentIndex
             ? context.read<ThemeProvider>().isLightMode
                 ? const Color.fromARGB(255, 255, 209, 209)
-                : Colors.transparent
+                : Theme.of(context).colorScheme.surface
             : Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(20),
-        border:
-            context.read<ThemeProvider>().isDarkMode && index == currentIndex
-                ? Border.all(
-                    color: const Color.fromARGB(255, 255, 209, 209),
-                    width: 1.5,
-                  )
-                : null,
       ),
       child: ListTile(
-        title: Text(title,
-            style: TextStyle(
-              color: context.read<ThemeProvider>().isLightMode
-                  ? Colors.black
-                  : Colors.white,
-            )),
-        leading: iconData,
+        title: Text(
+          title,
+          style: TextStyle(
+            color: context.read<ThemeProvider>().isLightMode
+                ? Colors.black
+                : Colors.white,
+          ),
+        ),
+        leading: Icon(
+          index == currentIndex ? activeIcon : inactiveIcon,
+          color: Theme.of(context).iconTheme.color,
+        ),
         onTap: () => onTap?.call(title, index),
       ),
     );
@@ -197,8 +202,13 @@ class _SliderMenuItem extends StatelessWidget {
 }
 
 class Menu {
-  final Widget iconData;
+  final IconData inactiveIcon;
+  final IconData activeIcon;
   final String title;
 
-  Menu(this.iconData, this.title);
+  Menu(
+    this.inactiveIcon,
+    this.activeIcon,
+    this.title,
+  );
 }

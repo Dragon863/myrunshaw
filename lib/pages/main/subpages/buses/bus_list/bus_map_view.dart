@@ -92,6 +92,7 @@ class _BusMapViewPageState extends State<BusMapViewPage> {
                     style: GoogleFonts.rubik(
                       fontSize: 24,
                       fontWeight: FontWeight.normal,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     children: [
                       WidgetSpan(
@@ -113,11 +114,19 @@ class _BusMapViewPageState extends State<BusMapViewPage> {
                           ),
                         ),
                       ),
-                      const TextSpan(text: " is in bay"),
+                      TextSpan(
+                        text: " is in bay",
+                        style: GoogleFonts.rubik(
+                          fontSize: 24,
+                          fontWeight: FontWeight.normal,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
                       TextSpan(
                         text: " ${widget.bay}",
                         style: GoogleFonts.rubik(
                           fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ],

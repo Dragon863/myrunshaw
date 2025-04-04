@@ -8,6 +8,7 @@ import 'package:runshaw/pages/login/password_reset_login.dart';
 import 'package:runshaw/pages/main/main_view.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/logging.dart';
+import 'package:runshaw/utils/theme/theme_provider.dart';
 
 class EmailPage extends StatefulWidget {
   const EmailPage({super.key});
@@ -112,17 +113,11 @@ class _EmailPageState extends State<EmailPage> {
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () async {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("You can only sign up with a QR code"),
-                        ),
-                      );
-                    },
-                    child: const Text('Sign Up'),
-                  ),
-                  const SizedBox(height: 10),
-                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: context.read<ThemeProvider>().isDarkMode
+                          ? Colors.red
+                          : null,
+                    ),
                     onPressed: () async {
                       setState(() {
                         loading = true;
@@ -184,19 +179,49 @@ class _EmailPageState extends State<EmailPage> {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text('Sign In'),
+                        Text(
+                          'Sign In',
+                          style: TextStyle(
+                            color: context.read<ThemeProvider>().isDarkMode
+                                ? Colors.white
+                                : null,
+                          ),
+                        ),
                         loading
                             ? const SizedBox(width: 10)
                             : const SizedBox.shrink(),
                         loading
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 12,
                                 height: 12,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 3),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                  color:
+                                      context.read<ThemeProvider>().isLightMode
+                                          ? Colors.black
+                                          : Colors.white,
+                                ),
                               )
                             : const SizedBox.shrink(),
                       ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  OutlinedButton(
+                    onPressed: () async {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("You can only sign up with a QR code"),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'Sign Up',
+                      style: TextStyle(
+                        color: context.read<ThemeProvider>().isDarkMode
+                            ? Colors.white
+                            : null,
+                      ),
                     ),
                   ),
                 ],

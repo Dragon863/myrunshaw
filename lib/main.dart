@@ -119,6 +119,17 @@ class BaseApp extends StatelessWidget {
               Theme.of(context).textTheme,
             ),
             scaffoldBackgroundColor: Colors.white,
+            snackBarTheme: SnackBarThemeData(
+              actionTextColor: Colors.red,
+              backgroundColor: Colors.grey[800],
+              contentTextStyle: GoogleFonts.rubik(color: Colors.white),
+              elevation: 20,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              behavior: SnackBarBehavior.floating,
+              insetPadding: const EdgeInsets.all(10),
+            ),
           ),
           darkTheme: ThemeData(
             primarySwatch: Colors.red,
@@ -129,6 +140,17 @@ class BaseApp extends StatelessWidget {
               Theme.of(context).textTheme,
             ),
             scaffoldBackgroundColor: const Color(0xFF1E1E1E),
+            snackBarTheme: SnackBarThemeData(
+              actionTextColor: Colors.red,
+              backgroundColor: Colors.grey[800],
+              contentTextStyle: GoogleFonts.rubik(color: Colors.white),
+              elevation: 20,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              behavior: SnackBarBehavior.floating,
+              insetPadding: const EdgeInsets.all(10),
+            ),
           ),
           home: SplashPage(
             nextRoute: nextRoute,

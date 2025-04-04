@@ -127,7 +127,6 @@ class _PasswordResetLoginPageState extends State<PasswordResetLoginPage> {
                   children: [
                     const TextSpan(
                       text: 'Please email the following 8 digit code to ',
-                      style: TextStyle(color: Colors.black),
                     ),
                     TextSpan(
                       text: 'reset@runshaw.dino.icu',
@@ -140,7 +139,6 @@ class _PasswordResetLoginPageState extends State<PasswordResetLoginPage> {
                     const TextSpan(
                       text:
                           ' from your college email (this is important!) to verify your identity first:',
-                      style: TextStyle(color: Colors.black),
                     ),
                   ],
                 ),
