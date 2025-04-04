@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
 
 class QrCodePage extends StatelessWidget {
@@ -9,6 +10,7 @@ class QrCodePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: const RunshawAppBar(
         title: "QR Code",
       ),
@@ -16,12 +18,10 @@ class QrCodePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
+            Text(
               "This is the same as the QR code on your Student ID",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-              ),
+              style: GoogleFonts.rubik(fontSize: 16, color: Colors.black),
             ),
             const SizedBox(
               height: 20,
@@ -32,12 +32,10 @@ class QrCodePage extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            const Text(
+            Text(
               "(due to scanner limitations, this may not work in study zones)",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-              ),
+              style: GoogleFonts.rubik(fontSize: 16, color: Colors.black),
             ),
           ],
         ),

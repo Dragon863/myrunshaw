@@ -13,6 +13,7 @@ import 'package:runshaw/pages/main/subpages/settings/popup_crop.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
+import 'package:runshaw/utils/theme/theme_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -304,7 +305,9 @@ class _SettingsPageState extends State<SettingsPage> {
                           IconButton(
                             icon: Icon(
                               Icons.delete,
-                              color: Colors.grey.shade800,
+                              color: context.read<ThemeProvider>().isLightMode
+                                  ? Colors.grey.shade800
+                                  : Colors.white70,
                             ),
                             onPressed: deleteAction,
                           ),
@@ -384,8 +387,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   style: GoogleFonts.rubik(
                     fontSize: 16,
                     fontWeight: FontWeight.normal,
-                    color: MediaQuery.of(context).platformBrightness ==
-                            Brightness.light
+                    color: context.read<ThemeProvider>().isLightMode
                         ? Colors.grey.shade800
                         : null,
                   ),
@@ -399,6 +401,42 @@ class _SettingsPageState extends State<SettingsPage> {
                   child: Divider(),
                 ),
                 const SizedBox(height: 9),
+                ExpansionTile(
+                  title: const Text(
+                    "Theme",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  children: [
+                    ListTile(
+                      title: const Text(
+                        "Light Mode",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      trailing: Switch(
+                        value: context.read<ThemeProvider>().isLightMode,
+                        onChanged: (bool value) {
+                          setState(() {
+                            if (value) {
+                              context.read<ThemeProvider>().setThemeMode(
+                                    ThemeMode.light,
+                                  );
+                            } else {
+                              context.read<ThemeProvider>().setThemeMode(
+                                    ThemeMode.dark,
+                                  );
+                            }
+                          });
+                        },
+                      ),
+                    )
+                  ],
+                ),
                 ExpansionTile(
                   title: const Text(
                     "Buses",

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/buses/helpers.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
+import 'package:runshaw/utils/theme/theme_provider.dart';
 
 class BusMapViewPage extends StatefulWidget {
   final String bay;
@@ -45,11 +47,17 @@ class _BusMapViewPageState extends State<BusMapViewPage> {
                 Center(
                   child: Stack(
                     children: [
-                      Image.asset(
-                        "assets/img/busesmap.png",
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
+                      context.read<ThemeProvider>().isLightMode
+                          ? Image.asset(
+                              "assets/img/busesmap.png",
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.asset(
+                              "assets/img/busesmap-dark.png",
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
                       Positioned.fill(
                         child: LayoutBuilder(
                           builder: (context, constraints) {
@@ -84,15 +92,25 @@ class _BusMapViewPageState extends State<BusMapViewPage> {
                     style: GoogleFonts.rubik(
                       fontSize: 24,
                       fontWeight: FontWeight.normal,
-                      color: Colors.black,
                     ),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: widget.busNumber,
-                        style: GoogleFonts.rubik(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
+                    children: [
+                      WidgetSpan(
+                        alignment: PlaceholderAlignment.middle,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 0),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            widget.busNumber,
+                            style: GoogleFonts.rubik(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
                         ),
                       ),
                       const TextSpan(text: " is in bay"),
@@ -100,7 +118,6 @@ class _BusMapViewPageState extends State<BusMapViewPage> {
                         text: " ${widget.bay}",
                         style: GoogleFonts.rubik(
                           fontWeight: FontWeight.bold,
-                          color: Colors.black,
                         ),
                       ),
                     ],

@@ -13,6 +13,9 @@ import 'package:runshaw/pages/splash/splash.dart';
 import 'package:runshaw/pages/terms/terms_of_use.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
+import 'package:runshaw/utils/theme/dark.dart';
+import 'package:runshaw/utils/theme/light.dart';
+import 'package:runshaw/utils/theme/theme_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -102,61 +105,51 @@ class BaseApp extends StatelessWidget {
       ),
       // Prevents that weird different coloured status bar on android
     );
-    return MaterialApp(
-      title: 'My Runshaw',
-      theme: ThemeData(
-        primarySwatch: Colors.red,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.red,
-        ),
-        fontFamily: 'Rubik',
-        primaryTextTheme: GoogleFonts.rubikTextTheme(
-          Theme.of(context).textTheme,
-        ),
-        scaffoldBackgroundColor: Colors.white,
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        colorScheme: const ColorScheme(
-          brightness: Brightness.dark,
-          surface: Color(0xFF121212),
-          primary: Color(0xFFFF6659),
-          secondary: Color(0xFFB39DDB),
-          tertiary: Color(0xFF80CBC4),
-          surfaceContainerHighest: Color(0xFF1E1E1E),
-          primaryContainer: Color.fromARGB(255, 212, 87, 83),
-          secondaryContainer: Color(0xFF5E35B1),
-          tertiaryContainer: Color(0xFF004D40),
-          // on
-          onPrimary: Color(0xFF1B1B1B),
-          onSecondary: Color(0xFF1B1B1B),
-          onTertiary: Color(0xFF1B1B1B),
-          onSurface: Color(0xFFE0E0E0),
-          onPrimaryContainer: Color(0xFFFFFFFF),
-          onSecondaryContainer: Color(0xFFFFFFFF),
-          onTertiaryContainer: Color(0xFFFFFFFF),
-          error: Colors.red,
-          onError: Colors.yellow,
-        ),
-        fontFamily: 'Rubik',
-        primaryTextTheme:
-            GoogleFonts.rubikTextTheme(Theme.of(context).textTheme),
-        scaffoldBackgroundColor: const Color(0xFF1E1E1E),
-      ),
-      home: SplashPage(
-        nextRoute: nextRoute,
-      ),
-      debugShowCheckedModeBanner: false,
-      routes: <String, WidgetBuilder>{
-        '/splash': (BuildContext context) => const SplashPage(),
-        '/friends/add': (BuildContext context) => const PopupFriendAddPage(),
-        '/privacy_policy': (BuildContext context) => const PrivacyPolicyPage(),
-        '/change_password': (BuildContext context) => const PasswordResetPage(),
-        '/terms': (BuildContext context) => const TermsOfUsePage(),
-        '/about': (BuildContext context) => const AboutPage(),
-        // We can only add routes here that don't need data passing to them
-      },
-      navigatorKey: globalKey,
+    return ChangeNotifierProvider(
+      create: (context) => ThemeProvider(),
+      child: Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+        themeProvider.initTheme();
+        return MaterialApp(
+          title: 'My Runshaw',
+          theme: ThemeData(
+            primarySwatch: Colors.red,
+            colorScheme: lightColourScheme,
+            fontFamily: 'Rubik',
+            primaryTextTheme: GoogleFonts.rubikTextTheme(
+              Theme.of(context).textTheme,
+            ),
+            scaffoldBackgroundColor: Colors.white,
+          ),
+          darkTheme: ThemeData(
+            primarySwatch: Colors.red,
+            brightness: Brightness.dark,
+            colorScheme: darkColourScheme,
+            fontFamily: 'Rubik',
+            primaryTextTheme: GoogleFonts.rubikTextTheme(
+              Theme.of(context).textTheme,
+            ),
+            scaffoldBackgroundColor: const Color(0xFF1E1E1E),
+          ),
+          home: SplashPage(
+            nextRoute: nextRoute,
+          ),
+          debugShowCheckedModeBanner: false,
+          routes: <String, WidgetBuilder>{
+            '/splash': (BuildContext context) => const SplashPage(),
+            '/friends/add': (BuildContext context) =>
+                const PopupFriendAddPage(),
+            '/privacy_policy': (BuildContext context) =>
+                const PrivacyPolicyPage(),
+            '/change_password': (BuildContext context) =>
+                const PasswordResetPage(),
+            '/terms': (BuildContext context) => const TermsOfUsePage(),
+            '/about': (BuildContext context) => const AboutPage(),
+            // We can only add routes here that don't need data passing to them
+          },
+          navigatorKey: globalKey,
+          themeMode: themeProvider.themeMode,
+        );
+      }),
     );
   }
 }

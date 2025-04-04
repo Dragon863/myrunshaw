@@ -12,6 +12,7 @@ import 'package:runshaw/pages/qr/qr_page.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
+import 'package:runshaw/utils/theme/theme_provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -420,7 +421,9 @@ class _HomePageState extends State<HomePage> {
                   child: Card(
                     elevation: 1,
                     child: InkWell(
-                      splashColor: Colors.grey.shade300,
+                      splashColor: context.read<ThemeProvider>().isLightMode
+                          ? Colors.grey.shade300
+                          : null,
                       borderRadius: BorderRadius.circular(8),
                       onTap: () async {
                         final BaseAPI api = context.read<BaseAPI>();

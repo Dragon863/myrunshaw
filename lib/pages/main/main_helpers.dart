@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/buses/buses.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/friends.dart';
 import 'package:runshaw/pages/main/subpages/home/home.dart';
 import 'package:runshaw/pages/main/subpages/map/map.dart';
 import 'package:runshaw/pages/main/subpages/settings/settings.dart';
 import 'package:runshaw/pages/main/subpages/timetable/timetable.dart';
+import 'package:runshaw/utils/theme/theme_provider.dart';
 // import 'package:grace/src/pages/main/subpages/notifications/notifications.dart';
 import 'main_controller.dart';
 
@@ -55,7 +57,7 @@ class _SliderViewState extends State<SliderView> {
         child: Theme(
           data: Theme.of(context).copyWith(
               iconTheme: IconThemeData(
-            color: MediaQuery.of(context).platformBrightness == Brightness.light
+            color: context.read<ThemeProvider>().isLightMode
                 ? Colors.black
                 : Colors.white,
           )),
@@ -167,19 +169,25 @@ class _SliderMenuItem extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: index == currentIndex
-            ? MediaQuery.of(context).platformBrightness == Brightness.light
+            ? context.read<ThemeProvider>().isLightMode
                 ? const Color.fromARGB(255, 255, 209, 209)
-                : Colors.red
+                : Colors.transparent
             : Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(20),
+        border:
+            context.read<ThemeProvider>().isDarkMode && index == currentIndex
+                ? Border.all(
+                    color: const Color.fromARGB(255, 255, 209, 209),
+                    width: 1.5,
+                  )
+                : null,
       ),
       child: ListTile(
         title: Text(title,
             style: TextStyle(
-              color:
-                  MediaQuery.of(context).platformBrightness == Brightness.light
-                      ? Colors.black
-                      : Colors.white,
+              color: context.read<ThemeProvider>().isLightMode
+                  ? Colors.black
+                  : Colors.white,
             )),
         leading: iconData,
         onTap: () => onTap?.call(title, index),

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/buses/bus_list/bus_list.dart';
 import 'package:runshaw/pages/main/subpages/buses/helpers.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/theme/theme_provider.dart';
 
 class BusesPage extends StatefulWidget {
   const BusesPage({super.key});
@@ -27,6 +28,7 @@ class _BusesPageState extends State<BusesPage> {
         style: GoogleFonts.rubik(
           fontSize: 24,
           fontWeight: FontWeight.normal,
+          color: Colors.red,
         ),
         children: [
           TextSpan(
@@ -37,7 +39,12 @@ class _BusesPageState extends State<BusesPage> {
               color: Colors.red,
             ),
           ),
-          const TextSpan(text: ' is loading...'),
+          const TextSpan(
+            text: ' is loading...',
+            style: TextStyle(
+              color: Colors.red,
+            ),
+          ),
         ],
       ),
     ),
@@ -310,8 +317,7 @@ class _BusesPageState extends State<BusesPage> {
               children: [
                 Stack(
                   children: [
-                    MediaQuery.of(context).platformBrightness ==
-                            Brightness.light
+                    context.read<ThemeProvider>().isLightMode
                         ? Image.asset(
                             "assets/img/busesmap.png",
                             width: double.infinity,
@@ -383,7 +389,9 @@ class _BusesPageState extends State<BusesPage> {
       child: Card(
         elevation: 1,
         child: InkWell(
-          splashColor: Colors.grey.shade300,
+          splashColor: context.read<ThemeProvider>().isLightMode
+              ? Colors.grey.shade300
+              : null,
           borderRadius: BorderRadius.circular(8),
           onTap: onTap,
           child: Padding(

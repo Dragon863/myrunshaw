@@ -5,6 +5,7 @@ import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/theme/theme_provider.dart';
 import 'main_helpers.dart';
 
 class MainPage extends StatefulWidget {
@@ -72,7 +73,9 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.red,
+      color: context.read<ThemeProvider>().isLightMode
+          ? Colors.red
+          : Theme.of(context).colorScheme.surface,
       child: SafeArea(
         child: Scaffold(
           body: SliderDrawer(
@@ -102,7 +105,9 @@ class _MainPageState extends State<MainPage> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                backgroundColor: Colors.red,
+                backgroundColor: context.read<ThemeProvider>().isLightMode
+                    ? Colors.red
+                    : Theme.of(context).colorScheme.surface,
                 padding: const EdgeInsets.only(top: 4),
                 drawerIconColor: Colors.white,
               ),
