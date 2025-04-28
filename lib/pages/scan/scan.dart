@@ -128,6 +128,9 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
 
     final TextEditingController controllerPwd = TextEditingController();
     final TextEditingController controllerPwdConfirm = TextEditingController();
+    bool showFieldOneText = false;
+    bool showFieldTwoText = false;
+    bool agreesToPolicies = false;
 
     String password;
 
@@ -137,10 +140,6 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
         return BottomSheet(
           onClosing: () {},
           builder: (context) {
-            bool showFieldOneText = false;
-            bool showFieldTwoText = false;
-            bool agreesToPolicies = false;
-
             return StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
                 return Padding(
@@ -227,9 +226,13 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                                   RichText(
                                     text: TextSpan(
                                       children: [
-                                        const TextSpan(
+                                        TextSpan(
                                           text: 'I agree to the ',
-                                          style: TextStyle(color: Colors.black),
+                                          style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface,
+                                          ),
                                         ),
                                         TextSpan(
                                           text: 'Terms of Use',
@@ -244,9 +247,13 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                                               );
                                             },
                                         ),
-                                        const TextSpan(
+                                        TextSpan(
                                           text: ' and ',
-                                          style: TextStyle(color: Colors.black),
+                                          style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurface,
+                                          ),
                                         ),
                                         TextSpan(
                                           text: 'Privacy Policy',

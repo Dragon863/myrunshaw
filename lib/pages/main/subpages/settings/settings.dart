@@ -335,28 +335,29 @@ class _SettingsPageState extends State<SettingsPage> {
                     IconButton(
                       icon: Icon(Icons.mode_edit, color: Colors.grey.shade800),
                       onPressed: () async {
+                        final nameController =
+                            TextEditingController(text: this.name);
+
                         final name = await showDialog<String>(
                           context: context,
                           builder: (context) {
-                            final controller = TextEditingController();
-
-                            controller.text = this.name;
                             return AlertDialog(
                               title: const Text("Change Name"),
                               content: TextField(
-                                controller: controller,
+                                controller: nameController,
                                 autofocus: true,
                                 autocorrect: false,
                                 decoration: const InputDecoration(
                                   hintText: "New Name",
                                 ),
-                                onSubmitted: (value) =>
-                                    Navigator.of(context).pop(controller.text),
+                                onSubmitted: (value) => Navigator.of(context)
+                                    .pop(nameController.text),
                               ),
                               actions: [
                                 TextButton(
                                   onPressed: () {
-                                    Navigator.of(context).pop(controller.text);
+                                    Navigator.of(context)
+                                        .pop(nameController.text);
                                   },
                                   child: const Text("Change"),
                                 ),
