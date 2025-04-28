@@ -3,7 +3,7 @@ List<double> calculatePosition(String bayNumber) {
   double yPercentage = 0.0;
 
   switch (bayNumber) {
-    // T1 and T2 are special cases
+    // T1, T2 and T3 are special cases
     case "T1":
       xPercentage = 0.86;
       yPercentage = 0.52;
@@ -11,6 +11,10 @@ List<double> calculatePosition(String bayNumber) {
     case "T2":
       xPercentage = 0.86;
       yPercentage = 0.37;
+      return [xPercentage, yPercentage];
+    case "T3":
+      xPercentage = 0.86;
+      yPercentage = 0.22;
       return [xPercentage, yPercentage];
   }
   final bayChar = bayNumber[0];
