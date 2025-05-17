@@ -6,11 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:runshaw/pages/error/server_issues.dart';
 import 'package:runshaw/pages/login/stage1.dart';
 import 'package:runshaw/pages/main/main_view.dart';
 import 'package:runshaw/pages/nonetwork/no_network.dart';
 import 'package:runshaw/pages/onboarding/onboarding.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/logging.dart';
 
 class SplashPage extends StatefulWidget {
@@ -23,6 +25,7 @@ class SplashPage extends StatefulWidget {
 
 class _SplashPageState extends State<SplashPage> {
   String loadingStageText = "";
+
   @override
   void initState() {
     super.initState();
@@ -69,29 +72,55 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   _navigateToHome() async {
-    if (!await hasNetwork("appwrite.danieldb.uk")) {
+    if (!await hasNetwork(MyRunshawConfig.endpointHostname)) {
+      if (!await hasNetwork("google.com")) {
+        // If we can't resolve google.com, then we have no internet
+        return Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const NoNetworkPage(),
+          ),
+        );
+      }
+      // If we can resolve google, then we have internet but no server - oh no!
       return Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const NoNetworkPage(),
+          builder: (context) => const NoServersPage(),
         ),
       );
     }
-
+    debugLog("API init");
     final api = context.read<BaseAPI>();
     await api.init();
     await api.loadUser();
     final status = api.status;
 
     if (status == AccountStatus.authenticated) {
+      debugLog("User is authenticated");
       try {
         await api
             .migrateBuses(); // Migrate buses from old system - this is a good place to do it as it only runs once
         setState(() => loadingStageText = "Loading data...");
-        await Future.wait([
-          api.cacheNames(),
-          api.cacheTimetables(),
-          api.cachePfpVersions(),
-        ]);
+        // await Future.wait([
+        //   api.cacheFriends(),
+        //   api.cacheNames(),
+        //   api.cacheTimetables(),
+        //   api.cachePfpVersions(),
+        // ]);
+        debugLog("Caching friends");
+        await api.cacheFriends();
+        debugLog("Caching names");
+        await Future.wait(
+          [
+            api.cacheNames(),
+            api.cachePfpVersions(),
+            api.cacheTimetables(),
+          ],
+        );
+        debugLog("Caching names done");
+        debugLog("Caching pfp versions done");
+        debugLog("Caching timetables done");
+
+        // no longer using future.wait for everything, as we need cacheFriends to be done before cacheNames but it takes longer
       } catch (e) {
         debugLog("Error caching timetables: $e");
       }

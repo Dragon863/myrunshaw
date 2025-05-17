@@ -1,9 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:appwrite/models.dart';
 import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:appwrite/appwrite.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
@@ -28,6 +28,7 @@ class BaseAPI extends ChangeNotifier {
   late Map cachedTimetables;
   late Map cachedPfpVersions;
   late Map cachedNames;
+  List? cachedFriends;
 
   User get currentUser => _currentUser;
   AccountStatus get status => _status;
@@ -53,7 +54,9 @@ class BaseAPI extends ChangeNotifier {
       _currentUser = user;
       _account = Account(_client);
       _status = AccountStatus.authenticated;
-      OneSignal.login(_currentUser.$id);
+      if (!Platform.isLinux) {
+        OneSignal.login(_currentUser.$id);
+      }
     } catch (e) {
       _status = AccountStatus.unauthenticated;
     }
@@ -164,6 +167,14 @@ class BaseAPI extends ChangeNotifier {
     cachedTimetables = jsonDecode(response.body);
   }
 
+  Future<void> cacheFriends() async {
+    final friends = await getFriends(force: true);
+
+    cachedFriends = friends;
+    notifyListeners();
+    return;
+  }
+
   Future<void> cachePfpVersions() async {
     final String jwtToken = await getJwt();
     final friends = await getFriends();
@@ -222,8 +233,11 @@ class BaseAPI extends ChangeNotifier {
       password: password,
     );
     _currentUser = await Account(_client).get();
-    OneSignal.login(_currentUser.$id);
+    if (!Platform.isLinux) {
+      OneSignal.login(_currentUser.$id);
+    }
     _status = AccountStatus.authenticated;
+    await cacheFriends(); // most other cache functions need friends to be cached first
     await cachePfpVersions();
     await cacheTimetables();
     await cacheNames();
@@ -441,7 +455,11 @@ class BaseAPI extends ChangeNotifier {
     return response.statusCode == 200;
   }
 
-  Future<List> getFriends() async {
+  Future<List> getFriends({bool force = false}) async {
+    if (cachedFriends != null && !force) {
+      return Future.value(cachedFriends);
+    }
+
     final String jwtToken = await getJwt();
     List<Map> friends = [];
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/widgets/list/friend_tile.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class FriendsList extends StatefulWidget {
   const FriendsList({super.key});
@@ -14,10 +15,23 @@ class _FriendsListState extends State<FriendsList> {
   List friends = [];
   final ValueNotifier<bool> inFiveMinutesNotifier = ValueNotifier(false);
   bool freeOnly = false;
+  bool isLoading = true;
 
   Future<void> loadFriends() async {
+    isLoading = true;
+    // first generate some fake data
+    for (int i = 0; i < 10; i++) {
+      if (mounted) {
+        setState(() {
+          friends.add({
+            "id": "skeleton",
+          });
+        });
+      }
+    }
     final api = context.read<BaseAPI>();
     final response = await api.getFriends();
+    friends = [];
 
     for (final friendId in response) {
       if (mounted) {
@@ -28,6 +42,7 @@ class _FriendsListState extends State<FriendsList> {
         });
       }
     }
+    setState(() => isLoading = false);
   }
 
   @override
@@ -84,20 +99,33 @@ class _FriendsListState extends State<FriendsList> {
               });
               loadFriends();
             },
-            child: ListView.builder(
-              cacheExtent: 9999,
-              itemBuilder: (context, index) {
-                final BaseAPI api = context.read<BaseAPI>();
+            child: Skeletonizer(
+              enabled: isLoading,
+              child: ListView.builder(
+                cacheExtent: 9999,
+                itemBuilder: (context, index) {
+                  if (friends[index]["id"] == "skeleton") {
+                    return ListTile(
+                      title: Text(
+                        BoneMock.name,
+                      ),
+                      subtitle: Text(BoneMock.words(2)),
+                      leading: const CircleAvatar(),
+                    );
+                  }
 
-                final friend = friends[index];
-                return FriendTile(
-                  uid: friend["id"],
-                  profilePicUrl: api.getPfpUrl(friend["id"]),
-                  freeOnly: freeOnly,
-                  inFiveMinutesNotifier: inFiveMinutesNotifier,
-                );
-              },
-              itemCount: friends.length,
+                  final BaseAPI api = context.read<BaseAPI>();
+
+                  final friend = friends[index];
+                  return FriendTile(
+                    uid: friend["id"],
+                    profilePicUrl: api.getPfpUrl(friend["id"]),
+                    freeOnly: freeOnly,
+                    inFiveMinutesNotifier: inFiveMinutesNotifier,
+                  );
+                },
+                itemCount: friends.length,
+              ),
             ),
           ),
         ),

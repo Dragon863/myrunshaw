@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +15,7 @@ import 'package:runshaw/pages/splash/splash.dart';
 import 'package:runshaw/pages/terms/terms_of_use.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
+import 'package:runshaw/utils/logging.dart';
 import 'package:runshaw/utils/theme/dark.dart';
 import 'package:runshaw/utils/theme/light.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
@@ -23,6 +26,7 @@ void main() async {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   String? nextRoute;
 
+  debugLog("Starting app...", level: 0);
   // Initialise Aptabase
   await Aptabase.init(
     MyRunshawConfig.aptabaseProjectId,
@@ -31,54 +35,57 @@ void main() async {
       printDebugMessages: kDebugMode, // Only print debug messages in debug mode
     ),
   );
+  debugLog("Aptabase initialised", level: 0);
 
   // Get onesignal ready...
-  OneSignal.initialize(MyRunshawConfig.oneSignalAppId);
-  OneSignal.Notifications.addClickListener(
-    (OSNotificationClickEvent event) async {
-      if (event.notification.body!.contains("has arrived in bay")) {
-        nextRoute = "/bus";
-        while (navigatorKey.currentState == null) {
-          await Future.delayed(const Duration(milliseconds: 100));
-          // bad practice and not ideal, but it's fine because we're waiting for the app to load and nothing else works
-        }
+  if (!Platform.isLinux) {
+    OneSignal.initialize(MyRunshawConfig.oneSignalAppId);
+    OneSignal.Notifications.addClickListener(
+      (OSNotificationClickEvent event) async {
+        if (event.notification.body!.contains("has arrived in bay")) {
+          nextRoute = "/bus";
+          while (navigatorKey.currentState == null) {
+            await Future.delayed(const Duration(milliseconds: 100));
+            // bad practice and not ideal, but it's fine because we're waiting for the app to load and nothing else works
+          }
 
-        navigatorKey.currentState!.pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) => const SplashPage(
-              nextRoute: "/bus",
+          navigatorKey.currentState!.pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => const SplashPage(
+                nextRoute: "/bus",
+              ),
             ),
-          ),
-          (route) => false,
-        );
-        //}
-      } else if (event.notification.body
-          .toString()
-          .contains("friend request")) {
-        nextRoute = "/friends";
-        while (navigatorKey.currentState == null) {
-          await Future.delayed(const Duration(milliseconds: 100));
-          // again this is bad practice. See above comment
-        }
-        navigatorKey.currentState?.pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) => const SplashPage(
-              nextRoute: "/friends",
+            (route) => false,
+          );
+          //}
+        } else if (event.notification.body
+            .toString()
+            .contains("friend request")) {
+          nextRoute = "/friends";
+          while (navigatorKey.currentState == null) {
+            await Future.delayed(const Duration(milliseconds: 100));
+            // again this is bad practice. See above comment
+          }
+          navigatorKey.currentState?.pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => const SplashPage(
+                nextRoute: "/friends",
+              ),
             ),
-          ),
-          (route) => false,
-        );
-      }
-    },
-  );
+            (route) => false,
+          );
+        }
+      },
+    );
 
-  OneSignal.Notifications.addForegroundWillDisplayListener(
-      (OSNotificationWillDisplayEvent event) {
-    event.preventDefault();
-    event.notification.display();
-  });
+    OneSignal.Notifications.addForegroundWillDisplayListener(
+        (OSNotificationWillDisplayEvent event) {
+      event.preventDefault();
+      event.notification.display();
+    });
 
-  OneSignal.Notifications.requestPermission(true);
+    OneSignal.Notifications.requestPermission(true);
+  }
 
   runApp(
     ChangeNotifierProvider(

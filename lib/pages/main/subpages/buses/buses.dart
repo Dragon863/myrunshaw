@@ -18,53 +18,58 @@ class BusesPage extends StatefulWidget {
 class _BusesPageState extends State<BusesPage> {
   bool loading = true;
   List<Widget> busPins = [];
-  Map<String, String?> allBuses = {};
-
-  List<Widget> richTextWidgets = [
-    RichText(
-      textAlign: TextAlign.center,
-      text: TextSpan(
-        text: 'The ',
-        style: GoogleFonts.rubik(
-          fontSize: 24,
-          fontWeight: FontWeight.normal,
-          color: Colors.red,
-        ),
-        children: [
-          TextSpan(
-            text: 'bus tracker',
-            style: GoogleFonts.rubik(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.red,
-            ),
-          ),
-          const TextSpan(
-            text: ' is loading...',
-            style: TextStyle(
-              color: Colors.red,
-            ),
-          ),
-        ],
-      ),
-    ),
-  ];
+  List<Widget> richTextWidgets = [];
   Timer? timer;
+  bool _isInitialLoad = true;
 
   Future<void> loadData() async {
-    setState(() => loading = true);
+    if (!mounted) return;
+
+    setState(() {
+      loading = true;
+      busPins = [];
+      richTextWidgets = [
+        RichText(
+          textAlign: TextAlign.center,
+          text: TextSpan(
+            text: 'The ',
+            style: GoogleFonts.rubik(
+              fontSize: 24,
+              fontWeight: FontWeight.normal,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            children: [
+              TextSpan(
+                text: 'bus tracker',
+                style: GoogleFonts.rubik(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              TextSpan(
+                text: ' is loading...',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ];
+    });
     int index = 0;
 
     final api = context.read<BaseAPI>();
     final busNumber = await api.getBusNumber();
-    final List<String> allBuses = await api.getAllBuses();
-    if (busNumber != null && !allBuses.contains(busNumber) && busNumber != "") {
-      allBuses.add(busNumber);
+    final List<String> allBusesList = await api.getAllBuses();
+    if (busNumber != null &&
+        !allBusesList.contains(busNumber) &&
+        busNumber != "") {
+      allBusesList.add(busNumber);
     }
 
-    // This expression gets the buses, replaces the letters with nothing, then sorts them by number.
-    // This is so that the buses are in numerical order, and while it is a litte messy, it works well.
-    allBuses.sort(
+    allBusesList.sort(
       (a, b) => int.parse(a.replaceAll(RegExp(r'[A-Z]'), "")).compareTo(
         int.parse(b.replaceAll(RegExp(r'[A-Z]'), "")),
       ),
@@ -84,15 +89,12 @@ class _BusesPageState extends State<BusesPage> {
     final busBays = await api.getBusBays();
 
     List<Widget> pins = [];
+    List<Widget> newRichTextWidgets = [];
 
-    if (busNumber == null) {}
+    if (!mounted) return;
 
-    setState(() {
-      richTextWidgets = [];
-      busPins = [];
-    });
-
-    if (allBuses.isEmpty) {
+    if (allBusesList.isEmpty) {
+      if (!mounted) return;
       setState(() {
         richTextWidgets = [
           RichText(
@@ -122,19 +124,20 @@ class _BusesPageState extends State<BusesPage> {
             ),
           ),
         ];
+        busPins = [];
         loading = false;
       });
       return;
     }
 
     busBays.forEach((String bus, String? bay) {
-      if (!allBuses.contains(bus)) {
+      if (!allBusesList.contains(bus)) {
         return;
       }
 
       if (bay != null && bay != "RSP_NYA" && bay != "RSP_UNK" && bay != "0") {
         final busColor = colors[index % colors.length];
-        richTextWidgets.add(
+        newRichTextWidgets.add(
           RichText(
             textAlign: TextAlign.center,
             text: TextSpan(
@@ -196,8 +199,7 @@ class _BusesPageState extends State<BusesPage> {
           ),
         );
 
-        richTextWidgets.add(
-          // Spacer
+        newRichTextWidgets.add(
           const SizedBox(height: 2),
         );
 
@@ -231,7 +233,7 @@ class _BusesPageState extends State<BusesPage> {
           ),
         );
       } else {
-        richTextWidgets.add(
+        newRichTextWidgets.add(
           RichText(
             textAlign: TextAlign.center,
             text: TextSpan(
@@ -275,26 +277,35 @@ class _BusesPageState extends State<BusesPage> {
         );
       }
       index++;
-      richTextWidgets.add(
-        // Spacer
+      newRichTextWidgets.add(
         const SizedBox(height: 2),
       );
     });
 
+    if (!mounted) return;
     setState(() {
       busPins = pins;
+      richTextWidgets = newRichTextWidgets;
       loading = false;
     });
   }
 
   @override
   void initState() {
-    loadData();
+    super.initState();
     timer = Timer.periodic(
-      const Duration(seconds: 10),
+      const Duration(seconds: 20),
       (Timer t) => loadData(),
     );
-    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isInitialLoad) {
+      loadData();
+      _isInitialLoad = false;
+    }
   }
 
   @override

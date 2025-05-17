@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/user_info/user_info.dart';
+import 'package:runshaw/pages/main/subpages/timetable/subpages/individual_event.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/events_card.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
@@ -216,6 +217,24 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
                                           color: event.summary != ""
                                               ? Colors.blue
                                               : Colors.red,
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    IndividualEventPage(
+                                                  eventName: event.summary,
+                                                  eventDescription:
+                                                      event.description,
+                                                  eventLocation: event.location,
+                                                  dtStart: event.start,
+                                                  dtEnd: event.end,
+                                                  color: event.summary != ""
+                                                      ? Colors.blue
+                                                      : Colors.red,
+                                                ),
+                                              ),
+                                            );
+                                          },
                                         );
                                       } else {
                                         return EventsCard(
@@ -229,6 +248,24 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
                                           color: event.summary == ''
                                               ? Colors.red
                                               : Colors.green.shade400,
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    IndividualEventPage(
+                                                  eventName: event.summary,
+                                                  eventDescription:
+                                                      event.description,
+                                                  eventLocation: event.location,
+                                                  dtStart: event.start,
+                                                  dtEnd: event.end,
+                                                  color: event.summary == ''
+                                                      ? Colors.red
+                                                      : Colors.green.shade400,
+                                                ),
+                                              ),
+                                            );
+                                          },
                                         );
                                       }
                                     }),

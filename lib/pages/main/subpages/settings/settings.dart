@@ -26,6 +26,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   bool showNotifs = true;
+  bool nameLoaded = false;
   String name = "Loading...";
   String email = "Loading...";
   String userId = "Loading...";
@@ -52,6 +53,7 @@ class _SettingsPageState extends State<SettingsPage> {
     });
 
     setState(() {
+      nameLoaded = true;
       if (displayName.isEmpty) {
         name = "Anonymous";
       } else {
@@ -335,6 +337,13 @@ class _SettingsPageState extends State<SettingsPage> {
                     IconButton(
                       icon: Icon(Icons.mode_edit, color: Colors.grey.shade800),
                       onPressed: () async {
+                        if (!nameLoaded) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Please wait a moment..."),
+                            ),
+                          );
+                        }
                         final nameController =
                             TextEditingController(text: this.name);
 

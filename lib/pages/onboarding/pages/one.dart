@@ -32,7 +32,7 @@ class OnBoardingStageOne extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            "Before we get started, we need to explain that this app is unofficial and is not affiliated with Runshaw College - it is built and maintained by a student",
+            "Before we get started, we need to explain that this app is unofficial and is not affiliated with Runshaw College - it is built and maintained by a student at the college. \nPlease don't report issues to the service desk, as they will not be able to help you! Instead use the button in settings",
             style: GoogleFonts.rubik(
               fontSize: 16,
             ),

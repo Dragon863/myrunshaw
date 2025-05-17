@@ -13,6 +13,7 @@ import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,7 +25,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String? pfpUrl;
   String name = "Loading...";
-  String userId = "";
+  String userId = "12345678901";
   String nextLesson = "Loading...";
   String nextDetails = "Loading...";
   List<Widget> freeFriends = [];
@@ -366,13 +367,16 @@ class _HomePageState extends State<HomePage> {
                                       'Next Event:',
                                       style: GoogleFonts.rubik(),
                                     ),
-                                    Text(
-                                      nextLesson,
-                                      style: GoogleFonts.rubik(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
+                                    Skeletonizer(
+                                      enabled: nextLesson == "Loading...",
+                                      child: Text(
+                                        nextLesson,
+                                        style: GoogleFonts.rubik(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        overflow: TextOverflow.visible,
                                       ),
-                                      overflow: TextOverflow.visible,
                                     ),
                                   ],
                                 ),
@@ -397,13 +401,16 @@ class _HomePageState extends State<HomePage> {
                                       'Details:',
                                       style: GoogleFonts.rubik(),
                                     ),
-                                    Text(
-                                      nextDetails,
-                                      style: GoogleFonts.rubik(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
+                                    Skeletonizer(
+                                      enabled: nextDetails == "Loading...",
+                                      child: Text(
+                                        nextDetails,
+                                        style: GoogleFonts.rubik(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        overflow: TextOverflow.visible,
                                       ),
-                                      overflow: TextOverflow.visible,
                                     ),
                                   ],
                                 ),
