@@ -38,45 +38,48 @@ void main() async {
   debugLog("Aptabase initialised", level: 0);
 
   // Get onesignal ready...
-  if (!Platform.isLinux) {
-    OneSignal.initialize(MyRunshawConfig.oneSignalAppId);
-    OneSignal.Notifications.addClickListener(
-      (OSNotificationClickEvent event) async {
-        if (event.notification.body!.contains("has arrived in bay")) {
-          nextRoute = "/bus";
-          while (navigatorKey.currentState == null) {
-            await Future.delayed(const Duration(milliseconds: 100));
-            // bad practice and not ideal, but it's fine because we're waiting for the app to load and nothing else works
-          }
+  if (!kIsWeb) {
+    // can't use Platform.* on web
+    if (!Platform.isLinux) {
+      OneSignal.initialize(MyRunshawConfig.oneSignalAppId);
+      OneSignal.Notifications.addClickListener(
+        (OSNotificationClickEvent event) async {
+          if (event.notification.body!.contains("has arrived in bay")) {
+            nextRoute = "/bus";
+            while (navigatorKey.currentState == null) {
+              await Future.delayed(const Duration(milliseconds: 100));
+              // bad practice and not ideal, but it's fine because we're waiting for the app to load and nothing else works
+            }
 
-          navigatorKey.currentState!.pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) => const SplashPage(
-                nextRoute: "/bus",
+            navigatorKey.currentState!.pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (context) => const SplashPage(
+                  nextRoute: "/bus",
+                ),
               ),
-            ),
-            (route) => false,
-          );
-          //}
-        } else if (event.notification.body
-            .toString()
-            .contains("friend request")) {
-          nextRoute = "/friends";
-          while (navigatorKey.currentState == null) {
-            await Future.delayed(const Duration(milliseconds: 100));
-            // again this is bad practice. See above comment
+              (route) => false,
+            );
+            //}
+          } else if (event.notification.body
+              .toString()
+              .contains("friend request")) {
+            nextRoute = "/friends";
+            while (navigatorKey.currentState == null) {
+              await Future.delayed(const Duration(milliseconds: 100));
+              // again this is bad practice. See above comment
+            }
+            navigatorKey.currentState?.pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (context) => const SplashPage(
+                  nextRoute: "/friends",
+                ),
+              ),
+              (route) => false,
+            );
           }
-          navigatorKey.currentState?.pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) => const SplashPage(
-                nextRoute: "/friends",
-              ),
-            ),
-            (route) => false,
-          );
-        }
-      },
-    );
+        },
+      );
+    }
 
     OneSignal.Notifications.addForegroundWillDisplayListener(
         (OSNotificationWillDisplayEvent event) {

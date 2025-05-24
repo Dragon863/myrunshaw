@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/error/server_issues.dart';
 import 'package:runshaw/pages/login/stage1.dart';
@@ -35,6 +36,28 @@ class _SplashPageState extends State<SplashPage> {
       // Just in case the map page is opened which on android can cause the app to stay landscape
     ]);
     _navigateToHome();
+  }
+
+  Future<bool> serverReachable() async {
+    setState(() {
+      loadingStageText = "Checking server status...";
+    });
+    try {
+      final result = await http.get(
+        Uri.parse(MyRunshawConfig.endpoint + "/health/version"),
+        headers: {
+          "User-Agent": "Runshaw App",
+          "Accept": "application/json",
+        },
+      );
+      if (result.statusCode == 200) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      debugLog("Error checking server status: $e");
+    }
+    return false;
   }
 
   Future<bool> hasNetwork(String knownUrl) async {
@@ -72,7 +95,7 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   _navigateToHome() async {
-    if (!await hasNetwork(MyRunshawConfig.endpointHostname)) {
+    if (!await serverReachable()) {
       if (!await hasNetwork("google.com")) {
         // If we can't resolve google.com, then we have no internet
         return Navigator.of(context).pushReplacement(
