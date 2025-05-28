@@ -7,7 +7,7 @@ cd "$CI_PRIMARY_REPOSITORY_PATH"
 if ! command -v flutter &> /dev/null
 then
     echo "Flutter is not installed. Installing Flutter SDK..."
-    git clone https://github.com/flutter/flutter.git --depth 1 -b stable $HOME/flutter
+    git clone https://github.com/flutter/flutter.git --depth 1 -b 3.29 $HOME/flutter
     export PATH="$PATH:$HOME/flutter/bin"
 else
     echo "Flutter is already installed."

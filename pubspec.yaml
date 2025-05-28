@@ -33,7 +33,7 @@ dependencies:
   flutter_image_map: ^1.0.1
   aptabase_flutter: ^0.4.1
   pub_semver: ^2.1.5
-  skeletonizer: ^1.4.3
+  skeletonizer: ^2.0.1
   build_runner: ^2.4.15
 
 dependency_overrides:
