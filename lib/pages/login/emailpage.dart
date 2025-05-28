@@ -1,11 +1,11 @@
 import 'package:appwrite/appwrite.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:runshaw/main.dart';
 import 'package:runshaw/pages/login/password_reset_login.dart';
-import 'package:runshaw/pages/main/main_view.dart';
+import 'package:runshaw/pages/splash/splash.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/logging.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
@@ -30,7 +30,7 @@ class _EmailPageState extends State<EmailPage> {
       if (api.status == AccountStatus.authenticated) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => const BaseApp(),
+            builder: (context) => const SplashPage(),
           ),
         );
       }
@@ -131,16 +131,19 @@ class _EmailPageState extends State<EmailPage> {
                         );
                         TextInput.finishAutofillContext();
                         debugLog("Created email session");
-                        setState(() {
-                          loading = false;
-                        });
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const MainPage(),
-                          ),
-                          (r) => false,
-                        );
+                        if (mounted) {
+                          setState(() {
+                            loading = false;
+                          });
+                        }
+                        // await Navigator.pushAndRemoveUntil(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => const MainPage(),
+                        //   ),
+                        //   (r) => false,
+                        // );
+                        // already handled by the listener in initState
                       } on AppwriteException catch (e) {
                         if (e.message != null) {
                           if (e.message!.contains("a session is active")) {
@@ -165,14 +168,21 @@ class _EmailPageState extends State<EmailPage> {
                           loading = false;
                         });
                       } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('An error occurred: ${e.toString()}'),
-                          ),
-                        );
-                        setState(() {
-                          loading = false;
-                        });
+                        if (kDebugMode) {
+                          debugLog("Error creating email session");
+                          rethrow;
+                        }
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content:
+                                  Text('An error occurred: ${e.toString()}'),
+                            ),
+                          );
+                          setState(() {
+                            loading = false;
+                          });
+                        }
                       }
                     },
                     child: Row(

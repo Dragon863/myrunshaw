@@ -152,6 +152,7 @@ class BaseAPI extends ChangeNotifier {
     for (var friend in friends) {
       userIds.add(friend["userid"]);
     }
+    userIds.add(user!.$id); // include self in the cache
 
     final response = await http.post(
       Uri.parse(
