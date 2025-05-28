@@ -34,6 +34,7 @@ dependencies:
   aptabase_flutter: ^0.4.1
   pub_semver: ^2.1.5
   skeletonizer: ^1.4.3
+  build_runner: ^2.4.15
 
 dependency_overrides:
   # Until appwrite increases their dependency on and older version which kotlin doesn't like
