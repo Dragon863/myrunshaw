@@ -25,16 +25,16 @@ class _EmailPageState extends State<EmailPage> {
   @override
   void initState() {
     super.initState();
-    final BaseAPI api = context.read<BaseAPI>();
-    api.addListener(() {
-      if (api.status == AccountStatus.authenticated) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const SplashPage(),
-          ),
-        );
-      }
-    });
+    // final BaseAPI api = context.read<BaseAPI>();
+    // api.addListener(() {
+    //   if (api.status == AccountStatus.authenticated) {
+    //     Navigator.of(context).pushReplacement(
+    //       MaterialPageRoute(
+    //         builder: (context) => const SplashPage(),
+    //       ),
+    //     );
+    //   }
+    // });
   }
 
   @override
@@ -136,14 +136,13 @@ class _EmailPageState extends State<EmailPage> {
                             loading = false;
                           });
                         }
-                        // await Navigator.pushAndRemoveUntil(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => const MainPage(),
-                        //   ),
-                        //   (r) => false,
-                        // );
-                        // already handled by the listener in initState
+                        await Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SplashPage(),
+                          ),
+                          (r) => false,
+                        );
                       } on AppwriteException catch (e) {
                         if (e.message != null) {
                           if (e.message!.contains("a session is active")) {
