@@ -801,6 +801,23 @@ class BaseAPI extends ChangeNotifier {
     }
   }
 
+  Future<String> getRunshawPayTopupUrl() async {
+    final String jwtToken = await getJwt();
+    final response = await http.get(
+      Uri.parse(
+          '${MyRunshawConfig.friendsMicroserviceUrl}/api/payments/deeplink'),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode != 200) {
+      throw RunshawPayException(jsonDecode(response.body)["detail"]);
+    } else {
+      return jsonDecode(utf8.decode(response.bodyBytes))["deeplink"];
+    }
+  }
+
   User? get user => _currentUser;
   Account? get account => _account;
 }

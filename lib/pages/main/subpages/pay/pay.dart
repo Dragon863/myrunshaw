@@ -7,6 +7,7 @@ import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class RunshawPayPage extends StatefulWidget {
   const RunshawPayPage({super.key});
@@ -35,6 +36,11 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
     if (bal != null && mounted) {
       setState(() {
         balance = bal;
+        loadingBalance = false;
+      });
+    } else {
+      setState(() {
+        balance = "Unknown";
         loadingBalance = false;
       });
     }
@@ -122,7 +128,7 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
             color: Theme.of(context).colorScheme.onSurface,
           ),
           const SizedBox(height: 12),
-          Center(child: Text(e.cause))
+          Center(child: Text(e.cause, textAlign: TextAlign.center))
         ];
         loadingTransactions = false;
         balance = "Unknown";
@@ -332,7 +338,35 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {},
+        onPressed: () async {
+          try {
+            final BaseAPI api = context.read<BaseAPI>();
+            final String? topUpUrl = await api.getRunshawPayTopupUrl();
+            if (topUpUrl != null) {
+              if (await canLaunchUrlString(topUpUrl)) {
+                await launchUrlString(topUpUrl);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Couldn't open top up page."),
+                  ),
+                );
+              }
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Top up URL is not available."),
+                ),
+              );
+            }
+          } on RunshawPayException catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("An error occurred: ${e.cause}"),
+              ),
+            );
+          }
+        },
         icon: const Icon(Icons.add),
         label: const Text("Top Up"),
       ),
