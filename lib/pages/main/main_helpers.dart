@@ -4,6 +4,7 @@ import 'package:runshaw/pages/main/subpages/buses/buses.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/friends.dart';
 import 'package:runshaw/pages/main/subpages/home/home.dart';
 import 'package:runshaw/pages/main/subpages/map/map.dart';
+import 'package:runshaw/pages/main/subpages/pay/pay.dart';
 import 'package:runshaw/pages/main/subpages/settings/settings.dart';
 import 'package:runshaw/pages/main/subpages/timetable/timetable.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
@@ -16,6 +17,7 @@ List<Widget> getPages(bool showNotifs) {
     const Center(child: BusesPage()),
     const FriendsPage(),
     const TimetablePage(),
+    const RunshawPayPage(),
     const MapPage(),
     const Center(child: SettingsPage()),
   ];
@@ -114,6 +116,12 @@ class _SliderViewState extends State<SliderView> {
                         'Timetable',
                       ),
                       Menu(
+                        Icons.payments_outlined,
+                        Icons.payments,
+                        'Pay',
+                        isBeta: true,
+                      ),
+                      Menu(
                         Icons.map_outlined,
                         Icons.map,
                         'Map',
@@ -131,6 +139,7 @@ class _SliderViewState extends State<SliderView> {
                             onTap: widget.onItemClick,
                             index: entry.key,
                             currentIndex: widget.currentIndex,
+                            isBeta: entry.value.isBeta,
                           ),
                         ),
                   ],
@@ -159,6 +168,7 @@ class _SliderMenuItem extends StatelessWidget {
   final IconData inactiveIcon;
   final IconData activeIcon;
   final Function(String, int)? onTap;
+  final bool? isBeta;
   final int index;
   final int currentIndex;
 
@@ -167,6 +177,7 @@ class _SliderMenuItem extends StatelessWidget {
     required this.inactiveIcon,
     required this.activeIcon,
     required this.onTap,
+    required this.isBeta,
     required this.index,
     required this.currentIndex,
   });
@@ -183,13 +194,25 @@ class _SliderMenuItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: ListTile(
-        title: Text(
-          title,
-          style: TextStyle(
-            color: context.read<ThemeProvider>().isLightMode
-                ? Colors.black
-                : Colors.white,
-          ),
+        title: Row(
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                color: context.read<ThemeProvider>().isLightMode
+                    ? Colors.black
+                    : Colors.white,
+              ),
+            ),
+            if (isBeta == true)
+              const Padding(
+                padding: EdgeInsets.only(left: 4.0),
+                child: Text(
+                  '(beta)',
+                  style: TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              ),
+          ],
         ),
         leading: Icon(
           index == currentIndex ? activeIcon : inactiveIcon,
@@ -205,10 +228,7 @@ class Menu {
   final IconData inactiveIcon;
   final IconData activeIcon;
   final String title;
+  final bool? isBeta;
 
-  Menu(
-    this.inactiveIcon,
-    this.activeIcon,
-    this.title,
-  );
+  Menu(this.inactiveIcon, this.activeIcon, this.title, {this.isBeta = false});
 }

@@ -129,7 +129,7 @@ class _TimetablePageState extends State<TimetablePage> {
               return const SyncPage();
             },
           ).then((value) {
-            Future.delayed(const Duration(milliseconds: 500), () {
+            Future.delayed(const Duration(milliseconds: 1000), () {
               // Allow changes to propogate
               _refresh();
             });

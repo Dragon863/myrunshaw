@@ -23,7 +23,7 @@ class _SyncPageState extends State<SyncPage> {
         syncFromUrl(_controller.text, context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Sync complete!"),
+            content: Text("Sync complete! Pull down to refresh."),
           ),
         );
         Navigator.of(context).pop();

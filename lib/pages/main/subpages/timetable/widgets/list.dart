@@ -134,11 +134,18 @@ class _TimetableListState extends State<TimetableList> {
                                 if (event.description!
                                     .toLowerCase()
                                     .contains("try syncing your timetable")) {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => const SyncPage(),
-                                    ),
-                                  );
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return const SyncPage();
+                                    },
+                                  ).then((value) {
+                                    Future.delayed(
+                                        const Duration(milliseconds: 1000), () {
+                                      // Allow changes to propogate
+                                      // _refresh();
+                                    });
+                                  });
                                   return;
                                 }
                               }

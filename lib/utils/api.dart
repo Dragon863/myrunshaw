@@ -10,6 +10,7 @@ import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:http/http.dart' as http;
 import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/logging.dart';
+import 'package:runshaw/utils/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum AccountStatus {
@@ -748,6 +749,55 @@ class BaseAPI extends ChangeNotifier {
     );
     if (response.statusCode != 201) {
       throw "Error removing extra bus";
+    }
+  }
+
+  Future<String?> getRunshawPayBalance() async {
+    final String jwtToken = await getJwt();
+    final response = await http.get(
+      Uri.parse(
+          '${MyRunshawConfig.friendsMicroserviceUrl}/api/payments/balance'),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode != 200) {
+      return null;
+    } else {
+      return jsonDecode(utf8.decode(response.bodyBytes))["balance"];
+    }
+  }
+
+  Future<List<Transaction>> getRunshawPayTransactions() async {
+    final String jwtToken = await getJwt();
+    final response = await http.get(
+      Uri.parse(
+          '${MyRunshawConfig.friendsMicroserviceUrl}/api/payments/transactions'),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode != 200) {
+      throw RunshawPayException(jsonDecode(response.body)["detail"]);
+    } else {
+      List<Transaction> toReturn = [];
+      final List allTransactions = jsonDecode(utf8.decode(response.bodyBytes));
+
+      for (final transaction in allTransactions) {
+        toReturn.add(
+          Transaction(
+            transaction["date"],
+            transaction["details"],
+            transaction["action"],
+            transaction["amount"],
+            transaction["balance"],
+          ),
+        );
+      }
+
+      return toReturn;
     }
   }
 
