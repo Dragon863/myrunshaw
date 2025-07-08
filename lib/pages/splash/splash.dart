@@ -44,7 +44,7 @@ class _SplashPageState extends State<SplashPage> {
     });
     try {
       final result = await http.get(
-        Uri.parse(MyRunshawConfig.endpoint + "/health/version"),
+        Uri.parse("${MyRunshawConfig.endpoint}/health/version"),
         headers: {
           "User-Agent": "Runshaw App",
           "Accept": "application/json",
@@ -95,7 +95,7 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   _navigateToHome() async {
-    if (!await serverReachable()) {
+    if (!await serverReachable() && !kIsWeb) {
       if (!await hasNetwork("google.com")) {
         // If we can't resolve google.com, then we have no internet
         return Navigator.of(context).pushReplacement(
@@ -123,12 +123,6 @@ class _SplashPageState extends State<SplashPage> {
         await api
             .migrateBuses(); // Migrate buses from old system - this is a good place to do it as it only runs once
         setState(() => loadingStageText = "Loading data...");
-        // await Future.wait([
-        //   api.cacheFriends(),
-        //   api.cacheNames(),
-        //   api.cacheTimetables(),
-        //   api.cachePfpVersions(),
-        // ]);
         debugLog("Caching friends");
         await api.cacheFriends();
         debugLog("Caching names");

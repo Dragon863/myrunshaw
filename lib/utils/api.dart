@@ -55,8 +55,10 @@ class BaseAPI extends ChangeNotifier {
       _currentUser = user;
       _account = Account(_client);
       _status = AccountStatus.authenticated;
-      if (!Platform.isLinux) {
-        OneSignal.login(_currentUser.$id);
+      if (!kIsWeb) {
+        if (!Platform.isLinux) {
+          OneSignal.login(_currentUser.$id);
+        }
       }
     } catch (e) {
       _status = AccountStatus.unauthenticated;
@@ -235,8 +237,10 @@ class BaseAPI extends ChangeNotifier {
       password: password,
     );
     _currentUser = await Account(_client).get();
-    if (!Platform.isLinux) {
-      OneSignal.login(_currentUser.$id);
+    if (!kIsWeb) {
+      if (!Platform.isLinux) {
+        OneSignal.login(_currentUser.$id);
+      }
     }
     _status = AccountStatus.authenticated;
     await cacheFriends(); // most other cache functions need friends to be cached first

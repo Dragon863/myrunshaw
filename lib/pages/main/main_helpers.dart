@@ -8,7 +8,6 @@ import 'package:runshaw/pages/main/subpages/pay/pay.dart';
 import 'package:runshaw/pages/main/subpages/settings/settings.dart';
 import 'package:runshaw/pages/main/subpages/timetable/timetable.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
-// import 'package:grace/src/pages/main/subpages/notifications/notifications.dart';
 import 'main_controller.dart';
 
 List<Widget> getPages(bool showNotifs) {

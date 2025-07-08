@@ -1,5 +1,5 @@
 const Map locations = {
-// Contains a key of the building's name in the map assets, and 3d array value where the first index is the floor, and the second index is the room number
+  // Contains a key of the building's name in the map assets, and 3d array value where the first index is the floor, and the second index is the room number
   "buttermere": [
     <String, Object>{
       "title": "Ground Floor",
@@ -139,7 +139,7 @@ const Map locations = {
         "D211",
         "D212",
       ],
-    }
+    },
   ],
   "eskdale": [
     {
@@ -236,7 +236,7 @@ const Map locations = {
         "E126",
         "E127",
         "E128",
-      ]
+      ],
     },
     {
       "title": "Second Floor",
@@ -268,7 +268,7 @@ const Map locations = {
         "E226",
         "E227",
       ],
-    }
+    },
   ],
   "ferndale": [
     {
@@ -290,16 +290,8 @@ const Map locations = {
     {
       "title": "First Floor",
       "img": "f-first",
-      "rooms": [
-        "F101",
-        "F103",
-        "F104",
-        "F105",
-        "F106",
-        "F107",
-        "F108",
-      ],
-    }
+      "rooms": ["F101", "F103", "F104", "F105", "F106", "F107", "F108"],
+    },
   ],
   "grizedale": [
     {
@@ -339,17 +331,8 @@ const Map locations = {
     {
       "title": "Second Floor",
       "img": "g-second",
-      "rooms": [
-        "G201",
-        "G202",
-        "G203",
-        "G204",
-        "G205",
-        "G206",
-        "G217",
-        "G218",
-      ],
-    }
+      "rooms": ["G201", "G202", "G203", "G204", "G205", "G206", "G217", "G218"],
+    },
   ],
   "hawkshead": [
     {
@@ -467,7 +450,7 @@ const Map locations = {
         "L428",
         "L429",
       ],
-    }
+    },
   ],
   "octagon": [
     {
@@ -486,7 +469,7 @@ const Map locations = {
         "L010",
         "L011",
         "L012",
-      ]
+      ],
     },
     {
       "title": "First Floor",
@@ -508,8 +491,8 @@ const Map locations = {
         "L418",
         "L419",
         "L420",
-      ]
-    }
+      ],
+    },
   ],
   "mardale": [
     // this one hurt me
@@ -625,7 +608,7 @@ const Map locations = {
         "M706",
         "M707",
         "M708",
-      ]
+      ],
     },
     {
       "title": "First Floor",
@@ -675,7 +658,7 @@ const Map locations = {
         "P011",
         "P012",
         "P013",
-      ]
+      ],
     },
     {
       "title": "First Floor",
@@ -695,7 +678,7 @@ const Map locations = {
         "P112",
         "P113",
       ],
-    }
+    },
   ],
   "rydal": [
     {
@@ -715,30 +698,13 @@ const Map locations = {
     {
       "title": "First Floor",
       "img": "r-first",
-      "rooms": [
-        "R102",
-        "R103",
-        "R104",
-        "R105",
-        "R106",
-        "R107",
-        "R108",
-        "R110",
-      ],
+      "rooms": ["R102", "R103", "R104", "R105", "R106", "R107", "R108", "R110"],
     },
     {
       "title": "Second Floor",
       "img": "r-second",
-      "rooms": [
-        "R202",
-        "R203",
-        "R204",
-        "R205",
-        "R206",
-        "R207",
-        "R208",
-      ],
-    }
+      "rooms": ["R202", "R203", "R204", "R205", "R206", "R207", "R208"],
+    },
   ],
   "silverdale": [
     {
