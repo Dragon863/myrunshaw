@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:runshaw/pages/main/subpages/technician/technician.dart';
 import 'package:runshaw/pages/main/subpages/buses/buses.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/friends.dart';
 import 'package:runshaw/pages/main/subpages/home/home.dart';
@@ -7,7 +8,9 @@ import 'package:runshaw/pages/main/subpages/map/map.dart';
 import 'package:runshaw/pages/main/subpages/pay/pay.dart';
 import 'package:runshaw/pages/main/subpages/settings/settings.dart';
 import 'package:runshaw/pages/main/subpages/timetable/timetable.dart';
+import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'main_controller.dart';
 
 List<Widget> getPages(bool showNotifs) {
@@ -19,6 +22,7 @@ List<Widget> getPages(bool showNotifs) {
     const RunshawPayPage(),
     const MapPage(),
     const Center(child: SettingsPage()),
+    const Center(child: TechnicianPage()),
   ];
 }
 
@@ -42,6 +46,20 @@ class SliderView extends StatefulWidget {
 
 class _SliderViewState extends State<SliderView> {
   int counter = 0;
+  bool isDeveloper = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loadDeveloperState();
+  }
+
+  Future<void> loadDeveloperState() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isDeveloper = prefs.getBool('isDeveloper') ?? false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,16 +87,34 @@ class _SliderViewState extends State<SliderView> {
                   physics: const ScrollPhysics(),
                   children: <Widget>[
                     GestureDetector(
-                      onTap: () {
-                        if (counter < 20) {
+                      onTap: () async {
+                        if (counter < 10) {
                           counter++;
                         } else {
-                          counter = 0;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Stop pressing me!'),
-                            ),
-                          );
+                          // check with appwrite first
+                          final BaseAPI api = context.read<BaseAPI>();
+                          final isAdmin = await api.isAdmin();
+                          if (isAdmin) {
+                            final SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            prefs.setBool('isDeveloper', true);
+                            loadDeveloperState();
+                            setState(() {});
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Developer mode enabled!"),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("You are not an admin."),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          }
                         }
                       },
                       child: CircleAvatar(
@@ -130,6 +166,12 @@ class _SliderViewState extends State<SliderView> {
                         Icons.settings,
                         'Settings',
                       ),
+                      if (isDeveloper)
+                        Menu(
+                          Icons.engineering_outlined,
+                          Icons.engineering,
+                          'Technician',
+                        )
                     ].asMap().entries.map(
                           (entry) => _SliderMenuItem(
                             title: entry.value.title,

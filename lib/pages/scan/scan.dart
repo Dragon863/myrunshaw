@@ -131,6 +131,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     bool showFieldOneText = false;
     bool showFieldTwoText = false;
     bool agreesToPolicies = false;
+    bool fabLoading = false;
 
     String password;
 
@@ -315,6 +316,9 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                             alignment: Alignment.bottomRight,
                             child: FloatingActionButton(
                               onPressed: () async {
+                                setState(() {
+                                  fabLoading = true;
+                                });
                                 if (!exists) {
                                   // New user; create account
                                   if (controllerPwd.text ==
@@ -329,7 +333,13 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                                         );
                                         TextInput.finishAutofillContext();
                                         navigateToSplash();
+                                        setState(() {
+                                          fabLoading = false;
+                                        });
                                       } on AppwriteException catch (e) {
+                                        setState(() {
+                                          fabLoading = false;
+                                        });
                                         await showDialog(
                                           context: context,
                                           builder: (context) => AlertDialog(
@@ -347,6 +357,9 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                                         );
                                       }
                                     } else {
+                                      setState(() {
+                                        fabLoading = false;
+                                      });
                                       await showDialog(
                                         context: context,
                                         builder: (context) => AlertDialog(
@@ -364,6 +377,9 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                                       );
                                     }
                                   } else {
+                                    setState(() {
+                                      fabLoading = false;
+                                    });
                                     await showDialog(
                                       context: context,
                                       builder: (context) => AlertDialog(
@@ -389,8 +405,14 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                                       password: password,
                                     );
                                     TextInput.finishAutofillContext();
+                                    setState(() {
+                                      fabLoading = false;
+                                    });
                                     navigateToSplash();
                                   } on AppwriteException catch (e) {
+                                    setState(() {
+                                      fabLoading = false;
+                                    });
                                     await showDialog(
                                       context: context,
                                       builder: (context) => AlertDialog(
@@ -409,7 +431,16 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                                   }
                                 }
                               },
-                              child: const Icon(Icons.keyboard_arrow_right),
+                              child: fabLoading
+                                  ? const SizedBox(
+                                      height: 16,
+                                      width: 16,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.black,
+                                        strokeWidth: 3,
+                                      ),
+                                    )
+                                  : const Icon(Icons.keyboard_arrow_right),
                             ),
                           ),
                         )

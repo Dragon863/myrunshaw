@@ -13,11 +13,12 @@ class ThemeProvider with ChangeNotifier {
   bool get isDarkMode =>
       _themeMode == ThemeMode.dark ||
       (_themeMode == ThemeMode.system &&
-          WidgetsBinding.instance.window.platformBrightness == Brightness.dark);
+          WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+              Brightness.dark);
   bool get isLightMode =>
       _themeMode == ThemeMode.light ||
       (_themeMode == ThemeMode.system &&
-          WidgetsBinding.instance.window.platformBrightness ==
+          WidgetsBinding.instance.platformDispatcher.platformBrightness ==
               Brightness.light);
 
   Future<void> initTheme() async {
@@ -41,6 +42,7 @@ class ThemeProvider with ChangeNotifier {
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
       ),
     );
     final SharedPreferences prefs = await SharedPreferences.getInstance();

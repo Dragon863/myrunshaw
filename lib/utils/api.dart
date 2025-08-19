@@ -822,6 +822,38 @@ class BaseAPI extends ChangeNotifier {
     }
   }
 
+  Future<bool> isAdmin() async {
+    final String jwtToken = await getJwt();
+    final response = await http.get(
+      Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/admin/is_admin'),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode != 200) {
+      return false;
+    } else {
+      return jsonDecode(utf8.decode(response.bodyBytes))["is_admin"];
+    }
+  }
+
+  Future<Map> getUserInfoTechnician(String userID) async {
+    final String jwtToken = await getJwt();
+    final response = await http.get(
+      Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/admin/user/$userID'),
+      headers: {
+        'Authorization': 'Bearer $jwtToken',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode != 200) {
+      throw "Error fetching user info";
+    } else {
+      return jsonDecode(utf8.decode(response.bodyBytes));
+    }
+  }
+
   User? get user => _currentUser;
   Account? get account => _account;
 }

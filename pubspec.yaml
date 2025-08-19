@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  appwrite: 13.0.0
+  appwrite: ^13.0.0
   mobile_scanner: ^6.0.1
   google_fonts: ^6.2.1
   provider: ^6.1.2
