@@ -292,7 +292,6 @@ class _TechnicianPageState extends State<TechnicianPage> {
                           .split("-")[0];
                       final Map studentInfo =
                           await api.getUserInfoTechnician(studentId);
-                      print(studentInfo);
                       await _buildContent(studentInfo['user_id'], studentInfo);
                     }
                   }
