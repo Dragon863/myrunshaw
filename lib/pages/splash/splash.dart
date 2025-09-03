@@ -120,8 +120,6 @@ class _SplashPageState extends State<SplashPage> {
     if (status == AccountStatus.authenticated) {
       debugLog("User is authenticated");
       try {
-        await api
-            .migrateBuses(); // Migrate buses from old system - this is a good place to do it as it only runs once
         setState(() => loadingStageText = "Loading data...");
         debugLog("Caching friends");
         await api.cacheFriends();

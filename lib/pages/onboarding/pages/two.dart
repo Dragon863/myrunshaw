@@ -102,7 +102,7 @@ class _OnBoardingStageTwoState extends State<OnBoardingStageTwo> {
           ),
           const SizedBox(height: 16),
           const Text(
-              "(We'll use this to identify you to your friends. We recommend using your first and last name)"),
+              "(We'll use this to identify you to your friends. Using your first and last name is a good option)"),
         ],
       ),
     );

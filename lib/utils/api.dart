@@ -182,11 +182,13 @@ class BaseAPI extends ChangeNotifier {
   Future<void> cachePfpVersions() async {
     final String jwtToken = await getJwt();
     final friends = await getFriends();
+    cachedPfpVersions = {};
 
     List<String> userIds = [];
     for (var friend in friends) {
       userIds.add(friend["userid"]);
     }
+    userIds.add(user!.$id); // include self in the cache!
 
     final response = await http.post(
       Uri.parse(
@@ -547,6 +549,9 @@ class BaseAPI extends ChangeNotifier {
   }
 
   Future<void> migrateBuses() async {
+    // LEGACY: since it's been 6 months, it's safe to assume migration has happened or the user was inactive
+    // for long enough that their account was deleted in compliance with GDPR
+
     // This is a one-time migration to remove the bus_number key from the prefs, and move to the new approach
     // which is to use the extra_buses endpoint and OneSignal's external IDs
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -841,7 +846,8 @@ class BaseAPI extends ChangeNotifier {
   Future<Map> getUserInfoTechnician(String userID) async {
     final String jwtToken = await getJwt();
     final response = await http.get(
-      Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/admin/user/$userID'),
+      Uri.parse(
+          '${MyRunshawConfig.friendsMicroserviceUrl}/api/admin/user/$userID'),
       headers: {
         'Authorization': 'Bearer $jwtToken',
         'Content-Type': 'application/json',

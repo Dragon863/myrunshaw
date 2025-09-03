@@ -336,7 +336,44 @@ class _TechnicianPageState extends State<TechnicianPage> {
               },
               child: const Icon(Icons.arrow_back),
             )
-          : null,
+          : FloatingActionButton(
+              onPressed: () async {
+                final textController = TextEditingController();
+                final popup = AlertDialog(
+                  title: const Text("Enter Student ID"),
+                  content: TextField(
+                    controller: textController,
+                    autofocus: true,
+                    decoration: const InputDecoration(
+                      hintText: "Student ID",
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text("Cancel"),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(textController.text);
+                      },
+                      child: const Text("Submit"),
+                    ),
+                  ],
+                );
+                showDialog(context: context, builder: (context) => popup)
+                    .then((value) {
+                  if (value != null) {
+                    final BaseAPI api = context.read<BaseAPI>();
+                    api.getUserInfoTechnician(value).then((studentInfo) {
+                      _buildContent(studentInfo['user_id'], studentInfo);
+                    });
+                  }
+                });
+              },
+              child: const Icon(Icons.badge_outlined)),
     );
   }
 }

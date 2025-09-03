@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' as models;
 import 'package:crop_your_image/crop_your_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -135,6 +138,58 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
     );
     if (result.runtimeType == CropSuccess) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        barrierColor: Colors.black.withOpacity(0.7),
+        builder: (BuildContext context) {
+          return Dialog(
+            insetPadding: const EdgeInsets.all(6),
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Container(
+                constraints: const BoxConstraints(
+                  minWidth: 150,
+                  maxWidth: 1000,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        'Just a sec!',
+                        style: GoogleFonts.rubik(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        height: 4,
+                        width: 72,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Uploading your profile picture...',
+                        style: GoogleFonts.rubik(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+
       final Uint8List croppedBytes = (result as CropSuccess).croppedImage;
       final InputFile profilePicture = InputFile.fromBytes(
         bytes: croppedBytes,
@@ -151,6 +206,10 @@ class _SettingsPageState extends State<SettingsPage> {
             "view?project=${MyRunshawConfig.projectId}"
             "&ts=${DateTime.now().millisecondsSinceEpoch.toString()}";
       });
+      if (mounted) {
+        Navigator.of(context).pop();
+        // close dialog
+      }
     } else if (result.runtimeType == CropFailure) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -173,7 +232,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
     final Storage storage = Storage(api.client);
 
-    //try {
     try {
       storage.getFile(bucketId: "profiles", fileId: api.currentUser.$id);
       await storage.deleteFile(
@@ -195,12 +253,7 @@ class _SettingsPageState extends State<SettingsPage> {
         Permission.update(Role.user(api.currentUser.$id)),
         Permission.delete(Role.user(api.currentUser.$id)),
       ],
-    ); /*
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Error uploading profile picture")));
-      throw e;
-    }*/
+    );
   }
 
   Future<void> deleteAction() async {
@@ -648,6 +701,34 @@ class _SettingsPageState extends State<SettingsPage> {
                         await launchUrl(emailLaunchUri);
                       },
                       trailing: const Icon(Icons.bug_report_outlined),
+                    ),
+                    ListTile(
+                      title: const Text(
+                        "Official Student Portal",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      onTap: () async {
+                        Uri url =
+                            Uri.parse('https://studentportal.runshaw.ac.uk');
+                        if (!kIsWeb) {
+                          if (Platform.isAndroid) {
+                            url = Uri.parse(
+                                'https://play.google.com/store/apps/details?id=uk.ac.runshaw.studentportal.app9173&hl=en_GB');
+                          } else if (Platform.isIOS) {
+                            url = Uri.parse(
+                                'https://apps.apple.com/gb/app/runshaw-student-portal/id6446140462');
+                          }
+                        }
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url);
+                        } else {
+                          throw 'Could not launch $url';
+                        }
+                      },
+                      trailing: const Icon(Icons.school_outlined),
                     ),
                   ],
                 ),
