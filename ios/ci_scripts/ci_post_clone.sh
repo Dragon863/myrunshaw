@@ -31,8 +31,7 @@ brew install cocoapods
 # Set up CocoaPods for iOS
 echo "Running pod install for iOS..."
 cd ios
-# handle OneSignalXCFramework
-pod update OneSignalXCFramework
+pod repo update
 pod install --repo-update
 
 # Go back to the workspace root
