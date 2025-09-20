@@ -58,7 +58,8 @@ class _FriendTileState extends State<FriendTile> {
   Future<String> loadCurrentEventFor(String userId) async {
     final BaseAPI api = context.read<BaseAPI>();
     try {
-      final List<Event> events = await api.fetchEvents(userId: userId);
+      final List<Event> events =
+          await api.fetchEvents(userId: userId, allowCache: true);
       String current = "";
       if (widget.inFiveMinutesNotifier.value) {
         final timeInFive = DateTime.now().add(const Duration(minutes: 5));
@@ -125,6 +126,7 @@ class _FriendTileState extends State<FriendTile> {
             widget.profilePicUrl!,
             errorListener: (error) {},
           ),
+          backgroundColor: getPfpColour(widget.profilePicUrl!),
           child: Text(
             getFirstNameCharacter(name),
             style: GoogleFonts.rubik(

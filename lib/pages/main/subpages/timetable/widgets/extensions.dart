@@ -27,7 +27,7 @@ extension EventScheduleFiller on List<Event> {
           }
           filledEvents.add(Event(
             summary: 'Aspire',
-            description: 'Aspire (Free Period)',
+            description: 'Aspire / Free',
             location: '',
             start: currentEvent.end,
             end: freePeriodEnd,
@@ -43,7 +43,7 @@ extension EventScheduleFiller on List<Event> {
             filledEvents.length - 1 > 0 ? filledEvents.length - 1 : 0,
             Event(
               summary: 'Aspire',
-              description: 'Aspire (Free Period)',
+              description: 'Aspire / Free',
               location: '',
               start: dayStart,
               end: currentEvent.start,

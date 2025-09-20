@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/error/server_issues.dart';
 import 'package:runshaw/pages/login/stage1.dart';
@@ -15,13 +16,14 @@ import 'package:runshaw/pages/onboarding/onboarding.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/logging.dart';
+import 'package:runshaw/utils/theme/theme_provider.dart';
 
 class SplashPage extends StatefulWidget {
   final String? nextRoute;
   const SplashPage({super.key, this.nextRoute});
 
   @override
-  _SplashPageState createState() => _SplashPageState();
+  State<SplashPage> createState() => _SplashPageState();
 }
 
 class _SplashPageState extends State<SplashPage> {
@@ -35,7 +37,51 @@ class _SplashPageState extends State<SplashPage> {
       DeviceOrientation.portraitDown,
       // Just in case the map page is opened which on android can cause the app to stay landscape
     ]);
+    _setupOneSignal();
     _navigateToHome();
+  }
+
+  @override
+  void didChangeDependencies() {
+    precacheImage(const AssetImage('assets/img/splash-dark.png'), context);
+    precacheImage(const AssetImage('assets/img/logo-muted.png'), context);
+    super.didChangeDependencies();
+  }
+
+  Future<void> _setupOneSignal() async {
+    if (kIsWeb || Platform.isLinux) return;
+
+    OneSignal.initialize(MyRunshawConfig.oneSignalAppId);
+    OneSignal.Notifications.addClickListener((OSNotificationClickEvent event) {
+      String? route;
+      if (event.notification.body?.contains("has arrived in bay") ?? false) {
+        route = "/bus";
+      } else if (event.notification.body
+              ?.toString()
+              .contains("friend request") ??
+          false) {
+        route = "/friends";
+      }
+
+      if (route != null && mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) => SplashPage(
+              nextRoute: route,
+            ),
+          ),
+          (route) => false,
+        );
+      }
+    });
+
+    OneSignal.Notifications.addForegroundWillDisplayListener(
+        (OSNotificationWillDisplayEvent event) {
+      event.preventDefault();
+      event.notification.display();
+    });
+
+    await OneSignal.Notifications.requestPermission(true);
   }
 
   Future<bool> serverReachable() async {
@@ -119,26 +165,10 @@ class _SplashPageState extends State<SplashPage> {
 
     if (status == AccountStatus.authenticated) {
       debugLog("User is authenticated");
-      try {
-        setState(() => loadingStageText = "Loading data...");
-        debugLog("Caching friends");
-        await api.cacheFriends();
-        debugLog("Caching names");
-        await Future.wait(
-          [
-            api.cacheNames(),
-            api.cachePfpVersions(),
-            api.cacheTimetables(),
-          ],
-        );
-        debugLog("Caching names done");
-        debugLog("Caching pfp versions done");
-        debugLog("Caching timetables done");
 
-        // no longer using future.wait for everything, as we need cacheFriends to be done before cacheNames but it takes longer
-      } catch (e) {
-        debugLog("Error caching timetables: $e");
-      }
+      // Don't wait for caching to finish, do it in the background
+      api.caching = _cacheData(api);
+
       if (!await isOnBoarded()) {
         return Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
@@ -176,21 +206,50 @@ class _SplashPageState extends State<SplashPage> {
     }
   }
 
+  Future<void> _cacheData(BaseAPI api) async {
+    try {
+      debugLog("Caching friends");
+      await api.cacheFriends();
+      debugLog("Caching names");
+      await Future.wait(
+        [
+          api.cacheNames(),
+          api.cachePfpVersions(),
+          api.cacheTimetables(),
+        ],
+      );
+      debugLog("Caching names done");
+      debugLog("Caching pfp versions done");
+      debugLog("Caching timetables done");
+    } catch (e) {
+      debugLog("Error caching data: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.red,
+      backgroundColor: context.read<ThemeProvider>().isDarkMode
+          ? const Color.fromARGB(255, 30, 30, 30)
+          : Colors.red,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Spacer(),
-            const CircleAvatar(
-              radius: 120,
-              backgroundImage: AssetImage('assets/img/logo-muted.png'),
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.red,
-            ),
+            context.read<ThemeProvider>().isDarkMode
+                ? const CircleAvatar(
+                    radius: 120,
+                    backgroundImage: AssetImage('assets/img/splash-dark.png'),
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.transparent,
+                  )
+                : const CircleAvatar(
+                    radius: 120,
+                    backgroundImage: AssetImage('assets/img/logo-muted.png'),
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.red,
+                  ),
             const Spacer(),
             Text(
               loadingStageText,

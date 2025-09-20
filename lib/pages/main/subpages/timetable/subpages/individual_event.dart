@@ -78,8 +78,8 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
     final List<Widget> friendsList = [];
     for (final friend in fetchedFriends) {
       final String userId = friend['userid'];
-      final List<Event> events =
-          await api.fetchEvents(userId: userId, includeAll: true);
+      final List<Event> events = await api.fetchEvents(
+          userId: userId, includeAll: true, allowCache: true);
       final String name = await api.getName(userId);
       final String pfpUrl = api.getPfpUrl(userId);
       String current = "";
@@ -172,6 +172,7 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
                 pfpUrl,
                 errorListener: (error) {},
               ),
+              backgroundColor: getPfpColour(pfpUrl),
               child: Text(
                 getFirstNameCharacter(name),
                 style: GoogleFonts.rubik(

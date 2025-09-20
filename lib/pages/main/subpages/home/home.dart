@@ -6,7 +6,9 @@ import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/buses/bus_list/bus_map_view.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/individual_friend.dart';
+import 'package:runshaw/pages/main/subpages/home/helpers.dart';
 import 'package:runshaw/pages/main/subpages/home/inapp/inapp.dart';
+import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/list.dart';
 import 'package:runshaw/pages/qr/qr_page.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
@@ -54,7 +56,8 @@ class _HomePageState extends State<HomePage> {
   Future<void> loadEvents() async {
     final BaseAPI api = context.read<BaseAPI>();
     try {
-      final List<Event> events = await api.fetchEvents(userId: api.user!.$id);
+      final List<Event> events =
+          await api.fetchEvents(userId: api.user!.$id, allowCache: true);
       setState(() {
         this.events = events;
       });
@@ -82,7 +85,8 @@ class _HomePageState extends State<HomePage> {
       await api.cachePfpVersions();
     }
     try {
-      final List<Event> events = await api.fetchEvents(userId: userId);
+      final List<Event> events =
+          await api.fetchEvents(userId: userId, allowCache: true);
       final String current = fetchCurrentEvent(events);
       return current;
     } catch (e) {
@@ -95,15 +99,19 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> loadData() async {
+  Future<void> loadData({bool allowCache = true}) async {
     if (loading) {
       return;
     }
     loading = true;
     freeFriends.clear();
     final BaseAPI api = context.read<BaseAPI>();
+    await api.caching;
     try {
-      final List<Event> events = await api.fetchEvents(userId: api.user!.$id);
+      List<Event> events =
+          await api.fetchEvents(userId: api.user!.$id, allowCache: allowCache);
+      events = events.fillGaps().sortEvents(); // Include frees
+
       final now = DateTime.now();
       final Event next = events.firstWhere(
         (event) {
@@ -254,6 +262,7 @@ class _HomePageState extends State<HomePage> {
                 child: Align(
                   widthFactor: 0.8,
                   child: CircleAvatar(
+                    backgroundColor: getPfpColour(api.getPfpUrl(uid)),
                     radius: 25,
                     foregroundImage: CachedNetworkImageProvider(
                       api.getPfpUrl(uid),
@@ -318,8 +327,13 @@ class _HomePageState extends State<HomePage> {
                                       pfpUrl ?? "",
                                       errorListener: (error) {},
                                     ),
+                                    backgroundColor: loading
+                                        ? null
+                                        : getPfpColour(pfpUrl ?? ""),
                                     child: Text(
-                                      getFirstNameCharacter(name),
+                                      name == "Loading..."
+                                          ? "..."
+                                          : getFirstNameCharacter(name),
                                       style: GoogleFonts.rubik(
                                         fontSize: 48,
                                         fontWeight: FontWeight.bold,
@@ -328,7 +342,7 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    name,
+                                    truncateName(name),
                                     style: GoogleFonts.rubik(
                                       fontSize: 22,
                                     ),
@@ -565,7 +579,7 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          loadData();
+          loadData(allowCache: false);
         },
         child: const Icon(Icons.refresh),
       ),

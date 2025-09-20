@@ -24,10 +24,10 @@ class _TimetablePageState extends State<TimetablePage> {
     super.initState();
   }
 
-  Future<void> _refresh() async {
+  Future<void> _refresh({bool allowCache = true}) async {
     final BaseAPI api = context.read<BaseAPI>();
     try {
-      final List<Event> events = await api.fetchEvents();
+      final List<Event> events = await api.fetchEvents(allowCache: allowCache);
       if (events.isNotEmpty) {
         setState(() {
           _events = events;
@@ -109,7 +109,7 @@ class _TimetablePageState extends State<TimetablePage> {
           ),
           Expanded(
             child: RefreshIndicator(
-              onRefresh: _refresh,
+              onRefresh: () async => await _refresh(allowCache: false),
               child: Container(
                 constraints: const BoxConstraints(
                   minWidth: 150,

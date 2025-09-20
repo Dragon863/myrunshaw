@@ -1,11 +1,8 @@
-import 'dart:io';
-
 import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/about/about.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/widgets/popup_add_page.dart';
@@ -24,7 +21,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-  String? nextRoute;
 
   debugLog("Starting app...", level: 0);
   // Initialise Aptabase
@@ -37,64 +33,10 @@ void main() async {
   );
   debugLog("Aptabase initialised", level: 0);
 
-  // Get onesignal ready...
-  if (!kIsWeb) {
-    // can't use Platform.* on web
-    if (!Platform.isLinux) {
-      OneSignal.initialize(MyRunshawConfig.oneSignalAppId);
-      OneSignal.Notifications.addClickListener(
-        (OSNotificationClickEvent event) async {
-          if (event.notification.body!.contains("has arrived in bay")) {
-            nextRoute = "/bus";
-            while (navigatorKey.currentState == null) {
-              await Future.delayed(const Duration(milliseconds: 100));
-              // bad practice and not ideal, but it's fine because we're waiting for the app to load and nothing else works
-            }
-
-            navigatorKey.currentState!.pushAndRemoveUntil(
-              MaterialPageRoute(
-                builder: (context) => const SplashPage(
-                  nextRoute: "/bus",
-                ),
-              ),
-              (route) => false,
-            );
-            //}
-          } else if (event.notification.body
-              .toString()
-              .contains("friend request")) {
-            nextRoute = "/friends";
-            while (navigatorKey.currentState == null) {
-              await Future.delayed(const Duration(milliseconds: 100));
-              // again this is bad practice. See above comment
-            }
-            navigatorKey.currentState?.pushAndRemoveUntil(
-              MaterialPageRoute(
-                builder: (context) => const SplashPage(
-                  nextRoute: "/friends",
-                ),
-              ),
-              (route) => false,
-            );
-          }
-        },
-      );
-    }
-
-    OneSignal.Notifications.addForegroundWillDisplayListener(
-        (OSNotificationWillDisplayEvent event) {
-      event.preventDefault();
-      event.notification.display();
-    });
-
-    OneSignal.Notifications.requestPermission(true);
-  }
-
   runApp(
     ChangeNotifierProvider(
       create: ((context) => BaseAPI()),
       child: BaseApp(
-        nextRoute: nextRoute,
         globalKey: navigatorKey,
       ),
     ),
@@ -102,9 +44,8 @@ void main() async {
 }
 
 class BaseApp extends StatelessWidget {
-  final String? nextRoute;
   final GlobalKey<NavigatorState>? globalKey;
-  const BaseApp({super.key, this.nextRoute, this.globalKey});
+  const BaseApp({super.key, this.globalKey});
 
   @override
   Widget build(BuildContext context) {
@@ -162,9 +103,7 @@ class BaseApp extends StatelessWidget {
               insetPadding: const EdgeInsets.all(10),
             ),
           ),
-          home: SplashPage(
-            nextRoute: nextRoute,
-          ),
+          home: const SplashPage(),
           debugShowCheckedModeBanner: false,
           routes: <String, WidgetBuilder>{
             '/splash': (BuildContext context) => const SplashPage(),

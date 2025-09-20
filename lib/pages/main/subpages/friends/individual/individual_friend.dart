@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
+import 'package:runshaw/pages/main/subpages/friends/individual/split/split_timetable.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/user_info/user_info.dart';
 import 'package:runshaw/pages/main/subpages/timetable/subpages/individual_event.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/events_card.dart';
@@ -43,11 +44,13 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
     final BaseAPI api = context.read<BaseAPI>();
     final busNumber = await api.getBusFor(widget.userId);
 
+    if (!mounted) return;
     setState(() {
       bus = busNumber;
     });
 
-    final List<Event> events = await api.fetchEvents(userId: widget.userId);
+    final List<Event> events =
+        await api.fetchEvents(userId: widget.userId, allowCache: true);
     if (events.isEmpty) {
       events.add(
         Event(
@@ -123,29 +126,69 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
                   minWidth: 150,
                   maxWidth: 700,
                 ),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: Card(
-                    elevation: 1,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Now:',
-                            style: GoogleFonts.rubik(),
-                          ),
-                          Text(
-                            currentEvent,
-                            style: GoogleFonts.rubik(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: Card(
+                          elevation: 1,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Now:',
+                                  style: GoogleFonts.rubik(),
+                                ),
+                                Text(
+                                  currentEvent,
+                                  style: GoogleFonts.rubik(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                      Card(
+                        elevation: 1,
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => SplitTimetablePage(
+                                  friendId: widget.userId,
+                                  friendName: widget.name,
+                                ),
+                              ),
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(9),
+                          child: Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const SizedBox(height: 4),
+                                const Icon(Icons.vertical_split),
+                                const SizedBox(height: 4),
+                                Text(
+                                  "Split",
+                                  style: GoogleFonts.rubik(),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 6),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/utils/api.dart';
@@ -50,6 +49,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                         widget.profilePicUrl,
                         errorListener: (error) {},
                       ),
+                      backgroundColor: getPfpColour(widget.profilePicUrl),
                       child: Text(
                         getFirstNameCharacter(widget.name),
                         style: GoogleFonts.rubik(

@@ -56,12 +56,11 @@ class _SettingsPageState extends State<SettingsPage> {
     });
 
     setState(() {
+      name = displayName;
       nameLoaded = true;
       if (displayName.isEmpty) {
         name = "Anonymous";
-      } else {
-        name = displayName;
-      }
+      } else {}
       email = latestUserModel.email;
       userId = latestUserModel.$id;
       if (busNumber != null) {
@@ -396,6 +395,7 @@ class _SettingsPageState extends State<SettingsPage> {
                               content: Text("Please wait a moment..."),
                             ),
                           );
+                          return;
                         }
                         final nameController =
                             TextEditingController(text: this.name);

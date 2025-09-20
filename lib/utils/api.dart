@@ -26,10 +26,11 @@ class BaseAPI extends ChangeNotifier {
   final Client _client = Client();
   String? _jwt;
   late Account _account;
-  late Map cachedTimetables;
-  late Map cachedPfpVersions;
-  late Map cachedNames;
+  Map cachedTimetables = {};
+  Map cachedPfpVersions = {};
+  Map cachedNames = {};
   List? cachedFriends;
+  Future<void>? caching;
 
   User get currentUser => _currentUser;
   AccountStatus get status => _status;
@@ -246,9 +247,12 @@ class BaseAPI extends ChangeNotifier {
     }
     _status = AccountStatus.authenticated;
     await cacheFriends(); // most other cache functions need friends to be cached first
-    await cachePfpVersions();
-    await cacheTimetables();
-    await cacheNames();
+    caching = Future.wait([
+      cachePfpVersions(),
+      cacheTimetables(),
+      cacheNames(),
+    ]);
+    await caching;
   }
 
   String getPfpUrl(String userId) {
@@ -341,10 +345,10 @@ class BaseAPI extends ChangeNotifier {
     _currentUser = await account!.get();
   }
 
-  Future<List<Event>> fetchEvents({
-    String? userId,
-    bool includeAll = false,
-  }) async {
+  Future<List<Event>> fetchEvents(
+      {String? userId,
+      bool includeAll = false,
+      bool allowCache = false}) async {
     userId ??= user!.$id;
 
     List<Event> timetable = [];
@@ -355,7 +359,7 @@ class BaseAPI extends ChangeNotifier {
 
     Map events;
 
-    if (!cachedTimetables.containsKey(userId)) {
+    if (!cachedTimetables.containsKey(userId) || !allowCache) {
       debugLog("Fetching timetable for $userId");
       final String jwtToken = await getJwt();
 
@@ -427,6 +431,7 @@ class BaseAPI extends ChangeNotifier {
       },
       body: jsonEncode({'receiver_id': userId}),
     );
+    await cacheFriends();
     return humanResponse(response.body);
   }
 
@@ -443,6 +448,7 @@ class BaseAPI extends ChangeNotifier {
     if (response.statusCode != 201) {
       throw "Error blocking user";
     }
+    await cacheFriends();
     return;
   }
 
@@ -460,6 +466,7 @@ class BaseAPI extends ChangeNotifier {
         'action': accept ? 'accept' : 'decline',
       }),
     );
+    await cacheFriends();
     return response.statusCode == 200;
   }
 
