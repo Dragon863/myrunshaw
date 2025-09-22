@@ -33,9 +33,15 @@ void main() async {
   );
   debugLog("Aptabase initialised", level: 0);
 
+  final themeProvider = ThemeProvider();
+  await themeProvider.initTheme();
+
   runApp(
-    ChangeNotifierProvider(
-      create: ((context) => BaseAPI()),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: ((context) => BaseAPI())),
+        ChangeNotifierProvider.value(value: themeProvider),
+      ],
       child: BaseApp(
         globalKey: navigatorKey,
       ),
@@ -56,71 +62,66 @@ class BaseApp extends StatelessWidget {
       ),
       // Prevents that weird different coloured status bar on android
     );
-    return ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
-      child: Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
-        themeProvider.initTheme();
-        return MaterialApp(
-          title: 'My Runshaw',
-          theme: ThemeData(
-            primarySwatch: Colors.red,
-            colorScheme: lightColourScheme,
-            fontFamily: 'Rubik',
-            primaryTextTheme: GoogleFonts.rubikTextTheme(
-              Theme.of(context).textTheme,
-            ),
-            scaffoldBackgroundColor: Colors.white,
-            snackBarTheme: SnackBarThemeData(
-              actionTextColor: Colors.red,
-              backgroundColor: Colors.grey[800],
-              contentTextStyle: GoogleFonts.rubik(color: Colors.white),
-              elevation: 20,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              behavior: SnackBarBehavior.floating,
-              insetPadding: const EdgeInsets.all(10),
-            ),
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
+      return MaterialApp(
+        title: 'My Runshaw',
+        theme: ThemeData(
+          primarySwatch: Colors.red,
+          colorScheme: lightColourScheme,
+          fontFamily: 'Rubik',
+          primaryTextTheme: GoogleFonts.rubikTextTheme(
+            Theme.of(context).textTheme,
           ),
-          darkTheme: ThemeData(
-            primarySwatch: Colors.red,
-            brightness: Brightness.dark,
-            colorScheme: darkColourScheme,
-            fontFamily: 'Rubik',
-            primaryTextTheme: GoogleFonts.rubikTextTheme(
-              Theme.of(context).textTheme,
+          scaffoldBackgroundColor: Colors.white,
+          snackBarTheme: SnackBarThemeData(
+            actionTextColor: Colors.red,
+            backgroundColor: Colors.grey[800],
+            contentTextStyle: GoogleFonts.rubik(color: Colors.white),
+            elevation: 20,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
             ),
-            scaffoldBackgroundColor: const Color(0xFF1E1E1E),
-            snackBarTheme: SnackBarThemeData(
-              actionTextColor: Colors.red,
-              backgroundColor: Colors.grey[800],
-              contentTextStyle: GoogleFonts.rubik(color: Colors.white),
-              elevation: 20,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              behavior: SnackBarBehavior.floating,
-              insetPadding: const EdgeInsets.all(10),
-            ),
+            behavior: SnackBarBehavior.floating,
+            insetPadding: const EdgeInsets.all(10),
           ),
-          home: const SplashPage(),
-          debugShowCheckedModeBanner: false,
-          routes: <String, WidgetBuilder>{
-            '/splash': (BuildContext context) => const SplashPage(),
-            '/friends/add': (BuildContext context) =>
-                const PopupFriendAddPage(),
-            '/privacy_policy': (BuildContext context) =>
-                const PrivacyPolicyPage(),
-            '/change_password': (BuildContext context) =>
-                const PasswordResetPage(),
-            '/terms': (BuildContext context) => const TermsOfUsePage(),
-            '/about': (BuildContext context) => const AboutPage(),
-            // We can only add routes here that don't need data passing to them
-          },
-          navigatorKey: globalKey,
-          themeMode: themeProvider.themeMode,
-        );
-      }),
-    );
+        ),
+        darkTheme: ThemeData(
+          primarySwatch: Colors.red,
+          brightness: Brightness.dark,
+          colorScheme: darkColourScheme,
+          fontFamily: 'Rubik',
+          primaryTextTheme: GoogleFonts.rubikTextTheme(
+            Theme.of(context).textTheme,
+          ),
+          scaffoldBackgroundColor: const Color(0xFF1E1E1E),
+          snackBarTheme: SnackBarThemeData(
+            actionTextColor: Colors.red,
+            backgroundColor: Colors.grey[800],
+            contentTextStyle: GoogleFonts.rubik(color: Colors.white),
+            elevation: 20,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            behavior: SnackBarBehavior.floating,
+            insetPadding: const EdgeInsets.all(10),
+          ),
+        ),
+        home: const SplashPage(),
+        debugShowCheckedModeBanner: false,
+        routes: <String, WidgetBuilder>{
+          '/splash': (BuildContext context) => const SplashPage(),
+          '/friends/add': (BuildContext context) => const PopupFriendAddPage(),
+          '/privacy_policy': (BuildContext context) =>
+              const PrivacyPolicyPage(),
+          '/change_password': (BuildContext context) =>
+              const PasswordResetPage(),
+          '/terms': (BuildContext context) => const TermsOfUsePage(),
+          '/about': (BuildContext context) => const AboutPage(),
+          // We can only add routes here that don't need data passing to them
+        },
+        navigatorKey: globalKey,
+        themeMode: themeProvider.themeMode,
+      );
+    });
   }
 }

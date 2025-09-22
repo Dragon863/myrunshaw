@@ -137,7 +137,9 @@ class _HomePageState extends State<HomePage> {
           nextLesson = next.summary;
           nextDetails = next.description == null
               ? "No Description"
-              : "${next.description!.replaceAll("Teacher: ", "")} in ${next.location}";
+              : next.location != null && next.location != ""
+                  ? "${next.description!.replaceAll("Teacher: ", "")} in ${next.location}"
+                  : next.description!.replaceAll("Teacher: ", "");
         });
       }
       final busNumber = await api.getBusNumber();

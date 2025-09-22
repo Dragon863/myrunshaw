@@ -132,23 +132,49 @@ class _SplitTimetablePageState extends State<SplitTimetablePage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_left),
-                        onPressed: () {
-                          setState(() {
-                            _selectedDate =
+                      Visibility(
+                        maintainSize: true,
+                        maintainAnimation: true,
+                        maintainState: true,
+                        visible: _selectedDate.isAfter(DateTime.now()),
+                        child: IconButton(
+                          // disabled when date is today
+                          icon: const Icon(Icons.arrow_left),
+                          onPressed: () {
+                            final today = DateTime(
+                              DateTime.now().year,
+                              DateTime.now().month,
+                              DateTime.now().day,
+                            );
+                            final previousDate =
                                 _selectedDate.subtract(const Duration(days: 1));
-                          });
-                        },
+                            if (previousDate.isBefore(today)) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content:
+                                      Text("Cannot view past dates - sorry!"),
+                                ),
+                              );
+                              return;
+                            }
+
+                            setState(() {
+                              _selectedDate = _selectedDate
+                                  .subtract(const Duration(days: 1));
+                            });
+                          },
+                        ),
                       ),
                       TextButton(
                         onPressed: () => _selectDate(context),
                         child: Text(
-                          DateFormat.yMMMMd().format(_selectedDate),
+                          DateFormat.MMMMd().format(_selectedDate),
                           style: GoogleFonts.rubik(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
                           ),
                         ),
                       ),
