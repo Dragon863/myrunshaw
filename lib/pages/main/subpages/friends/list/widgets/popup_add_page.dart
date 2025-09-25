@@ -118,7 +118,7 @@ class _PopupFriendAddPageState extends State<PopupFriendAddPage>
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           final textController = TextEditingController();
           final popup = AlertDialog(
@@ -157,7 +157,8 @@ class _PopupFriendAddPageState extends State<PopupFriendAddPage>
             }
           });
         },
-        child: const Icon(Icons.keyboard),
+        icon: const Icon(Icons.keyboard),
+        label: const Text("Input Student ID"),
       ),
     );
   }

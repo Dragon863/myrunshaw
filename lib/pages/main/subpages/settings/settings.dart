@@ -497,6 +497,23 @@ class _SettingsPageState extends State<SettingsPage> {
                           });
                         },
                       ),
+                    ),
+                    ListTile(
+                      title: const Text(
+                        "AMOLED Dark",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      trailing: Switch(
+                        value: context.read<ThemeProvider>().amoledEnabled,
+                        onChanged: (bool value) {
+                          setState(() {
+                            context.read<ThemeProvider>().toggleAmoled(value);
+                          });
+                        },
+                      ),
                     )
                   ],
                 ),
