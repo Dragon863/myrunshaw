@@ -8,6 +8,8 @@ class ThemeProvider with ChangeNotifier {
   late ThemeMode _themeMode = ThemeMode.system;
   late ColorScheme _darkScheme = darkColourScheme;
   late ColorScheme _lightScheme = lightColourScheme;
+  final ColorScheme _amoledScheme = amoledColourScheme;
+  late bool amoledEnabled = false;
 
   ThemeMode get themeMode => _themeMode;
   bool get isDarkMode =>
@@ -20,10 +22,18 @@ class ThemeProvider with ChangeNotifier {
       (_themeMode == ThemeMode.system &&
           WidgetsBinding.instance.platformDispatcher.platformBrightness ==
               Brightness.light);
-
+  
   Future<void> initTheme() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? theme = prefs.getString('theme');
+    final bool? isAmoled = prefs.getBool("isAmoled");
+    
+    if (isAmoled == true) {
+      amoledEnabled = true;
+    } else {
+      amoledEnabled = false;
+    }
+
     if (theme == null) {
       _themeMode = ThemeMode.light;
     } else if (theme == 'dark') {
@@ -55,10 +65,27 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> saveAmoled(bool value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool("isAmoled", value);
+  }
+
+  ColorScheme get amoledScheme => _amoledScheme;
+  void toggleAmoled(bool enabled) {
+    amoledEnabled = enabled;
+    saveAmoled(enabled);
+    notifyListeners();
+  }
+
   ColorScheme get darkScheme => _darkScheme;
   void setDarkScheme(ColorScheme value) {
-    _darkScheme = value;
-    notifyListeners();
+    if (amoledEnabled) {
+      _darkScheme = amoledColourScheme;
+      notifyListeners();
+    } else {
+      _darkScheme = value;
+      notifyListeners();
+    }
   }
 
   ColorScheme get lightScheme => _lightScheme;

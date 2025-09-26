@@ -93,10 +93,10 @@ class BaseApp extends StatelessWidget {
           primaryTextTheme: GoogleFonts.rubikTextTheme(
             Theme.of(context).textTheme,
           ),
-          scaffoldBackgroundColor: const Color(0xFF1E1E1E),
+          scaffoldBackgroundColor: context.read<ThemeProvider>().amoledEnabled ? Colors.black : const Color(0xFF1E1E1E),
           snackBarTheme: SnackBarThemeData(
             actionTextColor: Colors.red,
-            backgroundColor: Colors.grey[800],
+            backgroundColor: context.read<ThemeProvider>().amoledEnabled ? Colors.black : Colors.grey[800],
             contentTextStyle: GoogleFonts.rubik(color: Colors.white),
             elevation: 20,
             shape: RoundedRectangleBorder(
