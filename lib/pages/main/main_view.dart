@@ -75,7 +75,7 @@ class _MainPageState extends State<MainPage> {
     return Container(
       color: context.read<ThemeProvider>().isLightMode
           ? Colors.red
-          : (context.read<ThemeProvider>().amoledEnabled ? Colors.black : Theme.of(context).colorScheme.surface),
+          : (Theme.of(context).colorScheme.surface),
       child: SafeArea(
         child: Scaffold(
           body: SliderDrawer(
