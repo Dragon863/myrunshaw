@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
-import 'package:runshaw/utils/theme/light.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -31,7 +30,19 @@ class _UserInfoPageState extends State<UserInfoPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: context.read<ThemeProvider>().isLightMode ? Colors.white : (context.read<ThemeProvider>().amoledEnabled ? Colors.black : const Color(0xFF1E1E1E)),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.red,
+            Colors.red,
+            context.read<ThemeProvider>().isLightMode ? Colors.white : (context.read<ThemeProvider>().amoledEnabled ? Colors.black : const Color(0xFF1E1E1E)),
+            context.read<ThemeProvider>().isLightMode ? Colors.white : (context.read<ThemeProvider>().amoledEnabled ? Colors.black : const Color(0xFF1E1E1E)),
+          ],
+          stops: const [0.0, 0.5, 0.5, 1.0]
+        )
+      ),
       child: SafeArea(
         child: Scaffold(
           appBar: const RunshawAppBar(title: "Profile"),
