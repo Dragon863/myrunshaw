@@ -124,6 +124,7 @@ class _PasswordResetLoginPageState extends State<PasswordResetLoginPage> {
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
+                  style: Theme.of(context).textTheme.bodyMedium,
                   children: [
                     const TextSpan(
                       text: 'Please email the following 8 digit code to ',
