@@ -75,7 +75,7 @@ class _MainPageState extends State<MainPage> {
     return Container(
       color: context.read<ThemeProvider>().isLightMode
           ? Colors.red
-          : Theme.of(context).colorScheme.surface,
+          : (Theme.of(context).colorScheme.surface),
       child: SafeArea(
         child: Scaffold(
           body: SliderDrawer(
@@ -106,8 +106,8 @@ class _MainPageState extends State<MainPage> {
                   textAlign: TextAlign.center,
                 ),
                 backgroundColor: context.read<ThemeProvider>().isLightMode
-                    ? Colors.red
-                    : Theme.of(context).colorScheme.surface,
+                  ? Colors.red
+                  : (context.read<ThemeProvider>().amoledEnabled ? const Color(0xFF1E1E1E) : Theme.of(context).colorScheme.surface),
                 padding: const EdgeInsets.only(top: 4),
                 drawerIconColor: Colors.white,
               ),
