@@ -85,6 +85,7 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<bool> serverReachable() async {
+    if (kIsWeb) return true; // Assume web can always reach the server
     setState(() {
       loadingStageText = "Checking server status...";
     });
