@@ -127,7 +127,9 @@ class _TimetableListState extends State<TimetableList> {
                                 event.summary == '' ? "Exam" : event.summary,
                             roomAndTeacher: event.description ?? '',
                             timing: _humaniseTime(event.start, event.end),
-                            color: Colors.green.shade400,
+                            color: event.summary != ''
+                                ? Colors.green.shade400
+                                : Colors.red,
                             dense: widget.dense,
                             onTap: () {
                               if (event.description != null) {

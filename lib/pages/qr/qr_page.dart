@@ -18,11 +18,6 @@ class QrCodePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              "This is the same as the QR code on your Student ID",
-              textAlign: TextAlign.center,
-              style: GoogleFonts.rubik(fontSize: 16, color: Colors.black),
-            ),
             const SizedBox(
               height: 20,
             ),
@@ -32,10 +27,15 @@ class QrCodePage extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            Text(
-              "(due to scanner limitations, this may not work in study zones)",
-              textAlign: TextAlign.center,
-              style: GoogleFonts.rubik(fontSize: 16, color: Colors.black),
+            Flexible(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 300),
+                child: Text(
+                  "This is the same as the QR code on your Student ID; you can use it to add friends in the app. \n\n(due to scanner limitations, this may not work in study zones and won't allow you to scan in/out of campus! This is NOT a replacement for your Student ID)",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.rubik(fontSize: 14, color: Colors.black),
+                ),
+              ),
             ),
           ],
         ),

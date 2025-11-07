@@ -119,7 +119,7 @@ class _FriendsListState extends State<FriendsList> {
                   final friend = friends[index];
                   return FriendTile(
                     uid: friend["id"],
-                    profilePicUrl: api.getPfpUrl(friend["id"]),
+                    profilePicUrl: api.getPfpUrl(friend["id"], isPreview: true),
                     freeOnly: freeOnly,
                     inFiveMinutesNotifier: inFiveMinutesNotifier,
                   );

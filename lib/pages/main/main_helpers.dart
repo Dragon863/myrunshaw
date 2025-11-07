@@ -154,7 +154,7 @@ class _SliderViewState extends State<SliderView> {
                         Icons.payments_outlined,
                         Icons.payments,
                         'Pay',
-                        isBeta: true,
+                        isBeta: false, // no more beta!
                       ),
                       Menu(
                         Icons.map_outlined,

@@ -5,8 +5,6 @@ Future<Color> getColor() async {
   const Color surfaceColor = Color.fromARGB(255, 41, 41, 41);
   final prefs = await SharedPreferences.getInstance();
   final bool? isAmoled = prefs.getBool('isAmoled');
-  
-  // rest of your code
 
   if (isAmoled == true) {
     return const Color.fromARGB(255, 0, 0, 0);

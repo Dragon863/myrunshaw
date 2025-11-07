@@ -187,9 +187,10 @@ class _HomePageState extends State<HomePage> {
             (DateTime.now().hour < 17 || kDebugMode))) {
           // Before 5PM, and bus has arrived
           setState(() {
+            final busColor = colors[index % colors.length];
             busWidgets.add(
               Card.filled(
-                color: colors[index % colors.length],
+                color: busColor,
                 child: ListTile(
                   title: Text(
                     'The $bus is in bay $bay!',
@@ -219,6 +220,7 @@ class _HomePageState extends State<HomePage> {
                           builder: (context) => BusMapViewPage(
                             bay: bay,
                             busNumber: bus,
+                            color: busColor,
                           ),
                         ),
                       );
@@ -267,7 +269,7 @@ class _HomePageState extends State<HomePage> {
                     backgroundColor: getPfpColour(api.getPfpUrl(uid)),
                     radius: 25,
                     foregroundImage: CachedNetworkImageProvider(
-                      api.getPfpUrl(uid),
+                      api.getPfpUrl(uid, isPreview: true),
                       errorListener: (error) {},
                     ),
                     child: Text(

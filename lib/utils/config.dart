@@ -73,4 +73,7 @@ class MyRunshawConfig {
 
   static const tutorialVideoUrl =
       "https://appwrite.danieldb.uk/v1/storage/buckets/cdn/files/intro/view?project=66fdb56000209ea9ac18";
+
+  static const previewImageResolution =
+      128; // px, used for profile picture previews
 }

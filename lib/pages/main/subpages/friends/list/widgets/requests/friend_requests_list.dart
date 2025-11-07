@@ -19,7 +19,7 @@ class _FriendRequestsListState extends State<FriendRequestsList> {
     final api = context.read<BaseAPI>();
     final response = await api.getFriendRequests();
     for (final friendRequest in response) {
-      final String url = api.getPfpUrl(friendRequest["sender_id"]);
+      final String url = api.getPfpUrl(friendRequest["sender_id"], isPreview: true);
       if (mounted) {
         setState(() {
           requests.add({
@@ -52,7 +52,7 @@ class _FriendRequestsListState extends State<FriendRequestsList> {
           children: <Widget>[
             ListView.builder(
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
                 final friend = requests[index];
                 return FriendRequestTile(

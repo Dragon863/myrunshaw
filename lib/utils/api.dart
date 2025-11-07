@@ -256,11 +256,18 @@ class BaseAPI extends ChangeNotifier {
     await caching;
   }
 
-  String getPfpUrl(String userId) {
-    if (cachedPfpVersions.containsKey(userId)) {
-      return "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/$userId/view?project=${MyRunshawConfig.projectId}&version=${cachedPfpVersions[userId]}";
+  String getPfpUrl(String userId, {bool isPreview = false}) {
+    String urlPath = "/view";
+    const int previewSize = MyRunshawConfig.previewImageResolution;
+
+    if (isPreview) {
+      // Used to save data when rendering in small widgets, as used on the home page
+      urlPath = "/preview?";
     }
-    return "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/$userId/view?project=${MyRunshawConfig.projectId}&version=0";
+    if (cachedPfpVersions.containsKey(userId)) {
+      return "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/$userId$urlPath?project=${MyRunshawConfig.projectId}&version=${cachedPfpVersions[userId]}&width=$previewSize&height=$previewSize";
+    }
+    return "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/$userId$urlPath?project=${MyRunshawConfig.projectId}&version=0";
   }
 
   Future<void> incrementPfpVersion() async {

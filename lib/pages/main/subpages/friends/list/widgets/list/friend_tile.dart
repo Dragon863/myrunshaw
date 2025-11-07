@@ -17,7 +17,7 @@ class FriendTile extends StatefulWidget {
   const FriendTile({
     super.key,
     required this.uid,
-    this.profilePicUrl,
+    this.profilePicUrl, // deprecated; uses API instead to prevent low-res preview being passed in
     required this.freeOnly,
     required this.inFiveMinutesNotifier,
   });
@@ -110,7 +110,7 @@ class _FriendTileState extends State<FriendTile> {
         builder: (context) => IndividualFriendPage(
           userId: widget.uid,
           name: name,
-          profilePicUrl: widget.profilePicUrl!,
+          profilePicUrl: context.read<BaseAPI>().getPfpUrl(widget.uid),
         ),
       ),
     );

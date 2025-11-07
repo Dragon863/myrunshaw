@@ -131,7 +131,6 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Expanded(
-                        flex: 3,
                         child: Card(
                           elevation: 1,
                           child: Padding(
@@ -155,43 +154,40 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
                           ),
                         ),
                       ),
-                      Expanded(
-                        flex: 1,
-                        child: Card(
-                          elevation: 1,
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => SplitTimetablePage(
-                                    friendId: widget.userId,
-                                    friendName: widget.name,
-                                  ),
+                      Card(
+                        elevation: 1,
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => SplitTimetablePage(
+                                  friendId: widget.userId,
+                                  friendName: widget.name,
                                 ),
-                              );
-                            },
-                            borderRadius: BorderRadius.circular(9),
-                            child: Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  const SizedBox(height: 4),
-                                  const Icon(Icons.vertical_split),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    "Split",
-                                    style: GoogleFonts.rubik(),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  const SizedBox(height: 6),
-                                ],
                               ),
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(9),
+                          child: Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                const SizedBox(height: 4),
+                                const Icon(Icons.vertical_split),
+                                const SizedBox(height: 4),
+                                Text(
+                                  "Split",
+                                  style: GoogleFonts.rubik(),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 6),
+                              ],
                             ),
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),

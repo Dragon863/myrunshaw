@@ -39,9 +39,14 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
+    super.initState();
     fetchPrefs();
     loadVersion();
-    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   Future<void> fetchPrefs() async {
@@ -499,12 +504,21 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                     Offstage(
-                      offstage: context.read<ThemeProvider>().isDarkMode ? false : true,
+                      offstage: context.read<ThemeProvider>().isDarkMode
+                          ? false
+                          : true,
                       child: ListTile(
                         title: const Text(
-                          "AMOLED Dark",
+                          "Ultra-dark mode",
                           style: TextStyle(
                             fontSize: 16,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        subtitle: const Text(
+                          "For AMOLED screens",
+                          style: TextStyle(
+                            fontSize: 12,
                             fontWeight: FontWeight.normal,
                           ),
                         ),
@@ -517,7 +531,6 @@ class _SettingsPageState extends State<SettingsPage> {
                           },
                         ),
                       ),
-                      
                     )
                   ],
                 ),

@@ -6,11 +6,13 @@ class RunshawAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
   final bool automaticallyImplyLeading;
+  final Color backgroundColor;
 
   const RunshawAppBar({
     required this.title,
     this.actions,
     this.automaticallyImplyLeading = true,
+    this.backgroundColor = Colors.red,
     super.key,
   });
 
@@ -18,7 +20,7 @@ class RunshawAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      backgroundColor: Colors.red,
+      backgroundColor: backgroundColor,
       automaticallyImplyLeading: automaticallyImplyLeading,
       title: Text(
         title,

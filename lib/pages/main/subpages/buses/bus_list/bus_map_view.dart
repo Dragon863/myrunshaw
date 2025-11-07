@@ -8,11 +8,13 @@ import 'package:runshaw/utils/theme/theme_provider.dart';
 class BusMapViewPage extends StatefulWidget {
   final String bay;
   final String busNumber;
+  final Color? color;
 
   const BusMapViewPage({
     super.key,
     required this.bay,
     required this.busNumber,
+    this.color = Colors.red,
   });
 
   @override
@@ -34,7 +36,10 @@ class _BusMapViewPageState extends State<BusMapViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: RunshawAppBar(title: "${widget.busNumber} Bus"),
+      appBar: RunshawAppBar(
+        title: "${widget.busNumber} Bus",
+        backgroundColor: widget.color ?? Colors.red,
+      ),
       body: SingleChildScrollView(
         child: Center(
           child: Container(
@@ -75,7 +80,7 @@ class _BusMapViewPageState extends State<BusMapViewPage> {
                               child: Icon(
                                 Icons.location_pin,
                                 size: constraints.biggest.height * 0.15,
-                                color: Colors.red,
+                                color: widget.color,
                               ),
                             );
                           },
@@ -101,7 +106,7 @@ class _BusMapViewPageState extends State<BusMapViewPage> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 6, vertical: 0),
                           decoration: BoxDecoration(
-                            color: Colors.red,
+                            color: widget.color,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(

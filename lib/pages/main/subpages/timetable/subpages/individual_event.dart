@@ -76,6 +76,7 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
     final api = context.read<BaseAPI>();
     final fetchedFriends = await api.getFriends();
     final List<Widget> friendsList = [];
+    
     for (final friend in fetchedFriends) {
       final String userId = friend['userid'];
       final List<Event> events = await api.fetchEvents(

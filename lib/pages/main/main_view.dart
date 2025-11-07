@@ -106,8 +106,10 @@ class _MainPageState extends State<MainPage> {
                   textAlign: TextAlign.center,
                 ),
                 backgroundColor: context.read<ThemeProvider>().isLightMode
-                  ? Colors.red
-                  : (context.read<ThemeProvider>().amoledEnabled ? const Color(0xFF1E1E1E) : Theme.of(context).colorScheme.surface),
+                    ? Colors.red
+                    : (context.read<ThemeProvider>().amoledEnabled
+                        ? Colors.black
+                        : Theme.of(context).colorScheme.surface),
                 padding: const EdgeInsets.only(top: 4),
                 drawerIconColor: Colors.white,
               ),
