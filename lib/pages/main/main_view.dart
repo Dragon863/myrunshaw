@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +30,7 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     loadNotifications();
     try {
+      // On android, dragging from the side goes back
       isDraggable = Platform.isIOS;
     } catch (e) {
       isDraggable = false;
@@ -72,49 +74,63 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: context.read<ThemeProvider>().isLightMode
-          ? Colors.red
-          : (Theme.of(context).colorScheme.surface),
-      child: SafeArea(
-        child: Scaffold(
-          body: SliderDrawer(
-            key: _sliderDrawerKey,
-            sliderOpenSize: 200,
-            isDraggable: isDraggable,
-            slider: SliderView(
-                currentIndex: _currentIndex,
-                notification: notification,
-                showNotifs: showNotifs,
-                onItemClick: (title, index) async {
-                  _sliderDrawerKey.currentState!.closeSlider();
-                  setState(() {
-                    this.title = title;
-                    _currentIndex = index;
-                  });
-                  await loadNotifications();
-                }),
-            appBar: SliderAppBar(
-              config: SliderAppBarConfig(
-                title: Text(
-                  title,
-                  style: GoogleFonts.rubik(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+    return AnnotatedRegion(
+      // This method isn't exactly standard, however the SliderDrawer library doesn't
+      // provide a method to set the system overlay style, so in light mode this leads
+      // to dark icons which don't contrast well with the red app bar. This overrides
+      // the default behavior and ensures the icons are always light in colour.
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness:
+            Brightness.light, // makes icons light in Android
+        statusBarBrightness: Brightness.dark, // makes icons light in iOS
+      ),
+      child: Container(
+        color: context.read<ThemeProvider>().isLightMode
+            ? Colors.red
+            : (context.read<ThemeProvider>().amoledEnabled
+                ? Colors.black
+                : Theme.of(context).colorScheme.surface),
+        child: SafeArea(
+          child: Scaffold(
+            body: SliderDrawer(
+              key: _sliderDrawerKey,
+              sliderOpenSize: 200,
+              isDraggable: isDraggable,
+              slider: SliderView(
+                  currentIndex: _currentIndex,
+                  notification: notification,
+                  showNotifs: showNotifs,
+                  onItemClick: (title, index) async {
+                    _sliderDrawerKey.currentState!.closeSlider();
+                    setState(() {
+                      this.title = title;
+                      _currentIndex = index;
+                    });
+                    await loadNotifications();
+                  }),
+              appBar: SliderAppBar(
+                config: SliderAppBarConfig(
+                  title: Text(
+                    title,
+                    style: GoogleFonts.rubik(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
+                  backgroundColor: context.read<ThemeProvider>().isLightMode
+                      ? Colors.red
+                      : (context.read<ThemeProvider>().amoledEnabled
+                          ? Colors.black
+                          : Theme.of(context).colorScheme.surface),
+                  padding: const EdgeInsets.only(top: 4),
+                  drawerIconColor: Colors.white,
                 ),
-                backgroundColor: context.read<ThemeProvider>().isLightMode
-                    ? Colors.red
-                    : (context.read<ThemeProvider>().amoledEnabled
-                        ? Colors.black
-                        : Theme.of(context).colorScheme.surface),
-                padding: const EdgeInsets.only(top: 4),
-                drawerIconColor: Colors.white,
               ),
+              child: getPages(showNotifs)[_currentIndex],
             ),
-            child: getPages(showNotifs)[_currentIndex],
           ),
         ),
       ),

@@ -55,13 +55,6 @@ class BaseApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarBrightness: Brightness.light,
-      ),
-      // Prevents that weird different coloured status bar on android
-    );
     return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
       return MaterialApp(
         title: 'My Runshaw',
@@ -83,6 +76,14 @@ class BaseApp extends StatelessWidget {
             ),
             behavior: SnackBarBehavior.floating,
             insetPadding: const EdgeInsets.all(10),
+          ),
+          appBarTheme: const AppBarTheme(
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness:
+                  Brightness.light, // makes icons light in Android
+              statusBarBrightness: Brightness.dark, // makes icons light in iOS
+            ),
           ),
         ),
         darkTheme: ThemeData(
@@ -108,6 +109,14 @@ class BaseApp extends StatelessWidget {
             ),
             behavior: SnackBarBehavior.floating,
             insetPadding: const EdgeInsets.all(10),
+          ),
+          appBarTheme: const AppBarTheme(
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness:
+                  Brightness.light, // makes icons light in Android
+              statusBarBrightness: Brightness.dark, // makes icons light in iOS
+            ),
           ),
         ),
         home: const SplashPage(),

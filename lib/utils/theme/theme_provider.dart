@@ -22,12 +22,12 @@ class ThemeProvider with ChangeNotifier {
       (_themeMode == ThemeMode.system &&
           WidgetsBinding.instance.platformDispatcher.platformBrightness ==
               Brightness.light);
-  
+
   Future<void> initTheme() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? theme = prefs.getString('theme');
     final bool? isAmoled = prefs.getBool("isAmoled");
-    
+
     if (isAmoled == true) {
       amoledEnabled = true;
     } else {
@@ -48,13 +48,6 @@ class ThemeProvider with ChangeNotifier {
 
   Future<void> setThemeMode(ThemeMode value) async {
     _themeMode = value;
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-    );
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     if (value == ThemeMode.system) {
       prefs.remove('theme');
