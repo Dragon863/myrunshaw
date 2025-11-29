@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Reset Password</title>
+    <link href="https://cdn.jsdelivr.net/npm/beercss@3.4.9/dist/cdn/beer.min.css" rel="stylesheet">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/beercss@3.12.13/dist/cdn/beer.min.js"></script>
+    <script type="module"
+        src="https://cdn.jsdelivr.net/npm/material-dynamic-colors@1.1.2/dist/cdn/material-dynamic-colors.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@21.4.0"></script>
+</head>
+
+<body style="--primary: #E53009">
+    <main class="responsive">
+        <header class="round">
+            <nav>
+                <a href="https://myrunshaw.danieldb.uk">
+                    <button class="circle transparent">
+                        <i>home</i>
+                    </button>
+                </a>
+
+                <h5 class="max center-align">Password Reset</h5>
+                <button class="square transparent round">
+                    <img class="responsive"
+                        src="https://raw.githubusercontent.com/Dragon863/myrunshaw/refs/heads/main/assets/img/logo.png">
+                </button>
+            </nav>
+        </header>
+        <article class="round">
+            <div class="center-align middle-align">
+                <form>
+                    <div class="field label border medium-margin">
+                        <input id="email" type="email" name="code" required style="min-width: 360px;" readonly>
+                        <label>Email</label>
+                    </div>
+                    <div class="field label border medium-margin suffix">
+                        <input id="password1" type="password" name="password" required>
+                        <label>New password</label>
+                        <i class="front">visibility</i>
+                    </div>
+                    <div class="field label border medium-margin suffix">
+                        <input id="password2" type="password" name="confirm" required>
+                        <label>Retype new password</label>
+                        <i class="front">visibility</i>
+                    </div>
+                    <button class="btn responsive" onclick="submitRequest(event)">Reset</button>
+                </form>
+            </div>
+        </article>
+    </main>
+    <script>
+        const client = new Appwrite.Client();
+        const account = new Appwrite.Account(client);
+
+        client
+            .setEndpoint('https://appwrite.danieldb.uk/v1')
+            .setProject('66fdb56000209ea9ac18');
+
+        document.querySelectorAll('.field.suffix').forEach(field => {
+            const input = field.querySelector('input');
+            const icon = field.querySelector('i.front');
+
+            if (!input || !icon) return;
+
+            icon.style.cursor = "pointer";
+
+            icon.addEventListener('click', () => {
+                const isPassword = input.type === "password";
+                input.type = isPassword ? "text" : "password";
+                icon.textContent = isPassword ? "visibility_off" : "visibility";
+            });
+        });
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('userId');
+        const expiry = urlParams.get('expire');
+        const secret = urlParams.get('secret');
+
+        if (!userId || !expiry || !secret) {
+            alert("Invalid reset link. Please request a new one.");
+        }
+
+        document.getElementById("email").value = `${userId}@student.runshaw.ac.uk`;
+
+        const expiryDate = new Date(expiry);
+        if (Date.now() > expiryDate) {
+            alert("Sorry, that link is expired. Please create a new one!");
+        }
+
+        async function submitRequest(e) {
+            e.preventDefault();
+
+            const pw1 = document.getElementById("password1").value;
+            const pw2 = document.getElementById("password2").value;
+
+            if (pw1 !== pw2) {
+                alert("Passwords do not match.");
+                return;
+            }
+
+            try {
+                const result = await account.updateRecovery({
+                    userId,
+                    secret,
+                    password: pw2
+                });
+
+                alert("Password updated successfully! You can now log in using it");
+                console.log(result);
+            } catch (err) {
+                console.error(err);
+
+                const msg =
+                    err?.message ||
+                    err?.response?.message ||
+                    "An unexpected error occurred.";
+
+                alert(`Error: ${msg}`);
+            }
+        }
+    </script>
+</body>
+
+</html>
