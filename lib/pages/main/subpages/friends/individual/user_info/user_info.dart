@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
@@ -31,18 +32,29 @@ class _UserInfoPageState extends State<UserInfoPage> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
+          gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
             Colors.red,
             Colors.red,
-            context.read<ThemeProvider>().isLightMode ? Colors.white : (context.read<ThemeProvider>().amoledEnabled ? Colors.black : const Color(0xFF1E1E1E)),
-            context.read<ThemeProvider>().isLightMode ? Colors.white : (context.read<ThemeProvider>().amoledEnabled ? Colors.black : const Color(0xFF1E1E1E)),
+            context.read<ThemeProvider>().isLightMode
+                ? Colors.white
+                : (context.read<ThemeProvider>().amoledEnabled
+                    ? Colors.black
+                    : const Color(0xFF1E1E1E)),
+            context.read<ThemeProvider>().isLightMode
+                ? Colors.white
+                : (context.read<ThemeProvider>().amoledEnabled
+                    ? Colors.black
+                    : const Color(0xFF1E1E1E)),
           ],
-          stops: const [0.0, 0.5, 0.5, 1.0]
-        )
-      ),
+              stops: const [
+            0.0,
+            0.5,
+            0.5,
+            1.0
+          ])),
       child: SafeArea(
         child: Scaffold(
           appBar: const RunshawAppBar(title: "Profile"),
@@ -96,7 +108,8 @@ class _UserInfoPageState extends State<UserInfoPage> {
                 ListTile(
                   onTap: () async {
                     if (!await launchUrl(
-                      Uri.parse("mailto:${widget.id}@student.runshaw.ac.uk"),
+                      Uri.parse(
+                          "mailto:${widget.id}${MyRunshawConfig.emailExtension}"),
                     )) {
                       throw Exception('Could not launch email');
                     }
@@ -105,7 +118,8 @@ class _UserInfoPageState extends State<UserInfoPage> {
                     'Email',
                     style: GoogleFonts.rubik(fontWeight: FontWeight.bold),
                   ),
-                  subtitle: Text('${widget.id}@student.runshaw.ac.uk'),
+                  subtitle:
+                      Text('${widget.id}${MyRunshawConfig.emailExtension}'),
                   trailing: const Icon(Icons.email),
                 ),
                 const SizedBox(height: 8),
@@ -175,5 +189,5 @@ class _UserInfoPageState extends State<UserInfoPage> {
         ),
       ),
     );
-  } 
+  }
 }

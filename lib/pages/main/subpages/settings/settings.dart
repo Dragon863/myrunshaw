@@ -451,7 +451,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ],
                 ),
                 Text(
-                  email.replaceAll("@student.runshaw.ac.uk", ""),
+                  email.replaceAll(MyRunshawConfig.emailExtension, ""),
                   style: GoogleFonts.rubik(
                     fontSize: 16,
                     fontWeight: FontWeight.normal,

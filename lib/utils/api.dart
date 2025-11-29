@@ -109,7 +109,7 @@ class BaseAPI extends ChangeNotifier {
       {required String email, required String password}) async {
     String userId = "";
     userId = email
-        .replaceAll("@student.runshaw.ac.uk", "")
+        .replaceAll(MyRunshawConfig.emailExtension, "")
         .toLowerCase()
         .split("-")
         .first;
@@ -117,7 +117,7 @@ class BaseAPI extends ChangeNotifier {
     loadUser();
     final user = await _account.create(
       userId: userId,
-      email: "$userId@student.runshaw.ac.uk",
+      email: "$userId${MyRunshawConfig.emailExtension}",
       password: password,
     );
     _currentUser = user;
@@ -232,12 +232,12 @@ class BaseAPI extends ChangeNotifier {
   Future<void> createEmailSession(
       {required String email, required String password}) async {
     if (email.contains("-")) {
-      email = email.split("-").first.replaceAll("@student.runshaw.ac.uk", "");
+      email = email.split("-").first.replaceAll(MyRunshawConfig.emailExtension, "");
     } else {
-      email = email.replaceAll("@student.runshaw.ac.uk", "");
+      email = email.replaceAll(MyRunshawConfig.emailExtension, "");
     }
     await _account.createEmailPasswordSession(
-      email: "$email@student.runshaw.ac.uk",
+      email: "$email${MyRunshawConfig.emailExtension}",
       password: password,
     );
     _currentUser = await Account(_client).get();

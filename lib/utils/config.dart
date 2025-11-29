@@ -19,6 +19,8 @@ class MyRunshawConfig {
       //"http://192.168.1.101:8080";
       "https://runshaw-pwd-api.danieldb.uk";
 
+  static const String emailExtension = "@student.runshaw.ac.uk";
+
   static const busNumbers = [
     '102',
     '103',

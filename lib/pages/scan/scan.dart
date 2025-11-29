@@ -11,6 +11,7 @@ import 'package:runshaw/main.dart';
 import 'package:runshaw/pages/login/password_reset_login.dart';
 import 'package:runshaw/pages/scan/controller.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
 
 class ScanPage extends StatefulWidget {
@@ -328,7 +329,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                                       try {
                                         await api.createUser(
                                           email:
-                                              "$studentID@student.runshaw.ac.uk",
+                                              "$studentID${MyRunshawConfig.emailExtension}",
                                           password: password,
                                         );
                                         TextInput.finishAutofillContext();
@@ -401,7 +402,8 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                                   password = controllerPwd.text;
                                   try {
                                     await api.createEmailSession(
-                                      email: "$studentID@student.runshaw.ac.uk",
+                                      email:
+                                          "$studentID${MyRunshawConfig.emailExtension}",
                                       password: password,
                                     );
                                     TextInput.finishAutofillContext();

@@ -74,7 +74,7 @@ class _EmailPageState extends State<EmailPage> {
                           'reset password here',
                           style: TextStyle(color: Colors.red),
                         ),
-                        onTap: () {
+                        onTap: () async {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
