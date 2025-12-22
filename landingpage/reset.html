@@ -51,13 +51,6 @@
         </article>
     </main>
     <script>
-        const client = new Appwrite.Client();
-        const account = new Appwrite.Account(client);
-
-        client
-            .setEndpoint('https://appwrite.danieldb.uk/v1')
-            .setProject('66fdb56000209ea9ac18');
-
         document.querySelectorAll('.field.suffix').forEach(field => {
             const input = field.querySelector('input');
             const icon = field.querySelector('i.front');
@@ -66,12 +59,30 @@
 
             icon.style.cursor = "pointer";
 
-            icon.addEventListener('click', () => {
+            icon.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+
                 const isPassword = input.type === "password";
                 input.type = isPassword ? "text" : "password";
                 icon.textContent = isPassword ? "visibility_off" : "visibility";
-            });
+            }, true);
         });
+
+        if (!window.Appwrite) {
+            console.error('Appwrite SDK not loaded. Password toggle will work, but reset will fail.');
+            alert('Sorry, an unexpected error occurred. Please refresh and try again. If the problem persists, contact support.');
+        }
+
+        const client = window.Appwrite ? new Appwrite.Client() : null;
+        const account = window.Appwrite ? new Appwrite.Account(client) : null;
+
+        if (client) {
+            client
+                .setEndpoint('https://appwrite.danieldb.uk/v1')
+                .setProject('66fdb56000209ea9ac18');
+        }
 
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('userId');
@@ -91,6 +102,11 @@
 
         async function submitRequest(e) {
             e.preventDefault();
+
+            if (!account) {
+                alert('Appwrite failed to load. Please refresh and try again.');
+                return;
+            }
 
             const pw1 = document.getElementById("password1").value;
             const pw2 = document.getElementById("password2").value;

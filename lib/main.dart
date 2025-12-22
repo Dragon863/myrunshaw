@@ -23,15 +23,14 @@ void main() async {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   debugLog("Starting app...", level: 0);
-  // Initialise Aptabase
-  await Aptabase.init(
-    MyRunshawConfig.aptabaseProjectId,
-    const InitOptions(
-      host: MyRunshawConfig.aptabaseHost,
-      printDebugMessages: kDebugMode, // Only print debug messages in debug mode
-    ),
-  );
-  debugLog("Aptabase initialised", level: 0);
+  
+  final config = PostHogConfig('phc_FDCLEAW9y4wNcOZzze88JJPz9fPHt7PKBjTyrlZQALO');
+  config.debug = true;
+  config.captureApplicationLifecycleEvents = true;
+  config.host = 'https://eu.i.posthog.com';
+  await Posthog().setup(config);
+
+  debugLog("Analytics ready", level: 0);
 
   final themeProvider = ThemeProvider();
   await themeProvider.initTheme();
