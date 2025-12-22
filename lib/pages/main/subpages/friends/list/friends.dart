@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/widgets/list/friends_list.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/widgets/requests/friend_requests_list.dart';
@@ -23,6 +24,13 @@ class _FriendsPageState extends State<FriendsPage> {
       SnackBar(
         content: Text(response),
       ),
+    );
+    await Posthog().capture(
+      eventName: 'friend_request_sent',
+      properties: {
+        'student_id': studentId,
+        'response_message': response,
+      },
     );
   }
 

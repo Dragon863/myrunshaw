@@ -59,7 +59,8 @@ class PrivacyPolicyPage extends StatelessWidget {
                   '• Full Name: Used to personalize your experience within the app and to display to friends added by the User within the app\n'
                   '• Password Hash: Securely stored to protect your account credentials.\n'
                   '• Device Information: Collected to provide a personalized experience and to improve the app\'s features and functionality.\n'
-                  '• Student ID: Used as a unique identifier to distinguish users\n',
+                  '• Student ID: Used as a unique identifier to distinguish users\n'
+                  '• Basic Analytics Data: We use PostHog, a GDPR-compliant analytics service, to collect non-personal data such as app usage patterns, crash reports, and performance metrics to help improve the app for everyone.\n',
                   style: TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 20),
@@ -84,7 +85,7 @@ class PrivacyPolicyPage extends StatelessWidget {
                 const SizedBox(height: 5),
                 const Text(
                   'Our processing of your personal data is based on:\n'
-                  '• Your Consent: By creating an account or installing the app, you consent to the collection and use of your data as outlined in this policy.\n'
+                  '• Your Consent: By creating an account or installing the app, you consent to the collection and use of your data as outlined in this policy. You can opt out of analytics tracking at any time in settings.\n'
                   '• Legitimate Interests: We have a legitimate interest in processing your data to operate and maintain the app effectively.',
                   style: TextStyle(fontSize: 16),
                 ),

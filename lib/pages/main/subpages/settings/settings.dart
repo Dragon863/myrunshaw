@@ -10,6 +10,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/settings/add_buses.dart';
 import 'package:runshaw/pages/main/subpages/settings/popup_crop.dart';
@@ -699,6 +700,36 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ),
                   children: [
+                    ListTile(
+                      title: const Text(
+                        "Analytics Opt-Out",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      trailing: FutureBuilder<bool>(
+                        future: Posthog().isOptOut(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          }
+                          final bool enabled = snapshot.data ?? true;
+                          return Switch(
+                            value: enabled,
+                            onChanged: (bool value) async {
+                              if (value) {
+                                await Posthog().enable();
+                              } else {
+                                await Posthog().disable();
+                              }
+                              setState(() {});
+                            },
+                          );
+                        },
+                      ),
+                    ),
                     ListTile(
                       title: const Text(
                         "Reset Profile Picture Cache",

@@ -1,4 +1,3 @@
-import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,6 +15,7 @@ import 'package:runshaw/utils/logging.dart';
 import 'package:runshaw/utils/theme/dark.dart';
 import 'package:runshaw/utils/theme/light.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,9 +23,9 @@ void main() async {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   debugLog("Starting app...", level: 0);
-  
-  final config = PostHogConfig('phc_FDCLEAW9y4wNcOZzze88JJPz9fPHt7PKBjTyrlZQALO');
-  config.debug = true;
+
+  final config = PostHogConfig(MyRunshawConfig.posthogApiKey);
+  config.debug = kDebugMode; // Enable debug logs in debug mode
   config.captureApplicationLifecycleEvents = true;
   config.host = 'https://eu.i.posthog.com';
   await Posthog().setup(config);
@@ -132,6 +132,9 @@ class BaseApp extends StatelessWidget {
           // We can only add routes here that don't need data passing to them
         },
         navigatorKey: globalKey,
+        navigatorObservers: [
+          PosthogObserver(),
+        ],
         themeMode: themeProvider.themeMode,
       );
     });

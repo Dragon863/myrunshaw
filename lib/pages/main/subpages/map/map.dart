@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_map/flutter_image_map.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:runshaw/pages/main/subpages/map/individual_map.dart';
 import 'package:runshaw/pages/main/subpages/map/locations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,7 +16,7 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> {
   final TextEditingController _searchController = TextEditingController();
 
-  void submit() {
+  void submit() async {
     final String value = _searchController.text;
     if (value.isEmpty) {
       return;
@@ -24,6 +25,9 @@ class _MapPageState extends State<MapPage> {
       for (final Map floor in location.value) {
         for (final room in floor['rooms']) {
           if (room.toLowerCase() == value.toLowerCase()) {
+            await Posthog().capture(
+              eventName: 'map_room_search_success',
+            );
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -39,6 +43,11 @@ class _MapPageState extends State<MapPage> {
         }
       }
     }
+
+    await Posthog().capture(
+      eventName: 'map_room_search_failed',
+    );
+
     showDialog(
       context: context,
       builder: (BuildContext context) {

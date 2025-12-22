@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:appwrite/models.dart';
-import 'package:aptabase_flutter/aptabase_flutter.dart';
+import 'package:appwrite/models.dart'
+    hide Transaction; // Conflict with RunshawPay transaction
 import 'package:flutter/foundation.dart';
 import 'package:appwrite/appwrite.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:http/http.dart' as http;
 import 'package:runshaw/utils/config.dart';
@@ -59,6 +60,13 @@ class BaseAPI extends ChangeNotifier {
       if (!kIsWeb) {
         if (!Platform.isLinux) {
           OneSignal.login(_currentUser.$id);
+          await Posthog().identify(userId: _currentUser.$id, userProperties: {
+            "name": _currentUser.name,
+            "email": _currentUser.email,
+            "student_id": _currentUser.$id,
+          }, userPropertiesSetOnce: {
+            "date_of_first_log_in": DateTime.now().toIso8601String(),
+          });
         }
       }
     } catch (e) {
@@ -232,7 +240,8 @@ class BaseAPI extends ChangeNotifier {
   Future<void> createEmailSession(
       {required String email, required String password}) async {
     if (email.contains("-")) {
-      email = email.split("-").first.replaceAll(MyRunshawConfig.emailExtension, "");
+      email =
+          email.split("-").first.replaceAll(MyRunshawConfig.emailExtension, "");
     } else {
       email = email.replaceAll(MyRunshawConfig.emailExtension, "");
     }
@@ -283,8 +292,8 @@ class BaseAPI extends ChangeNotifier {
       throw "Error incrementing pfp version";
     }
     await cachePfpVersions();
-    await Aptabase.instance.trackEvent(
-      "updated-pfp",
+    await Posthog().capture(
+      eventName: 'pfp_updated',
     );
   }
 
@@ -323,8 +332,8 @@ class BaseAPI extends ChangeNotifier {
     if (response.statusCode != 201) {
       throw "Error syncing timetable";
     }
-    await Aptabase.instance.trackEvent(
-      "synced-timetable",
+    await Posthog().capture(
+      eventName: 'timetable_synced',
     );
     return;
   }
@@ -343,8 +352,8 @@ class BaseAPI extends ChangeNotifier {
     if (response.statusCode != 201) {
       throw "Error associating timetable";
     }
-    await Aptabase.instance.trackEvent(
-      "associated-timetable",
+    await Posthog().capture(
+      eventName: 'associated_timetable_url',
     );
     return;
   }
@@ -602,14 +611,8 @@ class BaseAPI extends ChangeNotifier {
 
       // Set the migration flag
       await prefs.setBool("migrated_buses", true);
-      await Aptabase.instance.trackEvent(
-        "migrated-buses",
-      );
     } catch (e) {
       debugLog("Error migrating buses: $e");
-      await Aptabase.instance.trackEvent("migrate-buses-error", {
-        "error": e.toString(),
-      });
     }
   }
 
@@ -677,8 +680,8 @@ class BaseAPI extends ChangeNotifier {
     Preferences currentPrefs = await account!.getPrefs();
     currentPrefs.data["onboarding_complete"] = true;
     await account!.updatePrefs(prefs: currentPrefs.data);
-    await Aptabase.instance.trackEvent(
-      "onboarding-complete",
+    await Posthog().capture(
+      eventName: 'onboard_complete',
     );
   }
 
@@ -699,8 +702,8 @@ class BaseAPI extends ChangeNotifier {
     if (response.statusCode != 200) {
       throw "Error closing account";
     }
-    await Aptabase.instance.trackEvent(
-      "close-account",
+    await Posthog().capture(
+      eventName: 'account_closed',
     );
   }
 
@@ -714,8 +717,8 @@ class BaseAPI extends ChangeNotifier {
       },
       body: jsonEncode({'new_password': newPassword}),
     );
-    await Aptabase.instance.trackEvent(
-      "reset-password",
+    await Posthog().capture(
+      eventName: 'password_reset_attempt',
     );
     return jsonDecode(response.body)["message"];
   }

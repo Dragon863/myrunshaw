@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/pay/components/transactioncard.dart';
 import 'package:runshaw/utils/api.dart';
@@ -50,7 +51,12 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
     final BaseAPI api = context.read<BaseAPI>();
     try {
       final transactions = await api.getRunshawPayTransactions();
-
+      await Posthog().capture(
+        eventName: 'runshawpay_transactions_loaded',
+        properties: {
+          'transaction_count': transactions.length,
+        },
+      );
       if (transactions.isEmpty) {
         setState(() {
           cardWidgets = [const Center(child: Text("No transactions found."))];
@@ -134,6 +140,12 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
         balance = "Unknown";
         loadingBalance = false;
       });
+      await Posthog().capture(
+        eventName: 'runshawpay_transactions_error',
+        properties: {
+          'error_cause': e.cause,
+        },
+      );
     }
   }
 
@@ -194,12 +206,12 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
                   children: const <TextSpan>[
                     TextSpan(
                         text:
-                            "Thanks for trying out the beta RunshawPay integration! Please note:\n "),
+                            "Thanks for trying out the RunshawPay integration! Please note:\n "),
                     TextSpan(text: "- This is "),
                     TextSpan(
-                        text: "experimental",
+                        text: "unofficial",
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(text: "! It may not work as expected.\n"),
+                    TextSpan(text: "; it may not work as expected.\n"),
                     TextSpan(
                         text:
                             " - The \"Top Up\" button redirects to the official college top up page; this app is "),
@@ -351,6 +363,9 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
                     content: Text("Couldn't open top up page."),
                   ),
                 );
+                await Posthog().capture(
+                  eventName: 'runshawpay_topup_launch_failed',
+                );
               }
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -358,12 +373,21 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
                   content: Text("Top up URL is not available."),
                 ),
               );
+              await Posthog().capture(
+                eventName: 'runshawpay_topup_url_null',
+              );
             }
           } on RunshawPayException catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text("An error occurred: ${e.cause}"),
               ),
+            );
+            await Posthog().capture(
+              eventName: 'runshawpay_topup_error',
+              properties: {
+                'error_cause': e.cause,
+              },
             );
           }
         },

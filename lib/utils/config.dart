@@ -6,8 +6,10 @@ class MyRunshawConfig {
   static const String inAppDbId = "inapp";
   static const String noticesCollectionId = "notices";
 
-  static const String aptabaseProjectId = "A-SH-5552019394";
-  static const String aptabaseHost = "https://analytics.danieldb.uk";
+  // static const String aptabaseProjectId = "A-SH-5552019394";
+  // static const String aptabaseHost = "https://analytics.danieldb.uk";
+  static const String posthogApiKey =
+      "phc_FDCLEAW9y4wNcOZzze88JJPz9fPHt7PKBjTyrlZQALO";
 
   static const String oneSignalAppId =
       "001b2238-9af7-49f1-bd60-6dfe630b7175"; //"72211047-33fc-4036-96d8-100c4a7bf85a";

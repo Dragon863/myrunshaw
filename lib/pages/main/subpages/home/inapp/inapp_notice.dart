@@ -1,6 +1,6 @@
-import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -104,9 +104,9 @@ class InAppNotice extends StatelessWidget {
                         final String noticeId = data["\$id"];
 
                         prefs.setBool(noticeId, true); // Set the notice as read
-                        await Aptabase.instance.trackEvent(
-                          "inapp_notice_read",
-                          {
+                        await Posthog().capture(
+                          eventName: "inapp_notice_read",
+                          properties: {
                             "id": noticeId,
                           },
                         );
@@ -129,9 +129,9 @@ class InAppNotice extends StatelessWidget {
     final String noticeId = data["\$id"];
 
     prefs.setBool(noticeId, true); // Set the notice as read
-    await Aptabase.instance.trackEvent(
-      "inapp_notice_read",
-      {
+    await Posthog().capture(
+      eventName: "inapp_notice_read",
+      properties: {
         "id": noticeId,
       },
     );

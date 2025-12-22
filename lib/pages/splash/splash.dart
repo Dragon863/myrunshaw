@@ -1,12 +1,12 @@
 import 'dart:io';
 
-import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/error/server_issues.dart';
 import 'package:runshaw/pages/login/stage1.dart';
@@ -193,8 +193,8 @@ class _SplashPageState extends State<SplashPage> {
         ),
         (route) => false,
       );
-      await Aptabase.instance.trackEvent(
-        "app_open",
+      await Posthog().capture(
+        eventName: 'app_opened',
       );
     } else {
       Navigator.pushAndRemoveUntil(
