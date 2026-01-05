@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
+import 'package:gaimon/gaimon.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/utils/api.dart';
@@ -102,6 +103,9 @@ class _MainPageState extends State<MainPage> {
                   notification: notification,
                   showNotifs: showNotifs,
                   onItemClick: (title, index) async {
+                    if (await Gaimon.canSupportsHaptic) {
+                      Gaimon.selection();
+                    }
                     _sliderDrawerKey.currentState!.closeSlider();
                     setState(() {
                       this.title = title;

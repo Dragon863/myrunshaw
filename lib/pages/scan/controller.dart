@@ -7,3 +7,13 @@ bool validate(String input) {
     return false;
   }
 }
+
+bool validateNonBadge(String input) {
+  RegExp regExp = RegExp(r'^[a-zA-Z]{3}\d{8}$');
+
+  if (regExp.hasMatch(input)) {
+    return true;
+  } else {
+    return false;
+  }
+}

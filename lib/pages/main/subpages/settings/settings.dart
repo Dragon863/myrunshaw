@@ -720,9 +720,11 @@ class _SettingsPageState extends State<SettingsPage> {
                             value: enabled,
                             onChanged: (bool value) async {
                               if (value) {
-                                await Posthog().enable();
-                              } else {
                                 await Posthog().disable();
+                                print("Disabled analytics");
+                              } else {
+                                await Posthog().enable();
+                                print("Enabled analytics");
                               }
                               setState(() {});
                             },
