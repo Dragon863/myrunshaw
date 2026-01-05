@@ -35,7 +35,7 @@ class PrivacyPolicyPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 const Text(
-                  'Effective Date: 14th December 2024',
+                  'Effective Date: 5th January 2026',
                   style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
                 ),
                 const SizedBox(height: 20),
