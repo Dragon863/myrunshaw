@@ -16,6 +16,7 @@ import 'package:runshaw/pages/onboarding/onboarding.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/logging.dart';
+import 'package:runshaw/utils/spinner/loading_indicator.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
 
 class SplashPage extends StatefulWidget {
@@ -82,6 +83,18 @@ class _SplashPageState extends State<SplashPage> {
     });
 
     await OneSignal.Notifications.requestPermission(true);
+  }
+
+  Future<void> _setupAnalytics() async {
+    final config = PostHogConfig(MyRunshawConfig.posthogApiKey);
+    config.debug = kDebugMode;
+    config.captureApplicationLifecycleEvents = true;
+    config.host = 'https://eu.i.posthog.com';
+    await Posthog().setup(config);
+    if (kDebugMode) {
+      Posthog().debug(true);
+    }
+    debugLog("Analytics ready", level: 0);
   }
 
   Future<bool> serverReachable() async {
@@ -171,6 +184,7 @@ class _SplashPageState extends State<SplashPage> {
       api.caching = _cacheData(api);
 
       if (!await isOnBoarded()) {
+        _setupAnalytics();
         return Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (context) => const OnBoardingPage(),
@@ -182,6 +196,7 @@ class _SplashPageState extends State<SplashPage> {
       setState(() {
         loadingStageText = "Let's go!";
       });
+
       Navigator.of(context).pushAndRemoveUntil(
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) => MainPage(
@@ -190,13 +205,18 @@ class _SplashPageState extends State<SplashPage> {
           transitionsBuilder: (context, animation, secondaryAnimation, child) =>
               FadeTransition(opacity: animation, child: child),
           transitionDuration: const Duration(milliseconds: 300),
+          settings: const RouteSettings(name: "/home"),
         ),
         (route) => false,
       );
-      await Posthog().capture(
-        eventName: 'app_opened',
-      );
+
+      _setupAnalytics().then((_) async {
+        await Posthog().capture(
+          eventName: 'app_opened',
+        );
+      });
     } else {
+      _setupAnalytics();
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
@@ -237,21 +257,29 @@ class _SplashPageState extends State<SplashPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Spacer(),
+            const Spacer(flex: 4),
             context.read<ThemeProvider>().isDarkMode
                 ? const CircleAvatar(
-                    radius: 120,
+                    radius: 130,
                     backgroundImage: AssetImage('assets/img/splash-dark.png'),
                     backgroundColor: Colors.transparent,
                     foregroundColor: Colors.transparent,
                   )
                 : const CircleAvatar(
-                    radius: 120,
+                    radius: 130,
                     backgroundImage: AssetImage('assets/img/logo-muted.png'),
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.red,
                   ),
-            const Spacer(),
+            SizedBox.square(
+              dimension: 56,
+              child: LoadingIndicator(
+                activeIndicatorColor: context.read<ThemeProvider>().isLightMode
+                    ? Colors.white
+                    : null,
+              ),
+            ),
+            const Spacer(flex: 3),
             Text(
               loadingStageText,
               style: GoogleFonts.rubik(

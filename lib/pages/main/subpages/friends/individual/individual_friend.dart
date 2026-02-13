@@ -11,6 +11,7 @@ import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
+import 'package:runshaw/utils/spinner/loading_indicator.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
 
 class IndividualFriendPage extends StatefulWidget {
@@ -203,17 +204,16 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
                       ),
                       child: ListView(
                         children: _events.isEmpty
-                            ? const [
-                                SizedBox(height: 20),
+                            ? [
+                                const SizedBox(height: 20),
                                 Center(
-                                  child: SizedBox(
-                                    width: 30,
-                                    height: 30,
-                                    child: CircularProgressIndicator(),
+                                  child: SizedBox.square(
+                                    dimension: 48,
+                                    child: LoadingIndicator(),
                                   ),
                                 ),
-                                SizedBox(height: 12),
-                                Text(
+                                const SizedBox(height: 12),
+                                const Text(
                                   "Fetching Events...",
                                   textAlign: TextAlign.center,
                                 )

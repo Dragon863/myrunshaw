@@ -297,7 +297,7 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
                         balance,
                         style: GoogleFonts.rubik(
                           fontSize: 50,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),

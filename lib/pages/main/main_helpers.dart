@@ -123,8 +123,9 @@ class _SliderViewState extends State<SliderView> {
                             Theme.of(context).scaffoldBackgroundColor,
                         child: const CircleAvatar(
                           radius: 70,
-                          backgroundImage:
-                              AssetImage('assets/img/logo-muted.png'),
+                          backgroundImage: AssetImage(
+                            'assets/img/logo-muted.png',
+                          ),
                         ),
                       ),
                     ),

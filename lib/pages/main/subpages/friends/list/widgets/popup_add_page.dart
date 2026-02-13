@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:gaimon/gaimon.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -78,8 +80,10 @@ class _PopupFriendAddPageState extends State<PopupFriendAddPage>
 
     if (valid) {
       String studentId = _barcode!.displayValue!.split("-")[0];
-      if (await Gaimon.canSupportsHaptic) {
-        Gaimon.medium();
+      if (!Platform.isLinux) {
+        if (await Gaimon.canSupportsHaptic) {
+          Gaimon.medium();
+        }
       }
       await returnValue(studentId);
     }
@@ -155,10 +159,12 @@ class _PopupFriendAddPageState extends State<PopupFriendAddPage>
               .then((value) async {
             if (value != null) {
               if (validateNonBadge(value)) {
-                if (await Gaimon.canSupportsHaptic) {
-                  Gaimon.medium();
+                if (!Platform.isLinux) {
+                  if (await Gaimon.canSupportsHaptic) {
+                    Gaimon.medium();
+                  }
+                  await returnValue(value);
                 }
-                await returnValue(value);
               }
             }
           });

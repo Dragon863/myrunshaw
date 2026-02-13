@@ -26,7 +26,7 @@
       android:value="https://eu.i.posthog.com" />
     <meta-data android:name="com.posthog.posthog.TRACK_APPLICATION_LIFECYCLE_EVENTS"
       android:value="true" />
-    <meta-data android:name="com.posthog.posthog.DEBUG" android:value="true" />
+    <meta-data android:name="com.posthog.posthog.AUTO_INIT" android:value="false" />
   </application>
   <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

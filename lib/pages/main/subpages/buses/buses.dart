@@ -22,42 +22,44 @@ class _BusesPageState extends State<BusesPage> {
   Timer? timer;
   bool _isInitialLoad = true;
 
-  Future<void> loadData() async {
+  Future<void> loadData({bool showLoading = true}) async {
     if (!mounted) return;
 
-    setState(() {
-      loading = true;
-      busPins = [];
-      richTextWidgets = [
-        RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            text: 'The ',
-            style: GoogleFonts.rubik(
-              fontSize: 24,
-              fontWeight: FontWeight.normal,
-              color: Theme.of(context).colorScheme.onSurface,
+    if (showLoading) {
+      setState(() {
+        loading = true;
+        busPins = [];
+        richTextWidgets = [
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              text: 'The ',
+              style: GoogleFonts.rubik(
+                fontSize: 24,
+                fontWeight: FontWeight.normal,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+              children: [
+                TextSpan(
+                  text: 'bus tracker',
+                  style: GoogleFonts.rubik(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                TextSpan(
+                  text: ' is loading...',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ],
             ),
-            children: [
-              TextSpan(
-                text: 'bus tracker',
-                style: GoogleFonts.rubik(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-              TextSpan(
-                text: ' is loading...',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-            ],
           ),
-        ),
-      ];
-    });
+        ];
+      });
+    }
     int index = 0;
 
     final api = context.read<BaseAPI>();
@@ -295,7 +297,7 @@ class _BusesPageState extends State<BusesPage> {
     super.initState();
     timer = Timer.periodic(
       const Duration(seconds: 20),
-      (Timer t) => loadData(),
+      (Timer t) => loadData(showLoading: false),
     );
   }
 

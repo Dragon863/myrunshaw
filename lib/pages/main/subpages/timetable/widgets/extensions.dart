@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 
 extension EventScheduleFiller on List<Event> {
@@ -72,4 +73,32 @@ extension EventScheduleFiller on List<Event> {
     sort((a, b) => a.start.compareTo(b.start));
     return this;
   }
+}
+
+void showExamAlert(BuildContext context) {
+  // Show popup warning about exam rooms
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text(
+          "Exam Info",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          """
+Rooms are not fixed for exams and are subject to change on the day without notice, and any changes made to your timetable after midnight are not shown in My Runshaw. Please refer to the official student portal for the most up-to-date information regarding your exam room.""",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text("OK"),
+          ),
+        ],
+        insetPadding: const EdgeInsets.all(6),
+      );
+    },
+  );
 }

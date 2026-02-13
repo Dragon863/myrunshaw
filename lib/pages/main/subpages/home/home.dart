@@ -259,7 +259,8 @@ class _HomePageState extends State<HomePage> {
                         userId: uid,
                         name: name,
                         profilePicUrl: api.getPfpUrl(
-                            uid), // NOT userId as I learned when everybody's picture turned into a cat!
+                          uid,
+                        ), // NOT userId as I learned when everybody's picture turned into a cat!
                       ),
                     ),
                   );
@@ -346,16 +347,22 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                   ),
                                   const SizedBox(height: 2),
-                                  Text(
-                                    truncateName(name),
-                                    style: GoogleFonts.rubik(
-                                      fontSize: 22,
+                                  Skeletonizer(
+                                    enabled: name == "Loading...",
+                                    child: Text(
+                                      truncateName(name),
+                                      style: GoogleFonts.rubik(
+                                        fontSize: 22,
+                                      ),
                                     ),
                                   ),
-                                  Text(
-                                    userId,
-                                    style: GoogleFonts.rubik(
-                                      fontWeight: FontWeight.w200,
+                                  Skeletonizer(
+                                    enabled: userId == "12345678901",
+                                    child: Text(
+                                      userId,
+                                      style: GoogleFonts.rubik(
+                                        fontWeight: FontWeight.w200,
+                                      ),
                                     ),
                                   ),
                                 ],

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
+import 'package:runshaw/utils/spinner/loading_indicator.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
 
 class ExtraBusPage extends StatefulWidget {
@@ -187,7 +188,10 @@ class _ExtraBusPageState extends State<ExtraBusPage> {
                     itemCount: _extraBuses.length,
                   ),
                   _loading
-                      ? const CircularProgressIndicator()
+                      ? SizedBox.square(
+                          dimension: 32,
+                          child: LoadingIndicator(),
+                        )
                       : Align(
                           alignment: Alignment.bottomRight,
                           child: ElevatedButton(

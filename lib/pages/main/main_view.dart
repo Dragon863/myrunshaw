@@ -103,8 +103,10 @@ class _MainPageState extends State<MainPage> {
                   notification: notification,
                   showNotifs: showNotifs,
                   onItemClick: (title, index) async {
-                    if (await Gaimon.canSupportsHaptic) {
-                      Gaimon.selection();
+                    if (!Platform.isLinux) {
+                      if (await Gaimon.canSupportsHaptic) {
+                        Gaimon.selection();
+                      }
                     }
                     _sliderDrawerKey.currentState!.closeSlider();
                     setState(() {

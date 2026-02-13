@@ -10,7 +10,6 @@ import 'package:runshaw/pages/privacy/privacy_policy.dart';
 import 'package:runshaw/pages/splash/splash.dart';
 import 'package:runshaw/pages/terms/terms_of_use.dart';
 import 'package:runshaw/utils/api.dart';
-import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/logging.dart';
 import 'package:runshaw/utils/theme/dark.dart';
 import 'package:runshaw/utils/theme/light.dart';
@@ -24,13 +23,8 @@ void main() async {
 
   debugLog("Starting app...", level: 0);
 
-  final config = PostHogConfig(MyRunshawConfig.posthogApiKey);
-  config.debug = kDebugMode; // Enable debug logs in debug mode
-  config.captureApplicationLifecycleEvents = true;
-  config.host = 'https://eu.i.posthog.com';
-  await Posthog().setup(config);
-
-  debugLog("Analytics ready", level: 0);
+  // new in v1.3.24, analytics are now initialised on the splash page so
+  // surveys are shown *after* automatic navigation to the home page, not before.
 
   final themeProvider = ThemeProvider();
   await themeProvider.initTheme();
@@ -118,7 +112,7 @@ class BaseApp extends StatelessWidget {
             ),
           ),
         ),
-        home: const SplashPage(),
+        initialRoute: '/splash',
         debugShowCheckedModeBanner: false,
         routes: <String, WidgetBuilder>{
           '/splash': (BuildContext context) => const SplashPage(),

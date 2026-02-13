@@ -195,6 +195,19 @@ class _SettingsPageState extends State<SettingsPage> {
         },
       );
 
+      // Timeout of 15 seconds, just in case!
+      Future.delayed(const Duration(seconds: 15), () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                "Sorry, that upload is taking longer than expected - please try again later."),
+          ),
+        );
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      });
+
       final Uint8List croppedBytes = (result as CropSuccess).croppedImage;
       final InputFile profilePicture = InputFile.fromBytes(
         bytes: croppedBytes,

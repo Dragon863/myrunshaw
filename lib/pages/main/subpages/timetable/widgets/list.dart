@@ -6,6 +6,7 @@ import 'package:runshaw/pages/main/subpages/timetable/widgets/events_card.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
 import 'package:runshaw/pages/sync/sync.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
+import 'package:runshaw/utils/spinner/loading_indicator.dart';
 
 class TimetableList extends StatefulWidget {
   final List<Event> events;
@@ -48,17 +49,16 @@ class _TimetableListState extends State<TimetableList> {
           : const AlwaysScrollableScrollPhysics(),
       shrinkWrap: true,
       children: widget.events.isEmpty && !emptyAndDense
-          ? const [
-              SizedBox(height: 20),
+          ? [
+              const SizedBox(height: 20),
               Center(
-                child: SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: CircularProgressIndicator(),
+                child: SizedBox.square(
+                  dimension: 30,
+                  child: LoadingIndicator(),
                 ),
               ),
-              SizedBox(height: 12),
-              Text(
+              const SizedBox(height: 12),
+              const Text(
                 "Fetching Events...",
                 textAlign: TextAlign.center,
               )
@@ -105,6 +105,10 @@ class _TimetableListState extends State<TimetableList> {
                                 event.summary != "" ? Colors.blue : Colors.red,
                             dense: widget.dense,
                             onTap: () {
+                              if (event.summary == '') {
+                                showExamAlert(context);
+                                return;
+                              }
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) => IndividualEventPage(
@@ -132,6 +136,10 @@ class _TimetableListState extends State<TimetableList> {
                                 : Colors.red,
                             dense: widget.dense,
                             onTap: () {
+                              if (event.summary == '') {
+                                showExamAlert(context);
+                                return;
+                              }
                               if (event.description != null) {
                                 if (event.description!
                                     .toLowerCase()
