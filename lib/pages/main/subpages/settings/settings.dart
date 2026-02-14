@@ -16,8 +16,10 @@ import 'package:runshaw/pages/main/subpages/settings/add_buses.dart';
 import 'package:runshaw/pages/main/subpages/settings/popup_crop.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
+import 'package:runshaw/utils/logging.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -732,12 +734,16 @@ class _SettingsPageState extends State<SettingsPage> {
                           return Switch(
                             value: enabled,
                             onChanged: (bool value) async {
+                              final prefs =
+                                  await SharedPreferences.getInstance();
                               if (value) {
                                 await Posthog().disable();
-                                print("Disabled analytics");
+                                await prefs.setBool("analytics_opt_out", true);
+                                debugLog("Disabled analytics");
                               } else {
                                 await Posthog().enable();
-                                print("Enabled analytics");
+                                await prefs.setBool("analytics_opt_out", false);
+                                debugLog("Enabled analytics");
                               }
                               setState(() {});
                             },

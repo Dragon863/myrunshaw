@@ -18,6 +18,7 @@ import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/logging.dart';
 import 'package:runshaw/utils/spinner/loading_indicator.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashPage extends StatefulWidget {
   final String? nextRoute;
@@ -91,6 +92,16 @@ class _SplashPageState extends State<SplashPage> {
     config.captureApplicationLifecycleEvents = true;
     config.host = 'https://eu.i.posthog.com';
     await Posthog().setup(config);
+
+    final prefs = await SharedPreferences.getInstance();
+    final optOut = prefs.getBool("analytics_opt_out");
+    if (optOut == true) {
+      await Posthog().disable();
+      debugLog("Analytics explicitly disabled from prefs");
+    } else if (optOut == false) {
+      await Posthog().enable();
+    }
+
     if (kDebugMode) {
       Posthog().debug(true);
     }
