@@ -4,146 +4,185 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>My Runshaw</title>
+    <title>My Runshaw - Unofficial App</title>
+    <meta name="description" content="Share your timetable with your friends, get reliable and fast bus notifications, all from your Student ID badge.">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"
-        rel="stylesheet">
-</head>
-<style>
-    :root {
-        --bulma-primary: hsla(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l), 1);
-        --bulma-primary-base: hsla(var(--bulma-primary-h), var(--bulma-primary-s), var(--bulma-primary-l), 1);
-        --bulma-primary-rgb: 0, 209, 178;
-        --bulma-primary-h: 4deg;
-        --bulma-primary-s: 90%;
-        --bulma-primary-l: 58%;
-    }
-
-    .rubik-regular {
-        font-family: "Rubik", serif;
-        font-optical-sizing: auto;
-        font-weight: normal;
-        font-style: normal;
-    }
-
-    .rubik-bold {
-        font-family: "Rubik", serif;
-        font-optical-sizing: auto;
-        font-weight: bold;
-        font-style: normal;
-    }
-
-    p a {
-        color: var(--bulma-primary);
-        text-decoration: underline;
-    }
-</style>
-<script>
-
-    document.addEventListener('DOMContentLoaded', () => {
-        if (document.location.search.includes("highseas")) {
-            document.getElementById("maintext").innerText = "The unofficial Runshaw student experience! Share your timetable with your friends, get reliable and fast bus notifications, all from your Student ID badge. \n\nHIGH SEAS: Demo login email is TES22222222 (8x2s) and password is 22222222 (8x2s).";
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bulma-primary: hsla(4, 80%, 60%, 1);
+            --bulma-primary-rgb: 235, 88, 77;
+            --brand-red: #eb584d;
+            --brand-orange: #f89e13;
+            --brand-green: #8bc34a;
+            --brand-teal: #009688;
+            --brand-blue: #1976d2;
         }
 
-        const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+        body {
+            font-family: "Rubik", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
 
-        $navbarBurgers.forEach(el => {
-            el.addEventListener('click', () => {
+        .rubik-bold {
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
 
-                const target = el.dataset.target;
-                const $target = document.getElementById(target);
+        .navbar {
+            padding: 0.5rem 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        }
+        
+        .navbar-item.is-active, .navbar-item:hover {
+            color: var(--brand-red) !important;
+            background-color: transparent !important;
+        }
 
-                el.classList.toggle('is-active');
-                $target.classList.toggle('is-active');
+        .is-rounded-xl { border-radius: 24px !important; }
+        .is-rounded-lg { border-radius: 16px !important; }
+        
+        .btn-app {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-app:hover {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
 
+        .btn-ios { background-color: #000; color: #fff; }
+        .btn-ios:hover { color: #fff; }
+        
+        .btn-android { background-color: #fff; color: #000; }
+        .btn-android:hover { color: #000; }
+        
+        .btn-web-nav {
+            border-radius: 999px;
+            font-weight: 600;
+            padding: 0 1.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .mockup-img {
+            border-radius: 32px;
+            width: 100%;
+            max-width: 400px;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .feature-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            color: white;
+            font-weight: 500;
+            font-size: 0.95rem;
+            margin: 5px;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+            $navbarBurgers.forEach(el => {
+                el.addEventListener('click', () => {
+                    const target = el.dataset.target;
+                    const $target = document.getElementById(target);
+                    el.classList.toggle('is-active');
+                    $target.classList.toggle('is-active');
+                });
             });
         });
-
-    });
-</script>
-<nav class="navbar" role="navigation" aria-label="main navigation">
-    <div class="navbar-brand">
-        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-        </a>
-    </div>
-
-    <div id="navbarBasicExample" class="navbar-menu">
-        <div class="navbar-start">
-            <a class="navbar-item" href="/">
-                Home
-            </a>
-
-            <a class="navbar-item" href="https://danieldb.uk/">
-                About Me
-            </a>
-
-            <a class="navbar-item" href="mailto:hi@danieldb.uk">
-                Contact
-            </a>
-        </div>
-
-        <div class="navbar-end">
-            <div class="navbar-item">
-                <div class="buttons">
-                    <a class="button is-primary has-text-white is-hidden-mobile" href="https://runshaw.danieldb.uk/">
-                        <strong>Web Client</strong>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</nav>
+    </script>
+</head>
 
 <body>
-    <section class="section" style="background-color: #eb584d;">
+    <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
         <div class="container">
-            <div class="columns">
-                <img src="/static/img/screenshot.png" alt="My Runshaw" class="column is-6" style="border-radius: 10px;"
-                    draggable="false">
-                <div class="column is-6">
-                    <div class="is-hidden-mobile is-hidden-tablet-only">
-                        <div style="height: 100px;"></div>
-                    </div>
-                    <h1 class="title is-1 has-text-white rubik-bold">My Runshaw</h1>
-                    <p class="subtitle is-4 has-text-white rubik-regular" style="padding-top: 10px;" id="maintext">
-                        The unofficial
-                        Runshaw
-                        student experience! Share your
-                        timetable with your friends, get reliable and fast bus notifications, all from your Student
-                        ID badge.</p>
-
-                    <a href="https://apps.apple.com/gb/app/my-runshaw/id6739817271?itscg=30200&itsct=apps_box_badge&mttnsubad=6739817271"
-                        style="display: inline-block;" draggable="false">
-                        <img src="https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us?releaseDate=1735430400"
-                            alt="Download on the App Store"
-                            style="width: 123px; height: 41px; vertical-align: middle; object-fit: contain;"
-                            draggable="false" />
-                    </a>
-                    <a href="https://play.google.com/store/apps/details?id=com.daniel.runshaw"
-                        style="display: inline-block;" draggable="false">
-                        <img src="/static/img/gplay_badge.png" alt="Download on the App Store"
-                            style="height: 41px; vertical-align: middle; object-fit: contain;" draggable="false" />
-                    </a>
-                </div>
+            <div class="navbar-brand">
+                <a class="navbar-item" href="/">
+                    <img src="https://raw.githubusercontent.com/Dragon863/myrunshaw/refs/heads/main/assets/img/logo-muted.png" alt="My Runshaw Logo" class="is-rounded-lg" style="max-height: 2.5rem; margin-right: 0.75rem;">
+                    
+                </a>
+                <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample" style="color: var(--bulma-primary)">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
             </div>
 
+            <div id="navbarBasicExample" class="navbar-menu">
+                <div class="navbar-start has-text-weight-medium" style="margin-left: 1rem;">
+                    <a class="navbar-item" href="/">Home</a>
+                    <a class="navbar-item" href="https://danieldb.uk/">About Me</a>
+                    <a class="navbar-item" href="mailto:hi@danieldb.uk">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="section is-large" style="background-color: var(--brand-red); min-height: 75vh; display: flex; align-items: center; padding-top: 6rem; padding-bottom: 6rem;">
+        <div class="container">
+            <div class="columns is-vcentered is-variable is-8">
+                
+                <div class="column is-6">
+                    <h1 class="title is-1 is-size-1-desktop is-size-2-mobile has-text-white rubik-bold mb-4">
+                        Built For Students,<br>By Students.
+                    </h1>
+                    
+                    <p class="subtitle is-5 has-text-white" style="line-height: 1.5; opacity: 0.95; white-space: pre-wrap;" id="maintext">The unofficial Runshaw student experience! Share your timetable with your friends, get reliable and fast bus notifications, all from your Student ID badge.</p>
+
+                    <div class="buttons mt-6">
+                        <a href="https://apps.apple.com/gb/app/my-runshaw/id6739817271" class="btn-app btn-ios" draggable="false">
+                            <svg width="24" height="24" viewBox="0 0 384 512" fill="currentColor"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
+                            App Store
+                        </a>
+                        <a href="https://play.google.com/store/apps/details?id=com.daniel.runshaw" style="color: #5f6368" class="btn-app btn-android" draggable="false">
+                            <svg width="" height="24" viewBox="0 0 32 32" fill="#000000"><g><path d="M13.54 15.28.12 29.34a3.64 3.64 0 0 0 5.33 2.16l15.1-8.6z" style="fill:#ea4335"/><path d="m27.11 12.89-6.53-3.74-7.35 6.45 7.38 7.28 6.48-3.7a3.55 3.55 0 0 0 0-6.29z" style="fill:#fbbc04"/><path d="M.12 2.66a3.46 3.46 0 0 0-.12.92v24.84a3.66 3.66 0 0 0 .12.92L14 15.64Z" style="fill:#4285f4"/><path d="m13.64 16 6.94-6.85L5.5.51A3.72 3.72 0 0 0 3.63 0 3.64 3.64 0 0 0 .12 2.65Z" style="fill:#34a853"/></g></svg>
+                            Google Play
+                        </a>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 is-hidden-mobile" style="border-top: 2px solid rgba(255,255,255,0.2);">
+                        <span class="feature-pill" style="background-color: var(--brand-orange);">Bus Notifications</span>
+                        <span class="feature-pill" style="background-color: var(--brand-green);">RunshawPay</span>
+                        <span class="feature-pill" style="background-color: var(--brand-teal);">Timetable Sharing</span>
+                        <span class="feature-pill" style="background-color: var(--brand-blue);">Campus Map</span>
+                    </div>
+                </div>
+
+                <div class="column is-6 has-text-centered">
+                    <img src="/static/img/screenshot.png" alt="My Runshaw App Mockups" class="mockup-img" draggable="false">
+                </div>
+
+            </div>
         </div>
     </section>
-    <footer class="footer">
+
+    <footer class="footer pb-6 pt-6" style="background-color: #fafafa;">
         <div class="content has-text-centered">
-            <p>
-                <strong>App and web design</strong> by <a href="https://danieldb.uk">Daniel Benge</a>.
-                All source code for this app is licensed under
-                <a href="https://opensource.org/license/mit">MIT</a>
+            <p class="has-text-grey">
+                <strong class="has-text-grey-dark">App and web design</strong> by <a href="https://danieldb.uk" style="color: var(--bulma-primary);">Daniel Benge</a>.<br>
+                Source code is licensed under <a href="https://opensource.org/license/mit" style="color: var(--bulma-primary);"">MIT</a>.
             </p>
         </div>
     </footer>
 </body>
-
 </html>
