@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
@@ -103,9 +104,11 @@ class _MainPageState extends State<MainPage> {
                   notification: notification,
                   showNotifs: showNotifs,
                   onItemClick: (title, index) async {
-                    if (!Platform.isLinux) {
-                      if (await Gaimon.canSupportsHaptic) {
-                        Gaimon.selection();
+                    if (!kIsWeb) {
+                      if (!Platform.isLinux) {
+                        if (await Gaimon.canSupportsHaptic) {
+                          Gaimon.selection();
+                        }
                       }
                     }
                     _sliderDrawerKey.currentState!.closeSlider();

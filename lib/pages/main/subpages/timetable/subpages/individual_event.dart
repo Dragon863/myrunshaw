@@ -6,9 +6,9 @@ import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/individual_friend.dart';
 import 'package:runshaw/pages/main/subpages/map/individual_map.dart';
 import 'package:runshaw/pages/main/subpages/map/locations.dart';
-import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/logging.dart';
+import 'package:runshaw/utils/models.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
 
 class IndividualEventPage extends StatefulWidget {

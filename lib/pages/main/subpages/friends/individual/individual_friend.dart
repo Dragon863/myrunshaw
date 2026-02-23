@@ -8,8 +8,8 @@ import 'package:runshaw/pages/main/subpages/friends/individual/user_info/user_in
 import 'package:runshaw/pages/main/subpages/timetable/subpages/individual_event.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/events_card.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
-import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/models.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
 import 'package:runshaw/utils/spinner/loading_indicator.dart';
 import 'package:runshaw/utils/theme/appbar.dart';

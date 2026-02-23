@@ -54,8 +54,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> fetchPrefs() async {
     final BaseAPI api = context.read<BaseAPI>();
-    final models.User? latestUserModel = await api.account?.get();
-    final String displayName = latestUserModel!.name;
+    final models.User latestUserModel = await api.account.get();
+    final String displayName = latestUserModel.name;
     final String? busNumber = await api.getBusNumber();
 
     setState(() {
@@ -451,7 +451,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         if (name != null) {
                           if (name.length < 40) {
                             final api = context.read<BaseAPI>();
-                            await api.account!.updateName(name: name);
+                            await api.account.updateName(name: name);
                             fetchPrefs();
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(

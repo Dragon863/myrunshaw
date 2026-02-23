@@ -75,7 +75,7 @@ class _PasswordResetPageState extends State<PasswordResetPage> {
                   if (_passwordController1.text == _passwordController2.text) {
                     final api = context.read<BaseAPI>();
                     try {
-                      await api.account!.updatePassword(
+                      await api.account.updatePassword(
                         password: _passwordController1.text,
                         oldPassword: _oldPasswordController.text,
                       );

@@ -1,5 +1,5 @@
 import 'package:intl/intl.dart';
-import 'package:runshaw/pages/sync/sync_controller.dart';
+import 'package:runshaw/utils/models.dart';
 
 extension EventListExtensions on List<Event> {
   Map<DateTime, List<Event>> groupByDay({bool todayOnly = false}) {
@@ -44,7 +44,7 @@ String humaniseTime(DateTime start, DateTime end) {
   return '${start.hour.toString().padLeft(2, '0')}:${start.minute.toString().padLeft(2, '0')} - ${end.hour.toString().padLeft(2, '0')}:${end.minute.toString().padLeft(2, '0')}';
 }
 
-String fetchCurrentEvent(events) {
+String fetchCurrentEvent(List<Event> events) {
   final now = DateTime.now();
   final currentEvent = events.firstWhere(
     (event) {

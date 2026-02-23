@@ -37,8 +37,8 @@ class _OnBoardingStageTwoState extends State<OnBoardingStageTwo> {
 
   Future<void> fetchPrefs() async {
     final BaseAPI api = context.read<BaseAPI>();
-    final models.User? latestUserModel = await api.account?.get();
-    final String displayName = latestUserModel!.name;
+    final models.User latestUserModel = await api.account.get();
+    final String displayName = latestUserModel.name;
 
     setState(() {
       if (displayName.isNotEmpty) {
@@ -50,12 +50,12 @@ class _OnBoardingStageTwoState extends State<OnBoardingStageTwo> {
   Future<void> saveName(String name) async {
     final api = context.read<BaseAPI>();
     bool fail = false;
-    if (api.account == null) {
-      fail = true;
-    }
+    // if (api.account == null) {
+    //   fail = true;
+    // }
 
     try {
-      await api.account!.updateName(name: name);
+      await api.account.updateName(name: name);
       fail = false;
     } catch (e) {
       fail = true;

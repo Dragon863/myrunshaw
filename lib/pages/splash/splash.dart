@@ -88,8 +88,14 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<void> _setupAnalytics() async {
     final config = PostHogConfig(MyRunshawConfig.posthogApiKey);
+    // configure posthog to capture all errors, including native ones, and lifecycle events
     config.debug = kDebugMode;
     config.captureApplicationLifecycleEvents = true;
+    config.errorTrackingConfig.captureFlutterErrors = true;
+    config.errorTrackingConfig.capturePlatformDispatcherErrors = true;
+    config.errorTrackingConfig.captureIsolateErrors = true;
+    config.errorTrackingConfig.captureNativeExceptions = true;
+    config.errorTrackingConfig.captureSilentFlutterErrors = false;
     config.host = 'https://eu.i.posthog.com';
     await Posthog().setup(config);
 
@@ -161,8 +167,8 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<bool> isOnBoarded() async {
     final api = context.read<BaseAPI>();
-    final currentPrefs = await api.account?.getPrefs();
-    return currentPrefs?.data["onboarding_complete"] == true;
+    final currentPrefs = await api.account.getPrefs();
+    return currentPrefs.data["onboarding_complete"] == true;
   }
 
   _navigateToHome() async {

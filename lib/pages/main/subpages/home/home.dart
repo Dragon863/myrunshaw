@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/buses/bus_list/bus_map_view.dart';
@@ -12,8 +11,8 @@ import 'package:runshaw/pages/main/subpages/home/inapp/inapp.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/list.dart';
 import 'package:runshaw/pages/qr/qr_page.dart';
-import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/models.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';

@@ -5,7 +5,7 @@ import 'package:runshaw/pages/main/subpages/timetable/subpages/individual_event.
 import 'package:runshaw/pages/main/subpages/timetable/widgets/events_card.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
 import 'package:runshaw/pages/sync/sync.dart';
-import 'package:runshaw/pages/sync/sync_controller.dart';
+import 'package:runshaw/utils/models.dart';
 import 'package:runshaw/utils/spinner/loading_indicator.dart';
 
 class TimetableList extends StatefulWidget {
@@ -87,7 +87,7 @@ class _TimetableListState extends State<TimetableList> {
                         ),
                       ),
                     ...events.map(
-                      (event) {
+                      (Event event) {
                         if (event.location != "") {
                           String eventDetails;
                           if (event.description != null) {

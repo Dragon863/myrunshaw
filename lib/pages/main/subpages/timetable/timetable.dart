@@ -3,9 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/list.dart';
 import 'package:runshaw/pages/sync/sync.dart';
-import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:intl/intl.dart';
+import 'package:runshaw/utils/models.dart';
 
 class TimetablePage extends StatefulWidget {
   const TimetablePage({super.key});

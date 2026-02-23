@@ -19,7 +19,11 @@
             "name": "runshaw (release mode)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "release"
+            "flutterMode": "release",
+            "args": [
+                // Disable Cronet on release mode so people without play services can use the app without issues
+                "--dart-define=cronetHttpNoPlay=true"
+            ]
         },
         {
             "name": "runshaw (chrome)",

@@ -41,7 +41,7 @@ class _PasswordResetLoginPageState extends State<PasswordResetLoginPage> {
       return;
     }
     try {
-      await api.account!.createRecovery(
+      await api.account.createRecovery(
         email: "${_studentIDController.text}${MyRunshawConfig.emailExtension}",
         url: "https://myrunshaw.danieldb.uk/reset",
       );

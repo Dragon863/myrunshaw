@@ -6,8 +6,8 @@ import 'package:runshaw/pages/main/subpages/friends/individual/split/compact_eve
 import 'package:runshaw/pages/main/subpages/timetable/subpages/individual_event.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/models.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
-import 'package:runshaw/pages/sync/sync_controller.dart' as runshaw;
 
 Color getEventColour(String eventName) {
   return eventName.contains("Aspire")
@@ -33,8 +33,8 @@ class SplitTimetablePage extends StatefulWidget {
 
 class _SplitTimetablePageState extends State<SplitTimetablePage> {
   bool _isLoading = true;
-  List<runshaw.Event> _myEvents = [];
-  List<runshaw.Event> _friendEvents = [];
+  List<Event> _myEvents = [];
+  List<Event> _friendEvents = [];
   DateTime _selectedDate = DateTime.now();
 
   @override
@@ -270,7 +270,7 @@ class _SplitTimetablePageState extends State<SplitTimetablePage> {
   }
 
   Widget _buildEventColumn(
-      List<runshaw.Event> events, int startHour, double heightPerMinute) {
+      List<Event> events, int startHour, double heightPerMinute) {
     return Container(
       height: (17 - 8) * 60 * heightPerMinute,
       child: Stack(
