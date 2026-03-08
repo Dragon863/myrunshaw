@@ -88,7 +88,7 @@ class BaseApp extends StatelessWidget {
           ),
           scaffoldBackgroundColor: context.read<ThemeProvider>().amoledEnabled
               ? Colors.black
-              : const Color(0xFF1E1E1E),
+              : darkColourScheme.surfaceContainerHighest,
           snackBarTheme: SnackBarThemeData(
             actionTextColor: Colors.red,
             backgroundColor: context.read<ThemeProvider>().amoledEnabled

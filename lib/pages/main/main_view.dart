@@ -7,6 +7,7 @@ import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 import 'package:gaimon/gaimon.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:runshaw/pages/main/slider/slider_view.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
 import 'main_helpers.dart';
@@ -63,6 +64,7 @@ class _MainPageState extends State<MainPage> {
     // Load notifications from API
     final api = context.read<BaseAPI>();
     final response = await api.getFriendRequests();
+    if (!mounted) return;
     if (response.isNotEmpty) {
       setState(() {
         notification = " (${response.length.toString()})";

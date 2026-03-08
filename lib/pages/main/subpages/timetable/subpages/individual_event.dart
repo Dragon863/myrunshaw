@@ -8,7 +8,7 @@ import 'package:runshaw/pages/main/subpages/map/individual_map.dart';
 import 'package:runshaw/pages/main/subpages/map/locations.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/logging.dart';
-import 'package:runshaw/utils/models.dart';
+import 'package:runshaw/utils/models/event.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
 
 class IndividualEventPage extends StatefulWidget {
@@ -75,8 +75,9 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
     });
     final api = context.read<BaseAPI>();
     final fetchedFriends = await api.getFriends();
+    if (!mounted) return;
     final List<Widget> friendsList = [];
-    
+
     for (final friend in fetchedFriends) {
       final String userId = friend['userid'];
       final List<Event> events = await api.fetchEvents(
@@ -173,7 +174,6 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
                 pfpUrl,
                 errorListener: (error) {},
               ),
-              backgroundColor: getPfpColour(pfpUrl),
               child: Text(
                 getFirstNameCharacter(name),
                 style: GoogleFonts.rubik(
@@ -199,6 +199,7 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
         );
       }
     }
+    if (!mounted) return;
     if (friendsList.isEmpty) {
       setState(() {
         friends = [
@@ -266,8 +267,8 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
                                       begin: FractionalOffset.topCenter,
                                       end: FractionalOffset.bottomCenter,
                                       colors: [
-                                        Colors.grey.withOpacity(0.0),
-                                        Colors.black.withOpacity(0.9),
+                                        Colors.grey.withValues(alpha: 0.0),
+                                        Colors.black.withValues(alpha: 0.9),
                                       ],
                                       stops: const [
                                         0.0,

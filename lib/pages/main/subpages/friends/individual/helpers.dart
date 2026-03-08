@@ -1,5 +1,5 @@
 import 'package:intl/intl.dart';
-import 'package:runshaw/utils/models.dart';
+import 'package:runshaw/utils/models/event.dart';
 
 extension EventListExtensions on List<Event> {
   Map<DateTime, List<Event>> groupByDay({bool todayOnly = false}) {

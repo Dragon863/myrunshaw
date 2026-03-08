@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:http/retry.dart';
 import 'package:runshaw/utils/config.dart';
-import 'package:runshaw/utils/models.dart';
+import 'package:runshaw/utils/models/exceptions.dart';
+import 'package:runshaw/utils/models/transaction.dart';
 import 'api_core.dart';
 
 mixin ApiPayments on ApiCore {

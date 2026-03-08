@@ -4,8 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
-import 'package:runshaw/utils/spinner/loading_indicator.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
+import 'package:runshaw/utils/vendor/spinner/loading_indicator.dart';
 
 class ExtraBusPage extends StatefulWidget {
   const ExtraBusPage({super.key});

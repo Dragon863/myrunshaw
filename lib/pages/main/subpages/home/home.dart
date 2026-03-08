@@ -1,19 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/buses/bus_list/bus_map_view.dart';
-import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/individual_friend.dart';
-import 'package:runshaw/pages/main/subpages/home/helpers.dart';
+import 'package:runshaw/pages/main/subpages/home/home_controller.dart';
 import 'package:runshaw/pages/main/subpages/home/inapp/inapp.dart';
-import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/list.dart';
 import 'package:runshaw/pages/qr/qr_page.dart';
 import 'package:runshaw/utils/api.dart';
-import 'package:runshaw/utils/models.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
+import 'package:runshaw/utils/string_utils.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -25,272 +22,274 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String? pfpUrl;
-  String name = "Loading...";
-  String userId = "12345678901";
-  String nextLesson = "Loading...";
-  String nextDetails = "Loading...";
-  List<Widget> freeFriends = [];
-  bool loading = false;
-  List<Event> events = [];
-  List<Widget> busWidgets = [];
-
-  Future<void> loadPfp() async {
-    final BaseAPI api = context.read<BaseAPI>();
-    await api.refreshUser();
-    setState(() {
-      if (api.user!.name != "") {
-        if (name.length > 15) {
-          name = "${api.user!.name.substring(0, 15)}...";
-        } else {
-          name = api.user!.name;
-        }
-      } else {
-        name = "Name not set";
-      }
-      userId = api.user!.$id;
-      pfpUrl = api.getPfpUrl(userId);
-    });
-  }
-
-  Future<void> loadEvents() async {
-    final BaseAPI api = context.read<BaseAPI>();
-    try {
-      final List<Event> events =
-          await api.fetchEvents(userId: api.user!.$id, allowCache: true);
-      setState(() {
-        this.events = events;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("An error occurred whilst fetching events: $e"),
-        ),
-      );
-    }
-  }
+  late final HomeController _controller;
 
   @override
   void initState() {
-    loadData();
-    loadEvents();
-    loadPfp();
     super.initState();
-    checkInAppAlerts(context);
+    _controller = HomeController(context.read<BaseAPI>());
+    _controller.addListener(_rebuild);
+    _controller.init().then((_) {
+      if (mounted) checkInAppAlerts(context);
+    });
   }
 
-  Future<String> loadCurrentEventFor(String userId) async {
-    final BaseAPI api = context.read<BaseAPI>();
-    if (api.cachedPfpVersions.isEmpty) {
-      await api.cachePfpVersions();
-    }
-    try {
-      final List<Event> events =
-          await api.fetchEvents(userId: userId, allowCache: true);
-      final String current = fetchCurrentEvent(events);
-      return current;
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("An error occurred whilst syncing: $e"),
-        ),
-      );
-      return "internal:ignore";
-    }
+  void _rebuild() {
+    if (mounted) setState(() {});
   }
 
-  Future<void> loadData({bool allowCache = true}) async {
-    if (loading) {
-      return;
-    }
-    loading = true;
-    freeFriends.clear();
-    final BaseAPI api = context.read<BaseAPI>();
-    await api.caching;
-    try {
-      List<Event> events =
-          await api.fetchEvents(userId: api.user!.$id, allowCache: allowCache);
-      events = events.fillGaps().sortEvents(); // Include frees
+  @override
+  void dispose() {
+    _controller.removeListener(_rebuild);
+    _controller.dispose();
+    super.dispose();
+  }
 
-      final now = DateTime.now();
-      final Event next = events.firstWhere(
-        (event) {
-          return event.start.isAfter(now);
-        },
-        orElse: () => Event(
-          summary: 'No Event',
-          location: '',
-          start: now,
-          end: now,
-          description: '',
-          uid: '',
+  Widget _buildBusCard(BusBayInfo info) {
+    return Card.filled(
+      color: info.color,
+      child: ListTile(
+        title: Text(
+          'The ${info.busNumber} is in bay ${info.bay}!',
+          style: GoogleFonts.rubik(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
-      );
-
-      if (next.summary == "No Event") {
-        setState(() {
-          nextLesson = "No Event";
-          nextDetails = "";
-        });
-      } else {
-        setState(() {
-          nextLesson = next.summary;
-          nextDetails = next.description == null
-              ? "No Description"
-              : next.location != null && next.location != ""
-                  ? "${next.description!.replaceAll("Teacher: ", "")} in ${next.location}"
-                  : next.description!.replaceAll("Teacher: ", "");
-        });
-      }
-      final busNumber = await api.getBusNumber();
-      final List<String> extraBuses = await api.getAllBuses();
-      if (busNumber != null &&
-          !extraBuses.contains(busNumber) &&
-          busNumber != "") {
-        extraBuses.add(busNumber);
-      }
-
-      // This expression gets the buses, replaces the letters with nothing, then sorts them by number.
-      // This is so that the buses are in numerical order, and while it is a litte messy, it works well.
-      extraBuses.sort(
-        (a, b) => int.parse(a.replaceAll(RegExp(r'[A-Z]'), "")).compareTo(
-          int.parse(b.replaceAll(RegExp(r'[A-Z]'), "")),
+        trailing: const Icon(Icons.directions_bus, color: Colors.white),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BusMapViewPage(
+              bay: info.bay,
+              busNumber: info.busNumber,
+              color: info.color,
+            ),
+          ),
         ),
-      );
+      ),
+    );
+  }
 
-      setState(() => busWidgets.clear());
+  Widget _buildFriendAvatar(FreeFriendInfo friend) {
+    return GestureDetector(
+      onLongPress: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("${friend.name} (tap to view)")),
+        );
+      },
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => IndividualFriendPage(
+            userId: friend.uid,
+            name: friend.name,
+            profilePicUrl: friend.pfpUrl,
+          ),
+        ),
+      ),
+      child: Align(
+        widthFactor: 0.8,
+        child: CircleAvatar(
+          radius: 25,
+          foregroundImage: CachedNetworkImageProvider(
+            friend.pfpPreviewUrl,
+            errorListener: (error) {},
+          ),
+          child: Text(
+            getFirstNameCharacter(friend.name),
+            style: GoogleFonts.rubik(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-      final List<Color> colors = [
-        Colors.red,
-        Colors.blue,
-        Colors.purple,
-        Colors.orange,
-        Colors.pink,
-        Colors.teal,
-        Colors.amber,
-        Colors.cyan,
-        Colors.lime,
-      ];
-
-      int index = 0;
-      final busBays = await api.getBusBays();
-
-      for (final bus in busBays.keys) {
-        if (!extraBuses.contains(bus)) {
-          continue;
-        }
-
-        final bay = busBays[bus];
-        if ((bay != "RSP_NYA" &&
-            bay != null &&
-            bay != "0" &&
-            (DateTime.now().hour < 17 || kDebugMode))) {
-          // Before 5PM, and bus has arrived
-          setState(() {
-            final busColor = colors[index % colors.length];
-            busWidgets.add(
-              Card.filled(
-                color: busColor,
-                child: ListTile(
-                  title: Text(
-                    'The $bus is in bay $bay!',
+  Widget _buildProfileCard() {
+    return AspectRatio(
+      aspectRatio: 1,
+      child: Card(
+        elevation: 1,
+        child: Padding(
+          padding: const EdgeInsets.all(6.0),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 60,
+                  foregroundImage: CachedNetworkImageProvider(
+                    _controller.pfpUrl ?? "",
+                    errorListener: (error) {},
+                  ),
+                  child: Text(
+                    _controller.name == "Loading..."
+                        ? "..."
+                        : getFirstNameCharacter(_controller.name),
                     style: GoogleFonts.rubik(
+                      fontSize: 48,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
                     ),
                   ),
-                  trailing: const Icon(
-                    Icons.directions_bus,
-                    color: Colors.white,
-                  ),
-                  onTap: () async {
-                    if (bay == "RSP_NYA" || bay == "0") {
-                      // Response-Not-Yet-Arrived
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            "Bus has not arrived yet (this should be impossible, please report this)",
-                          ),
-                        ),
-                      );
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BusMapViewPage(
-                            bay: bay,
-                            busNumber: bus,
-                            color: busColor,
-                          ),
-                        ),
-                      );
-                    }
-                  },
                 ),
-              ),
-            );
-          });
-          index++;
-        }
-      }
+                const SizedBox(height: 2),
+                Skeletonizer(
+                  enabled: _controller.name == "Loading...",
+                  child: Text(
+                    truncateName(_controller.name),
+                    style: GoogleFonts.rubik(fontSize: 22),
+                  ),
+                ),
+                Skeletonizer(
+                  enabled: _controller.userId == "12345678901",
+                  child: Text(
+                    _controller.userId,
+                    style: GoogleFonts.rubik(fontWeight: FontWeight.w200),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-      final List friends = await api.getFriends();
-      for (final friend in friends) {
-        final String uid = friend["userid"];
-        final friendCurrentLesson = await loadCurrentEventFor(uid);
-        final name = await api.getName(uid);
-        if (friendCurrentLesson.contains("Aspire") ||
-            friendCurrentLesson == "No Event") {
-          setState(() {
-            freeFriends.add(
-              GestureDetector(
-                onLongPress: () async {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("$name (tap to view)"),
-                    ),
-                  );
-                },
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => IndividualFriendPage(
-                        userId: uid,
-                        name: name,
-                        profilePicUrl: api.getPfpUrl(
-                          uid,
-                        ), // NOT userId as I learned when everybody's picture turned into a cat!
+  Widget _buildNextEventColumn() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AspectRatio(
+          aspectRatio: 2 / 1,
+          child: Card(
+            elevation: 1,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 8),
+                    Text('Next Event:', style: GoogleFonts.rubik()),
+                    Skeletonizer(
+                      enabled: _controller.nextLesson == "Loading...",
+                      child: Text(
+                        _controller.nextLesson,
+                        style: GoogleFonts.rubik(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.visible,
                       ),
                     ),
-                  );
-                },
-                child: Align(
-                  widthFactor: 0.8,
-                  child: CircleAvatar(
-                    backgroundColor: getPfpColour(api.getPfpUrl(uid)),
-                    radius: 25,
-                    foregroundImage: CachedNetworkImageProvider(
-                      api.getPfpUrl(uid, isPreview: true),
-                      errorListener: (error) {},
-                    ),
-                    child: Text(
-                      getFirstNameCharacter(name),
-                      style: GoogleFonts.rubik(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                  ],
                 ),
               ),
-            );
-          });
-        }
-      }
-    } catch (e) {
-      //throw e;
-    }
-    loading = false;
+            ),
+          ),
+        ),
+        AspectRatio(
+          aspectRatio: 2 / 1,
+          child: Card(
+            elevation: 1,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 8),
+                    Text('Details:', style: GoogleFonts.rubik()),
+                    Skeletonizer(
+                      enabled: _controller.nextDetails == "Loading...",
+                      child: Text(
+                        _controller.nextDetails,
+                        style: GoogleFonts.rubik(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.visible,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQrCard() {
+    return SizedBox(
+      width: double.infinity,
+      child: Card(
+        elevation: 1,
+        child: InkWell(
+          splashColor: context.read<ThemeProvider>().isLightMode
+              ? Colors.grey.shade300
+              : null,
+          borderRadius: BorderRadius.circular(8),
+          onTap: () async {
+            final BaseAPI api = context.read<BaseAPI>();
+            final String code = await api.getCode();
+            if (!mounted) return;
+            if (code == "000000") {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text("Error"),
+                  content: const Text(
+                    "Your QR code is not available, as you signed up with an email address.",
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text("OK"),
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => QrCodePage(
+                    qrUrl:
+                        "https://api.qrserver.com/v1/create-qr-code/?data=${context.read<BaseAPI>().user!.$id.toUpperCase()}-$code",
+                  ),
+                ),
+              );
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                const Icon(Icons.qr_code),
+                const SizedBox(width: 8),
+                Text("QR Code", style: GoogleFonts.rubik(fontSize: 22)),
+                const Spacer(),
+                const Icon(Icons.keyboard_arrow_right),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  bool get _hasTodayEvents {
+    final now = DateTime.now();
+    final todayStart =
+        now.copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
+    final todayEnd =
+        now.copyWith(hour: 23, minute: 59, second: 59, millisecond: 999);
+    return _controller.events.any((event) =>
+        event.start.isAfter(todayStart) && event.end.isBefore(todayEnd));
   }
 
   @override
@@ -298,276 +297,57 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: Center(
         child: Container(
-          constraints: const BoxConstraints(
-            minWidth: 150,
-            maxWidth: 500,
-          ),
+          constraints: const BoxConstraints(minWidth: 150, maxWidth: 500),
           child: Padding(
-            padding: const EdgeInsets.only(
-              left: 6,
-              right: 6,
-            ),
+            padding: const EdgeInsets.only(left: 6, right: 6),
             child: ListView(
               children: [
-                ...busWidgets,
+                ..._controller.busBayInfos.map(_buildBusCard),
                 Row(
                   children: [
-                    Expanded(
-                      // Profile card
-                      child: AspectRatio(
-                        aspectRatio: 1,
-                        child: Card(
-                          elevation: 1,
-                          child: Padding(
-                            padding: const EdgeInsets.all(6.0),
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  CircleAvatar(
-                                    radius: 60,
-                                    foregroundImage: CachedNetworkImageProvider(
-                                      pfpUrl ?? "",
-                                      errorListener: (error) {},
-                                    ),
-                                    backgroundColor: loading
-                                        ? null
-                                        : getPfpColour(pfpUrl ?? ""),
-                                    child: Text(
-                                      name == "Loading..."
-                                          ? "..."
-                                          : getFirstNameCharacter(name),
-                                      style: GoogleFonts.rubik(
-                                        fontSize: 48,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Skeletonizer(
-                                    enabled: name == "Loading...",
-                                    child: Text(
-                                      truncateName(name),
-                                      style: GoogleFonts.rubik(
-                                        fontSize: 22,
-                                      ),
-                                    ),
-                                  ),
-                                  Skeletonizer(
-                                    enabled: userId == "12345678901",
-                                    child: Text(
-                                      userId,
-                                      style: GoogleFonts.rubik(
-                                        fontWeight: FontWeight.w200,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                        child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Next lessons
-                        AspectRatio(
-                          aspectRatio: 2 / 1,
-                          child: Card(
-                            elevation: 1,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 8, right: 8),
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      'Next Event:',
-                                      style: GoogleFonts.rubik(),
-                                    ),
-                                    Skeletonizer(
-                                      enabled: nextLesson == "Loading...",
-                                      child: Text(
-                                        nextLesson,
-                                        style: GoogleFonts.rubik(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        overflow: TextOverflow.visible,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        // Next event details
-                        AspectRatio(
-                          aspectRatio: 2 / 1,
-                          child: Card(
-                            elevation: 1,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 8, right: 8),
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      'Details:',
-                                      style: GoogleFonts.rubik(),
-                                    ),
-                                    Skeletonizer(
-                                      enabled: nextDetails == "Loading...",
-                                      child: Text(
-                                        nextDetails,
-                                        style: GoogleFonts.rubik(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        overflow: TextOverflow.visible,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )),
+                    Expanded(child: _buildProfileCard()),
+                    Expanded(child: _buildNextEventColumn()),
                   ],
                 ),
-                // QR Code
-                SizedBox(
-                  width: double.infinity,
-                  child: Card(
-                    elevation: 1,
-                    child: InkWell(
-                      splashColor: context.read<ThemeProvider>().isLightMode
-                          ? Colors.grey.shade300
-                          : null,
-                      borderRadius: BorderRadius.circular(8),
-                      onTap: () async {
-                        final BaseAPI api = context.read<BaseAPI>();
-                        final String code = await api.getCode();
-                        if (code == "000000") {
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: const Text("Error"),
-                                  content: const Text(
-                                      "Your QR code is not available, as you signed up with an email address."),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text("OK"),
-                                    ),
-                                  ],
-                                );
-                              });
-                        } else {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (context) {
-                              return QrCodePage(
-                                  qrUrl:
-                                      "https://api.qrserver.com/v1/create-qr-code/?data=${context.read<BaseAPI>().user!.$id.toUpperCase()}-$code");
-                            }),
-                          );
-                        }
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.qr_code),
-                            const SizedBox(width: 8),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "QR Code",
-                                  style: GoogleFonts.rubik(
-                                    fontSize: 22,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Spacer(),
-                            const Icon(Icons.keyboard_arrow_right),
-                          ],
-                        ),
+                _buildQrCard(),
+                const SizedBox(height: 8),
+                if (_controller.freeFriendsData.isNotEmpty) ...[
+                  Text(
+                    'Free Now:',
+                    style: GoogleFonts.rubik(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Wrap(
+                      runSpacing: 2,
+                      children: _controller.freeFriendsData
+                          .map(_buildFriendAvatar)
+                          .toList(),
+                    ),
+                  ),
+                ],
+                if (_hasTodayEvents)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Text(
+                      'Today:',
+                      style: GoogleFonts.rubik(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                // Free friend display title
-                freeFriends.isEmpty
-                    ? const SizedBox()
-                    : Text(
-                        'Free Now:',
-                        style: GoogleFonts.rubik(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                // Display free friends (wrap to flow to next line if necessary)
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Wrap(
-                    runSpacing: 2,
-                    children: freeFriends,
+                if (_controller.events.isNotEmpty)
+                  TimetableList(
+                    events: _controller.events,
+                    dense: true,
+                    todayOnly: true,
                   ),
-                ),
-                // Conditional display of today's events
-                events.where((event) {
-                  final now = DateTime.now();
-                  final todayStart = now.copyWith(
-                      hour: 0, minute: 0, second: 0, millisecond: 0);
-                  final todayEnd = now.copyWith(
-                      hour: 23, minute: 59, second: 59, millisecond: 999);
-                  final today = events
-                      .where((event) =>
-                          event.start.isAfter(todayStart) &&
-                          event.end.isBefore(todayEnd))
-                      .toList();
-                  return today.isNotEmpty;
-                }).isNotEmpty
-                    // Just checks if there are any events today
-                    ? Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: Text(
-                          'Today:',
-                          style: GoogleFonts.rubik(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      )
-                    : const SizedBox(),
-                // Display today's events
-                events != []
-                    ? TimetableList(
-                        events: events,
-                        dense: true,
-                        todayOnly: true,
-                      )
-                    : const SizedBox(),
                 const SizedBox(height: 8),
-                if (userId == "row23207169")
+                if (_controller.userId == "row23207169")
                   // easter egg for a friend
                   RotatedBox(
                     quarterTurns: 1,
@@ -580,18 +360,14 @@ class _HomePageState extends State<HomePage> {
                         height: 80,
                       ),
                     ),
-                  )
-                else
-                  const SizedBox(),
+                  ),
               ],
             ),
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          loadData(allowCache: false);
-        },
+        onPressed: () => _controller.loadData(allowCache: false),
         child: const Icon(Icons.refresh),
       ),
     );

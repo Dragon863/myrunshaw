@@ -48,7 +48,7 @@ class OnBoardingStageOne extends StatelessWidget {
                   text: "The official portal can be found ",
                   style: GoogleFonts.rubik(
                     fontSize: 16,
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 WidgetSpan(

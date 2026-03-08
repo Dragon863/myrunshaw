@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:runshaw/utils/models.dart';
+import 'package:runshaw/utils/models/event.dart';
 
 extension EventScheduleFiller on List<Event> {
   List<Event> fillGaps({bool today = false}) {

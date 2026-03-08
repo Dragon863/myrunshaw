@@ -9,10 +9,10 @@ import 'package:runshaw/pages/main/subpages/timetable/subpages/individual_event.
 import 'package:runshaw/pages/main/subpages/timetable/widgets/events_card.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
 import 'package:runshaw/utils/api.dart';
-import 'package:runshaw/utils/models.dart';
+import 'package:runshaw/utils/models/event.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
-import 'package:runshaw/utils/spinner/loading_indicator.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
+import 'package:runshaw/utils/vendor/spinner/loading_indicator.dart';
 
 class IndividualFriendPage extends StatefulWidget {
   final String userId;

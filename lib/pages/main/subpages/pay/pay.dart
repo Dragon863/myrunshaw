@@ -5,7 +5,8 @@ import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/pay/components/transactioncard.dart';
 import 'package:runshaw/utils/api.dart';
-import 'package:runshaw/utils/models.dart';
+import 'package:runshaw/utils/models/exceptions.dart';
+import 'package:runshaw/utils/models/transaction.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -353,10 +354,13 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
         onPressed: () async {
           try {
             final BaseAPI api = context.read<BaseAPI>();
-            final String? topUpUrl = await api.getRunshawPayTopupUrl();
+            final String topUpUrl = await api.getRunshawPayTopupUrl();
             if (topUpUrl != null) {
               if (await canLaunchUrlString(topUpUrl)) {
-                await launchUrlString(topUpUrl);
+                await launchUrlString(
+                  topUpUrl,
+                  mode: LaunchMode.externalApplication,
+                );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(

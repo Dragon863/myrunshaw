@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/logging.dart';
-import 'package:runshaw/utils/models.dart';
+import 'package:runshaw/utils/models/event.dart';
 import 'api_core.dart';
 import 'api_friends.dart';
 

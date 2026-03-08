@@ -4,8 +4,8 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:runshaw/utils/spinner/loading_indicator_theme.dart';
-import 'package:runshaw/utils/spinner/material_shapes/material_shapes.dart';
+import 'loading_indicator_theme.dart';
+import 'material_shapes/material_shapes.dart';
 
 const _kContainerSize = 48.0;
 const _kActiveIndicatorSize = 38.0;

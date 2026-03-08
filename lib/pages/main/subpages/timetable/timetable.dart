@@ -4,8 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/list.dart';
 import 'package:runshaw/pages/sync/sync.dart';
 import 'package:runshaw/utils/api.dart';
-import 'package:intl/intl.dart';
-import 'package:runshaw/utils/models.dart';
+import 'package:runshaw/utils/models/event.dart';
 
 class TimetablePage extends StatefulWidget {
   const TimetablePage({super.key});
@@ -28,6 +27,7 @@ class _TimetablePageState extends State<TimetablePage> {
     final BaseAPI api = context.read<BaseAPI>();
     try {
       final List<Event> events = await api.fetchEvents(allowCache: allowCache);
+      if (!mounted) return;
       if (events.isNotEmpty) {
         setState(() {
           _events = events;
@@ -50,6 +50,7 @@ class _TimetablePageState extends State<TimetablePage> {
         });
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("An error occurred whilst syncing: $e"),
@@ -141,15 +142,3 @@ class _TimetablePageState extends State<TimetablePage> {
   }
 }
 
-String formatDayTitle(DateTime date) {
-  final now = DateTime.now();
-  final today = DateTime(now.year, now.month, now.day);
-  final tomorrow = today.add(const Duration(days: 1));
-
-  if (date == today) return 'Today';
-  if (date == tomorrow) return 'Tomorrow';
-
-  final dateFormatted = DateFormat('EEEE d MMM').format(date);
-
-  return dateFormatted;
-}

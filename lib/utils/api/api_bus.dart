@@ -1,69 +1,9 @@
 import 'dart:convert';
 import 'package:appwrite/models.dart';
-import 'package:flutter/foundation.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:runshaw/utils/config.dart';
-import 'package:runshaw/utils/logging.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'api_core.dart';
 
 mixin ApiBus on ApiCore {
-  Future<void> setBusNumber(String? number) async {
-    // LEGACY CODE, should not be run
-    // Preferences currentPrefs = await account.getPrefs();
-    // await OneSignal.User.addTagWithKey("bus", number);
-
-    // if (currentPrefs.data["bus_number"] == number) {
-    //   return;
-    // }
-    // currentPrefs.data["bus_number"] = number;
-    // await account.updatePrefs(prefs: currentPrefs.data);
-  }
-
-  Future<void> migrateBuses() async {
-    // LEGACY: since it's been 6 months, it's safe to assume migration has happened or the user was inactive
-    // for long enough that their account was deleted in compliance with GDPR
-
-    // This is a one-time migration to remove the bus_number key from the prefs, and move to the new approach
-    // which is to use the extra_buses endpoint and OneSignal's external IDs
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    bool migrated = prefs.getBool("migrated_buses") ?? false;
-    debugLog("Has migrated buses: $migrated");
-    if (migrated && !kDebugMode) {
-      return;
-    }
-
-    try {
-      // Primary bus was stored in Appwrite preferences
-      Preferences currentPrefs = await account.getPrefs();
-
-      // Remove the bus tag from OneSignal
-      await OneSignal.User.removeTag("bus");
-
-      // Check if bus_number exists and is not null before adding it as an extra bus
-      String? busNumber = currentPrefs.data["bus_number"];
-      debugLog("Migrating bus number: $busNumber");
-      if (busNumber != null && busNumber.isNotEmpty) {
-        await addExtraBus(busNumber);
-        debugLog("Added bus number as extra bus");
-      }
-
-      // Remove the bus number from the prefs if it exists
-      currentPrefs.data.remove("bus_number");
-      debugLog("Removed bus number from prefs");
-
-      // Update the prefs
-      await account.updatePrefs(prefs: currentPrefs.data);
-      debugLog("Updated prefs");
-
-      // Set the migration flag
-      await prefs.setBool("migrated_buses", true);
-    } catch (e) {
-      debugLog("Error migrating buses: $e");
-    }
-  }
-
   Future<String?> getBusNumber() async {
     Preferences currentPrefs = await account.getPrefs();
     return currentPrefs.data["bus_number"];

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:runshaw/utils/spinner/loading_indicator.dart';
+import 'loading_indicator.dart';
 
 /// Defines the visual properties of [LoadingIndicator] widgets.
 ///

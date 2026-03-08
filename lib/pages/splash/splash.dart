@@ -9,15 +9,15 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/error/server_issues.dart';
-import 'package:runshaw/pages/login/stage1.dart';
+import 'package:runshaw/pages/login/welcome/welcome.dart';
 import 'package:runshaw/pages/main/main_view.dart';
 import 'package:runshaw/pages/nonetwork/no_network.dart';
 import 'package:runshaw/pages/onboarding/onboarding.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/logging.dart';
-import 'package:runshaw/utils/spinner/loading_indicator.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
+import 'package:runshaw/utils/vendor/spinner/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashPage extends StatefulWidget {
@@ -150,11 +150,6 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<bool> _hasNetworkWeb(String knownUrl) async {
     return true; // How would we access the site without internet??
-    // try {
-    //   final result = await http.get(Uri.parse("https://" + knownUrl));
-    //   if (result.statusCode == 200) return true;
-    // } on SocketException catch (_) {}
-    // return false;
   }
 
   Future<bool> _hasNetworkMobile(String knownUrl) async {
@@ -171,7 +166,7 @@ class _SplashPageState extends State<SplashPage> {
     return currentPrefs.data["onboarding_complete"] == true;
   }
 
-  _navigateToHome() async {
+  Future<dynamic> _navigateToHome() async {
     if (!await serverReachable() && !kIsWeb) {
       if (!await hasNetwork("google.com")) {
         // If we can't resolve google.com, then we have no internet

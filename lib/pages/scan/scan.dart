@@ -8,7 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/main.dart';
-import 'package:runshaw/pages/login/password_reset_login.dart';
+import 'package:runshaw/pages/login/password_reset/password_reset.dart';
 import 'package:runshaw/pages/scan/controller.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
@@ -141,6 +141,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
       builder: (context) {
         return BottomSheet(
           onClosing: () {},
+          enableDrag: false,
           builder: (context) {
             return StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {

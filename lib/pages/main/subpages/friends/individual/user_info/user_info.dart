@@ -6,6 +6,7 @@ import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
+import 'package:runshaw/utils/theme/dark.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -42,12 +43,12 @@ class _UserInfoPageState extends State<UserInfoPage> {
                 ? Colors.white
                 : (context.read<ThemeProvider>().amoledEnabled
                     ? Colors.black
-                    : const Color(0xFF1E1E1E)),
+                    : darkColourScheme.surfaceContainerHighest),
             context.read<ThemeProvider>().isLightMode
                 ? Colors.white
                 : (context.read<ThemeProvider>().amoledEnabled
                     ? Colors.black
-                    : const Color(0xFF1E1E1E)),
+                    : darkColourScheme.surfaceContainerHighest),
           ],
               stops: const [
             0.0,
@@ -77,7 +78,6 @@ class _UserInfoPageState extends State<UserInfoPage> {
                             widget.profilePicUrl,
                             errorListener: (error) {},
                           ),
-                          backgroundColor: getPfpColour(widget.profilePicUrl),
                           child: Text(
                             getFirstNameCharacter(widget.name),
                             style: GoogleFonts.rubik(
@@ -130,35 +130,6 @@ class _UserInfoPageState extends State<UserInfoPage> {
                   ),
                   subtitle: Text(widget.bus),
                   trailing: const Icon(Icons.directions_bus),
-                  // Legacy from when the app supported only one bus. TODO: Will rewrite in v1.3.1 to have a popup
-                  //   onTap: () async {
-                  //     if (widget.bus == "Not Set") {
-                  //       return;
-                  //     }
-                  //     final BaseAPI api = context.read<BaseAPI>();
-                  //     final String busBay = await api.getBusBay(widget.bus);
-
-                  //     if (busBay == "RSP_NYA" || busBay == "0") {
-                  //       // Response-Not-Yet-Arrived
-                  //       ScaffoldMessenger.of(context).showSnackBar(
-                  //         const SnackBar(
-                  //           content: Text(
-                  //             "Bus has not arrived yet",
-                  //           ),
-                  //         ),
-                  //       );
-                  //     } else {
-                  //       Navigator.push(
-                  //         context,
-                  //         MaterialPageRoute(
-                  //           builder: (context) => BusMapViewPage(
-                  //             bay: busBay,
-                  //             busNumber: widget.bus,
-                  //           ),
-                  //         ),
-                  //       );
-                  //     }
-                  //   },
                 ),
                 const Spacer(),
                 ListTile(

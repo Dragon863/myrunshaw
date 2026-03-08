@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/enums.dart';
 import 'package:appwrite/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
@@ -44,7 +45,6 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
         .split("-")
         .first;
 
-    loadUser();
     final user = await account.create(
       userId: userId,
       email: "$userId${MyRunshawConfig.emailExtension}",
@@ -54,7 +54,7 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
     status = AccountStatus.authenticated;
     await createEmailSession(email: email, password: password);
     notifyListeners();
-    loadUser();
+    await loadUser();
 
     RegExp regExp = RegExp(r'-\d{6}');
     if (regExp.hasMatch(email)) {
@@ -90,6 +90,15 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
       email: "$email${MyRunshawConfig.emailExtension}",
       password: password,
     );
+    await afterLogin();
+  }
+
+  Future<void> createOAuth2Session({required OAuthProvider provider}) async {
+    await account.createOAuth2Session(provider: provider);
+    await afterLogin();
+  }
+
+  Future<void> afterLogin() async {
     currentUser = await Account(client).get();
     if (!kIsWeb) {
       if (!Platform.isLinux) {
@@ -104,6 +113,7 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
       cacheNames(),
     ]);
     await caching;
+    notifyListeners();
   }
 
   Future<void> signOut() async {
@@ -118,6 +128,7 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
 
   Future<void> refreshUser() async {
     currentUser = await account.get();
+    notifyListeners();
   }
 
   Future<bool> shouldSendNotification() async {

@@ -5,8 +5,8 @@ import 'package:runshaw/pages/main/subpages/timetable/subpages/individual_event.
 import 'package:runshaw/pages/main/subpages/timetable/widgets/events_card.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
 import 'package:runshaw/pages/sync/sync.dart';
-import 'package:runshaw/utils/models.dart';
-import 'package:runshaw/utils/spinner/loading_indicator.dart';
+import 'package:runshaw/utils/models/event.dart';
+import 'package:runshaw/utils/vendor/spinner/loading_indicator.dart';
 
 class TimetableList extends StatefulWidget {
   final List<Event> events;
@@ -35,10 +35,6 @@ class _TimetableListState extends State<TimetableList> {
       emptyAndDense = true;
     }
     super.initState();
-  }
-
-  String _humaniseTime(DateTime start, DateTime end) {
-    return '${start.hour.toString().padLeft(2, '0')}:${start.minute.toString().padLeft(2, '0')} - ${end.hour.toString().padLeft(2, '0')}:${end.minute.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -100,7 +96,7 @@ class _TimetableListState extends State<TimetableList> {
                             lessonName:
                                 event.summary == '' ? "Exam" : event.summary,
                             roomAndTeacher: eventDetails,
-                            timing: _humaniseTime(event.start, event.end),
+                            timing: humaniseTime(event.start, event.end),
                             color:
                                 event.summary != "" ? Colors.blue : Colors.red,
                             dense: widget.dense,
@@ -130,7 +126,7 @@ class _TimetableListState extends State<TimetableList> {
                             lessonName:
                                 event.summary == '' ? "Exam" : event.summary,
                             roomAndTeacher: event.description ?? '',
-                            timing: _humaniseTime(event.start, event.end),
+                            timing: humaniseTime(event.start, event.end),
                             color: event.summary != ''
                                 ? Colors.green.shade400
                                 : Colors.red,

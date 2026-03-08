@@ -69,5 +69,18 @@
 		<true />
 		<key>com.posthog.posthog.AUTO_INIT</key>
 		<false />
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+				<key>CFBundleURLName</key>
+				<string>io.appwrite</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>appwrite-callback-66fdb56000209ea9ac18</string>
+				</array>
+			</dict>
+		</array>
 	</dict>
 </plist>

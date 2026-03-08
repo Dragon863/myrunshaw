@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:runshaw/pages/login/password_reset_login.dart';
+import 'package:runshaw/pages/login/password_reset/password_reset.dart';
+import 'package:runshaw/pages/login/widgets/buttons.dart';
 import 'package:runshaw/pages/splash/splash.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/logging.dart';
-import 'package:runshaw/utils/theme/theme_provider.dart';
+import 'package:runshaw/utils/vendor/spinner/loading_indicator.dart';
 
 class EmailPage extends StatefulWidget {
   const EmailPage({super.key});
@@ -25,16 +26,6 @@ class _EmailPageState extends State<EmailPage> {
   @override
   void initState() {
     super.initState();
-    // final BaseAPI api = context.read<BaseAPI>();
-    // api.addListener(() {
-    //   if (api.status == AccountStatus.authenticated) {
-    //     Navigator.of(context).pushReplacement(
-    //       MaterialPageRoute(
-    //         builder: (context) => const SplashPage(),
-    //       ),
-    //     );
-    //   }
-    // });
   }
 
   @override
@@ -95,7 +86,9 @@ class _EmailPageState extends State<EmailPage> {
                     ],
                     decoration: const InputDecoration(
                       labelText: 'College Email / Student ID',
-                      border: OutlineInputBorder(),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
                     ),
                     keyboardType: TextInputType.emailAddress,
                     controller: emailController,
@@ -105,19 +98,17 @@ class _EmailPageState extends State<EmailPage> {
                     autofillHints: const [AutofillHints.password],
                     decoration: const InputDecoration(
                       labelText: 'Password',
-                      border: OutlineInputBorder(),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
                     ),
                     keyboardType: TextInputType.text,
                     obscureText: true,
                     controller: passwordController,
                   ),
                   const SizedBox(height: 20),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: context.read<ThemeProvider>().isDarkMode
-                          ? Colors.red
-                          : null,
-                    ),
+                  PrimaryButton(
+                    borderRadius: 32.0,
                     onPressed: () async {
                       setState(() {
                         loading = true;
@@ -184,39 +175,20 @@ class _EmailPageState extends State<EmailPage> {
                         }
                       }
                     },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Sign In',
-                          style: TextStyle(
-                            color: context.read<ThemeProvider>().isDarkMode
-                                ? Colors.white
-                                : null,
-                          ),
-                        ),
-                        loading
-                            ? const SizedBox(width: 10)
-                            : const SizedBox.shrink(),
-                        loading
-                            ? SizedBox(
-                                width: 12,
-                                height: 12,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 3,
-                                  color:
-                                      context.read<ThemeProvider>().isLightMode
-                                          ? Colors.black
-                                          : Colors.white,
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                      ],
-                    ),
+                    text: loading ? "Loading..." : "Login",
+                    icon: loading
+                        ? SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: LoadingIndicator(
+                              activeIndicatorColor: Colors.white,
+                            ),
+                          )
+                        : null,
                   ),
                   const SizedBox(height: 10),
-                  OutlinedButton(
+                  SecondaryButton(
+                    borderRadius: 32.0,
                     onPressed: () async {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -224,14 +196,7 @@ class _EmailPageState extends State<EmailPage> {
                         ),
                       );
                     },
-                    child: Text(
-                      'Sign Up',
-                      style: TextStyle(
-                        color: context.read<ThemeProvider>().isDarkMode
-                            ? Colors.white
-                            : null,
-                      ),
-                    ),
+                    text: "Sign Up",
                   ),
                 ],
               ),

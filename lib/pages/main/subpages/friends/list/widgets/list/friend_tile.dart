@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/individual_friend.dart';
 import 'package:runshaw/utils/api.dart';
-import 'package:runshaw/utils/models.dart';
+import 'package:runshaw/utils/models/event.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
 
 class FriendTile extends StatefulWidget {
@@ -126,7 +126,6 @@ class _FriendTileState extends State<FriendTile> {
             widget.profilePicUrl!,
             errorListener: (error) {},
           ),
-          backgroundColor: getPfpColour(widget.profilePicUrl!),
           child: Text(
             getFirstNameCharacter(name),
             style: GoogleFonts.rubik(

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/onboarding/onboarding.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/logging.dart';
 
 class OnBoardingStageTwo extends StatefulWidget implements OnboardingStage {
   const OnBoardingStageTwo({super.key});
@@ -58,6 +59,7 @@ class _OnBoardingStageTwoState extends State<OnBoardingStageTwo> {
       await api.account.updateName(name: name);
       fail = false;
     } catch (e) {
+      debugLog("Error saving name: $e", level: 3);
       fail = true;
     }
     if (fail) {
