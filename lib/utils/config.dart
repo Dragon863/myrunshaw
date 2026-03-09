@@ -1,10 +1,15 @@
 class MyRunshawConfig {
   static const String endpoint = "https://appwrite.danieldb.uk/v1";
   static const String endpointHostname = "appwrite.danieldb.uk";
+
   static const String projectId = "66fdb56000209ea9ac18";
   static const String profileBucketId = "profiles";
+
   static const String inAppDbId = "inapp";
   static const String noticesCollectionId = "notices";
+
+  static const String featureFlagsDbId = "feature-flags";
+  static const String featureFlagsCollectionId = "feature-flags";
 
   // static const String aptabaseProjectId = "A-SH-5552019394";
   // static const String aptabaseHost = "https://analytics.danieldb.uk";

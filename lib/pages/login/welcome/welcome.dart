@@ -30,9 +30,7 @@ class StageOneLogin extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: 400,
-                    ),
+                    constraints: BoxConstraints(maxWidth: 400, minWidth: 200),
                     child: Padding(
                       padding: EdgeInsets.only(
                         bottom: 24.0,

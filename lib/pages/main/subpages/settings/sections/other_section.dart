@@ -18,6 +18,25 @@ class SettingsOtherSection extends StatefulWidget {
 }
 
 class _SettingsOtherSectionState extends State<SettingsOtherSection> {
+  Future<bool> getAnalyticsState() async {
+    // Returns true if analytics is enabled, false if it is disabled. Checks shared preferences first, then falls back to Posthog's isOptOut method if no preference is set. This is because the user may have changed their analytics preference in a previous version of the app that didn't store the preference in shared preferences, so we need to check Posthog's opt-out status to determine their current preference.
+    final prefs = await SharedPreferences.getInstance();
+    final bool? optOut = prefs.getBool("analytics_opt_out");
+    if (optOut == null) {
+      final bool isOptedOut = await Posthog().isOptOut();
+      debugLog(
+        "User has ${isOptedOut ? "opted out of" : "opted in to"} analytics (determined by Posthog)",
+        level: 1,
+      );
+      return !isOptedOut;
+    }
+    debugLog(
+      "User has ${optOut ? "opted out of" : "opted in to"} analytics (determined by shared preferences)",
+      level: 1,
+    );
+    return !optOut;
+  }
+
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
@@ -32,14 +51,14 @@ class _SettingsOtherSectionState extends State<SettingsOtherSection> {
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
           ),
           trailing: FutureBuilder<bool>(
-            future: Posthog().isOptOut(),
+            future: getAnalyticsState(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator();
               }
               final bool enabled = snapshot.data ?? true;
               return Switch(
-                value: enabled,
+                value: !enabled,
                 onChanged: (value) async {
                   final prefs = await SharedPreferences.getInstance();
                   if (value) {

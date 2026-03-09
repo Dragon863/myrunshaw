@@ -96,6 +96,7 @@ class _SplashPageState extends State<SplashPage> {
     config.errorTrackingConfig.captureIsolateErrors = true;
     config.errorTrackingConfig.captureNativeExceptions = true;
     config.errorTrackingConfig.captureSilentFlutterErrors = false;
+    config.preloadFeatureFlags = true;
     config.host = 'https://eu.i.posthog.com';
     await Posthog().setup(config);
 

@@ -28,6 +28,7 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
           }, userPropertiesSetOnce: {
             "date_of_first_log_in": DateTime.now().toIso8601String(),
           });
+          await Posthog().reloadFeatureFlags();
         }
       }
     } catch (e) {

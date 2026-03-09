@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/technician/technician.dart';
 import 'package:runshaw/pages/main/subpages/buses/buses.dart';
@@ -26,5 +27,6 @@ List<Widget> getPages(bool showNotifs) {
 Future<void> logOut(BuildContext context) async {
   final api = context.read<BaseAPI>();
   await api.signOut();
+  await Posthog().reset();
   Navigator.of(context).pushNamedAndRemoveUntil('/splash', (route) => false);
 }

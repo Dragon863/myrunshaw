@@ -1,4 +1,5 @@
 import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/models.dart' as appwrite show Row;
 import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -14,23 +15,23 @@ import 'dart:io' show Platform;
 void checkInAppAlerts(BuildContext context) async {
   final api = context.read<BaseAPI>();
   final Client client = api.client;
-  final databases = Databases(client);
+  final databases = TablesDB(client);
 
-  final DocumentList collection = await databases.listDocuments(
+  final RowList collection = await databases.listRows(
     databaseId: MyRunshawConfig.inAppDbId,
-    collectionId: MyRunshawConfig.noticesCollectionId,
+    tableId: MyRunshawConfig.noticesCollectionId,
   );
 
-  final List<Document> documents = collection.documents;
-  for (final Document doc in documents) {
+  final List<appwrite.Row> rows = collection.rows;
+  for (final appwrite.Row row in rows) {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String id = doc.$id;
+    final String id = row.$id;
 
     debugLog("Checking notice $id");
 
     if (prefs.getBool(id) == null || prefs.getBool(id) == false) {
-      final bool isIos = doc.data["ios"];
-      final bool isAndroid = doc.data["android"];
+      final bool isIos = row.data["ios"];
+      final bool isAndroid = row.data["android"];
 
       if (isAndroid == false && Platform.isAndroid) {
         debugLog("Skipping notice $id as it is not for Android");
@@ -40,8 +41,8 @@ void checkInAppAlerts(BuildContext context) async {
         continue;
       }
 
-      if (doc.data["expires"] != null) {
-        final DateTime date = DateTime.parse(doc.data["expires"]);
+      if (row.data["expires"] != null) {
+        final DateTime date = DateTime.parse(row.data["expires"]);
         final DateTime now = DateTime.now();
         if (now.isAfter(date)) {
           debugLog("Skipping notice $id as it has expired");
@@ -50,11 +51,11 @@ void checkInAppAlerts(BuildContext context) async {
         }
       }
 
-      if (doc.data["maxversion"] != null) {
+      if (row.data["maxversion"] != null) {
         final PackageInfo packageInfo = await PackageInfo.fromPlatform();
         final Version currentVersion = Version.parse(packageInfo.version);
 
-        final Version maxVersion = Version.parse(doc.data["maxversion"]);
+        final Version maxVersion = Version.parse(row.data["maxversion"]);
         if (currentVersion > maxVersion) {
           debugLog("Skipping notice $id as the user's version is too high");
           // User's version is too high
@@ -62,11 +63,11 @@ void checkInAppAlerts(BuildContext context) async {
         }
       }
 
-      if (doc.data["minversion"] != null) {
+      if (row.data["minversion"] != null) {
         final PackageInfo packageInfo = await PackageInfo.fromPlatform();
         final Version currentVersion = Version.parse(packageInfo.version);
 
-        final Version minVersion = Version.parse(doc.data["minversion"]);
+        final Version minVersion = Version.parse(row.data["minversion"]);
         if (currentVersion < minVersion) {
           debugLog("Skipping notice $id as the user's version is too low");
           // User's version is too low
@@ -79,7 +80,7 @@ void checkInAppAlerts(BuildContext context) async {
         barrierDismissible: false,
         barrierColor: Colors.black.withOpacity(0.7),
         builder: (BuildContext context) {
-          return InAppNotice(data: doc.data);
+          return InAppNotice(data: row.data);
         },
       );
     } else {
