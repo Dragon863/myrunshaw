@@ -19,6 +19,7 @@ class _ExtraBusPageState extends State<ExtraBusPage> {
   bool _loading = true;
   final _formKey = GlobalKey<FormState>();
   String? busNumber;
+  late ValueNotifier<String?> _busNumberNotifier;
 
   Future<void> fetchCurrentBuses() async {
     setState(() {
@@ -35,8 +36,15 @@ class _ExtraBusPageState extends State<ExtraBusPage> {
 
   @override
   void initState() {
+    _busNumberNotifier = ValueNotifier<String?>(null);
     fetchCurrentBuses();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _busNumberNotifier.dispose();
+    super.dispose();
   }
 
   Future<void> addBus() async {
@@ -80,20 +88,19 @@ class _ExtraBusPageState extends State<ExtraBusPage> {
                     }
                     return null;
                   },
-                  onChanged: (value) async {
-                    setState(() {
-                      busNumber = value;
-                    });
+                  onChanged: (value) {
+                    _busNumberNotifier.value = value;
+                    busNumber = value;
                   },
                   buttonStyleData: const FormFieldButtonStyleData(
                     padding: EdgeInsets.only(right: 16),
                   ),
-                  iconStyleData: const IconStyleData(
+                  iconStyleData: IconStyleData(
                     icon: Icon(
                       Icons.arrow_drop_down,
-                      color: Colors.black45,
+                      color: ColorScheme.of(context).onSurfaceVariant,
                     ),
-                    iconSize: 24,
+                    iconSize: 18,
                   ),
                   dropdownStyleData: DropdownStyleData(
                     decoration: BoxDecoration(
@@ -103,6 +110,7 @@ class _ExtraBusPageState extends State<ExtraBusPage> {
                   menuItemStyleData: const MenuItemStyleData(
                     padding: EdgeInsets.symmetric(horizontal: 16),
                   ),
+                  valueListenable: _busNumberNotifier,
                 ),
               ),
             ),

@@ -124,13 +124,15 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
     notifyListeners();
   }
 
-  Future<void> signOut() async {
+  Future<void> signOut({bool notify = true}) async {
     try {
       await account.deleteSessions();
       jwt = null;
       status = AccountStatus.unauthenticated;
     } finally {
-      notifyListeners();
+      if (notify) {
+        notifyListeners();
+      }
     }
   }
 

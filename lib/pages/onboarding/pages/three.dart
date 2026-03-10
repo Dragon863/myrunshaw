@@ -18,6 +18,7 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
   List<String> _extraBuses = [];
   bool _loading = true;
   final _formKey = GlobalKey<FormState>();
+  late ValueNotifier<String?> _busNumberNotifier;
 
   Future<void> fetchCurrentBuses() async {
     setState(() {
@@ -34,8 +35,15 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
 
   @override
   void initState() {
+    _busNumberNotifier = ValueNotifier<String?>(null);
     fetchCurrentBuses();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _busNumberNotifier.dispose();
+    super.dispose();
   }
 
   Future<void> addBus() async {
@@ -79,10 +87,9 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
                     }
                     return null;
                   },
-                  onChanged: (value) async {
-                    setState(() {
-                      busNumber = value;
-                    });
+                  onChanged: (value) {
+                    _busNumberNotifier.value = value;
+                    busNumber = value;
                   },
                   buttonStyleData: const FormFieldButtonStyleData(
                     padding: EdgeInsets.only(right: 16),
@@ -102,6 +109,7 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
                   menuItemStyleData: const MenuItemStyleData(
                     padding: EdgeInsets.symmetric(horizontal: 16),
                   ),
+                  valueListenable: _busNumberNotifier,
                 ),
               ),
             ),

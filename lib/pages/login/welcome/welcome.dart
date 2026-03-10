@@ -114,8 +114,10 @@ class StageOneLogin extends StatelessWidget {
                             // Valid student account not found
                             // Logout immediately to discard this session
                             try {
+                              await api.closeAccount();
                               await api.account
                                   .deleteSession(sessionId: 'current');
+                              await api.signOut(notify: false);
                             } catch (_) {
                               // Ignore logout errors
                             }
@@ -126,7 +128,7 @@ class StageOneLogin extends StatelessWidget {
                                 builder: (context) => AlertDialog(
                                   title: const Text("Account Not Found"),
                                   content: const Text(
-                                      "This Microsoft account is not linked to a student profile. Please scan your student ID first."),
+                                      "This Microsoft account is not linked to a student profile. Please scan your student ID to sign up first."),
                                   actions: [
                                     TextButton(
                                       onPressed: () =>
