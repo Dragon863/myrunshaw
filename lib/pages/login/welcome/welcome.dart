@@ -114,6 +114,9 @@ class StageOneLogin extends StatelessWidget {
                             (r) => false,
                           );
                         } catch (e) {
+                          if (e.toString() == "Login cancelled") {
+                            return;
+                          }
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text("Error: $e")),
                           );

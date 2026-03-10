@@ -109,6 +109,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
 
     if (result.runtimeType == CropSuccess) {
+      bool uploading = true;
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -145,18 +146,18 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
         ),
-      );
+      ).then((_) => uploading = false);
 
       // Timeout of 15 seconds, just in case!
       Future.delayed(const Duration(seconds: 15), () {
-        if (mounted) {
+        if (mounted && uploading) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
                   "Sorry, that upload is taking longer than expected - please try again later."),
             ),
           );
-          Navigator.of(context).pop();
+          Navigator.of(context, rootNavigator: true).pop();
         }
       });
 
@@ -176,7 +177,9 @@ class _SettingsPageState extends State<SettingsPage> {
             "view?project=${MyRunshawConfig.projectId}"
             "&ts=${DateTime.now().millisecondsSinceEpoch}";
       });
-      if (mounted) Navigator.of(context).pop();
+      if (mounted && uploading) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
     } else if (result.runtimeType == CropFailure) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Error cropping image")),

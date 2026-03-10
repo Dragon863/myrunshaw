@@ -96,7 +96,14 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
 
   Future<void> createOAuth2Session({required OAuthProvider provider}) async {
     await account.createOAuth2Session(provider: provider);
-    await afterLogin();
+    try {
+      await afterLogin();
+    } on AppwriteException catch (e) {
+      if (e.code == 401) {
+        throw 'Login cancelled';
+      }
+      rethrow;
+    }
   }
 
   Future<void> afterLogin() async {

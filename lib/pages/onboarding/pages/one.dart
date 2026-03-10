@@ -67,7 +67,10 @@ class OnBoardingStageOne extends StatelessWidget {
                         }
                       }
                       if (await canLaunchUrl(url)) {
-                        await launchUrl(url);
+                        await launchUrl(
+                          url,
+                          mode: LaunchMode.externalApplication,
+                        );
                       } else {
                         throw 'Could not launch $url';
                       }

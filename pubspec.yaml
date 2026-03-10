@@ -2,7 +2,7 @@ name: runshaw
 description: "My Runshaw mobile app"
 publish_to: "none" # don't remove this line! we don't want to accidentally publish this app to pub.dev
 
-version: 1.4.2+36
+version: 1.4.3+37
 
 environment:
   sdk: ^3.5.1
@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  appwrite: ^20.3.2
+  appwrite: ^22.0.0
   mobile_scanner: ^7.1.4
   google_fonts: ^8.0.2
   provider: ^6.1.5+1
@@ -22,16 +22,16 @@ dependencies:
   image_picker: ^1.2.0
   cached_network_image: ^3.4.1
   http: ^1.6.0
-  dropdown_button2: ^2.3.9
-  onesignal_flutter: ^5.3.0
+  dropdown_button2: ^3.0.0
+  onesignal_flutter: ^5.4.3
   url_launcher: ^6.3.1
-  video_player: ^2.9.2
+  video_player: ^2.11.1
   crop_your_image: ^2.0.0
   package_info_plus: ^9.0.0
   flutter_image_map: ^1.0.1
   pub_semver: ^2.1.5
   skeletonizer: ^2.0.1
-  posthog_flutter: ^5.18.0
+  posthog_flutter: ^5.19.0
   device_info_plus: ^12.3.0
   gaimon: ^1.4.2
   flutter_cache_manager: ^3.4.1

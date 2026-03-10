@@ -56,13 +56,14 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
+                    hintText: busNumber,
                   ),
                   hint: const Text(
                     'Select Your Bus Number',
                     style: TextStyle(fontSize: 14),
                   ),
                   items: MyRunshawConfig.busNumbers
-                      .map((item) => DropdownMenuItem<String>(
+                      .map((item) => DropdownItem<String>(
                             value: item.toString(),
                             child: Text(
                               item.toString(),
@@ -83,7 +84,7 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
                       busNumber = value;
                     });
                   },
-                  buttonStyleData: const ButtonStyleData(
+                  buttonStyleData: const FormFieldButtonStyleData(
                     padding: EdgeInsets.only(right: 16),
                   ),
                   iconStyleData: const IconStyleData(
@@ -101,7 +102,6 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
                   menuItemStyleData: const MenuItemStyleData(
                     padding: EdgeInsets.symmetric(horizontal: 16),
                   ),
-                  value: busNumber,
                 ),
               ),
             ),

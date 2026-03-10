@@ -355,30 +355,19 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
           try {
             final BaseAPI api = context.read<BaseAPI>();
             final String topUpUrl = await api.getRunshawPayTopupUrl();
-            if (topUpUrl != null) {
-              if (await canLaunchUrlString(topUpUrl)) {
-                await launchUrlString(
-                  topUpUrl,
-                  mode: LaunchMode.externalApplication,
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Couldn't open top up page."),
-                  ),
-                );
-                await Posthog().capture(
-                  eventName: 'runshawpay_topup_launch_failed',
-                );
-              }
+            if (await canLaunchUrlString(topUpUrl)) {
+              await launchUrlString(
+                topUpUrl,
+                mode: LaunchMode.externalApplication,
+              );
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text("Top up URL is not available."),
+                  content: Text("Couldn't open top up page."),
                 ),
               );
               await Posthog().capture(
-                eventName: 'runshawpay_topup_url_null',
+                eventName: 'runshawpay_topup_launch_failed',
               );
             }
           } on RunshawPayException catch (e) {

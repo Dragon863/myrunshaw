@@ -108,9 +108,9 @@ class _UserInfoPageState extends State<UserInfoPage> {
                 ListTile(
                   onTap: () async {
                     if (!await launchUrl(
-                      Uri.parse(
-                          "mailto:${widget.id}${MyRunshawConfig.emailExtension}"),
-                    )) {
+                        Uri.parse(
+                            "mailto:${widget.id}${MyRunshawConfig.emailExtension}"),
+                        mode: LaunchMode.externalApplication)) {
                       throw Exception('Could not launch email');
                     }
                   },
