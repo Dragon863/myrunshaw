@@ -21,10 +21,10 @@ packages:
     dependency: "direct main"
     description:
       name: appwrite
-      sha256: "874451092247d1a2409aa91f607fb42966c9e564e26146d2daa1c36b6ff150be"
+      sha256: "7e8f58d4221758884f17933ea9b5d1fdce8a14e0a6702664dbfc76a3611ceeb6"
       url: "https://pub.dev"
     source: hosted
-    version: "20.3.3"
+    version: "22.0.0"
   archive:
     dependency: transitive
     description:
@@ -277,10 +277,10 @@ packages:
     dependency: "direct main"
     description:
       name: dropdown_button2
-      sha256: b0fe8d49a030315e9eef6c7ac84ca964250155a6224d491c1365061bc974a9e1
+      sha256: fbb9ea9ea81b04e48d27bb181852b7e11e684aa2a32e95aec4c131be1849e33a
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.9"
+    version: "3.0.0"
   fake_async:
     dependency: transitive
     description:
@@ -748,10 +748,10 @@ packages:
     dependency: "direct main"
     description:
       name: onesignal_flutter
-      sha256: "8c365957ac671863bb1fb2d2a9b5278af1090dbe01ee9aa7a1c5d6856d8b3aa7"
+      sha256: "97284e26f4fed19d96610087db95201a74e56fd807d4e9171243b2862e0f212a"
       url: "https://pub.dev"
     source: hosted
-    version: "5.4.1"
+    version: "5.4.3"
   package_config:
     dependency: transitive
     description:
@@ -876,10 +876,10 @@ packages:
     dependency: "direct main"
     description:
       name: posthog_flutter
-      sha256: "15049530693d7810188401e4f9076e1ba900f0fec1c3c8a244d3c46ca3928006"
+      sha256: "04f95017238189fdc57146591a5a665398165dc7add86304345bbc2a7175194f"
       url: "https://pub.dev"
     source: hosted
-    version: "5.18.0"
+    version: "5.19.0"
   provider:
     dependency: "direct main"
     description:
@@ -1201,10 +1201,10 @@ packages:
     dependency: "direct main"
     description:
       name: video_player
-      sha256: "08bfba72e311d48219acad4e191b1f9c27ff8cf928f2c7234874592d9c9d7341"
+      sha256: "48a7bdaa38a3d50ec10c78627abdbfad863fdf6f0d6e08c7c3c040cfd80ae36f"
       url: "https://pub.dev"
     source: hosted
-    version: "2.11.0"
+    version: "2.11.1"
   video_player_android:
     dependency: transitive
     description:

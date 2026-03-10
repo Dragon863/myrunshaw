@@ -102,7 +102,7 @@ class _SettingsOtherSectionState extends State<SettingsOtherSection> {
               query:
                   "subject=My Runshaw Bug Report&body=App version: ${widget.appVersion}\nBefore sending, please check you are on the latest version of the app from the App Store or Google Play Store. Describe the bug you encountered here:",
             );
-            await launchUrl(emailUri);
+            await launchUrl(emailUri, mode: LaunchMode.externalApplication);
           },
         ),
         ListTile(
@@ -123,7 +123,7 @@ class _SettingsOtherSectionState extends State<SettingsOtherSection> {
               }
             }
             if (await canLaunchUrl(url)) {
-              await launchUrl(url);
+              await launchUrl(url, mode: LaunchMode.externalApplication);
             } else {
               throw 'Could not launch $url';
             }

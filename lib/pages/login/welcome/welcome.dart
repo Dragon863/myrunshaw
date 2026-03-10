@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:runshaw/pages/login/widgets/buttons.dart';
 import 'package:runshaw/pages/login/email/email.dart';
 import 'package:runshaw/pages/login/widgets/divider.dart';
+import 'package:runshaw/pages/scan/controller.dart';
 import 'package:runshaw/pages/scan/scan.dart';
 import 'package:runshaw/pages/splash/splash.dart';
 import 'package:runshaw/utils/api.dart';
@@ -100,23 +101,66 @@ class StageOneLogin extends StatelessWidget {
                       onPressed: () async {
                         final BaseAPI api = context.read<BaseAPI>();
                         try {
-                          await api.createOAuth2Session(
+                          await api.account.createOAuth2Session(
                             provider: OAuthProvider.microsoft,
                           );
+
+                          // Check if the user ID matches a valid Student ID
+                          // by checking it against regex.
+                          final user = await api.account.get();
+                          final matches = validateNonBadge(user.$id);
+
+                          if (!matches) {
+                            // Valid student account not found
+                            // Logout immediately to discard this session
+                            try {
+                              await api.account
+                                  .deleteSession(sessionId: 'current');
+                            } catch (_) {
+                              // Ignore logout errors
+                            }
+
+                            if (context.mounted) {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text("Account Not Found"),
+                                  content: const Text(
+                                      "This Microsoft account is not linked to a student profile. Please scan your student ID first."),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
+                                      child: const Text("OK"),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                            return;
+                          }
+
                           await Posthog().capture(
                             eventName: 'oauth_login',
                           );
-                          await Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SplashPage(),
-                            ),
-                            (r) => false,
-                          );
+                          if (context.mounted) {
+                            await Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SplashPage(),
+                              ),
+                              (r) => false,
+                            );
+                          }
                         } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Error: $e")),
-                          );
+                          if (e.toString().contains("cancelled")) {
+                            return;
+                          }
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Error: $e")),
+                            );
+                          }
                           await Posthog().captureException(
                             error: e,
                             stackTrace: StackTrace.current,
