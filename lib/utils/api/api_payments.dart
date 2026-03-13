@@ -41,6 +41,10 @@ mixin ApiPayments on ApiCore {
       final List allTransactions = jsonDecode(utf8.decode(response.bodyBytes));
 
       for (final transaction in allTransactions) {
+        if (transaction["amount"] == "Err" || transaction["balance"] == "Err") {
+          // API response for failure parsing - just skip it
+          continue;
+        }
         toReturn.add(
           Transaction(
             transaction["date"],

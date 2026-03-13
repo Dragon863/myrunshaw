@@ -748,10 +748,10 @@ packages:
     dependency: "direct main"
     description:
       name: onesignal_flutter
-      sha256: "97284e26f4fed19d96610087db95201a74e56fd807d4e9171243b2862e0f212a"
+      sha256: d4d622272b56ab0b6d974220ccebeb3c1b01566ac771de2a78e0ede8ce648bba
       url: "https://pub.dev"
     source: hosted
-    version: "5.4.3"
+    version: "5.4.4"
   package_config:
     dependency: transitive
     description:
@@ -876,10 +876,10 @@ packages:
     dependency: "direct main"
     description:
       name: posthog_flutter
-      sha256: "04f95017238189fdc57146591a5a665398165dc7add86304345bbc2a7175194f"
+      sha256: "470eb55c5265e61bdcac7d720fa9de1306746a6086fe59dc06d2254d794705ed"
       url: "https://pub.dev"
     source: hosted
-    version: "5.19.0"
+    version: "5.20.0"
   provider:
     dependency: "direct main"
     description:
