@@ -190,8 +190,14 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _updateProfilePic(InputFile profilePicture) async {
     final api = context.read<BaseAPI>();
     final Storage storage = Storage(api.client);
+    final List<String> permissions = [
+      Permission.read(Role.any()),
+      Permission.write(Role.user(api.currentUser.$id)),
+      Permission.update(Role.user(api.currentUser.$id)),
+      Permission.delete(Role.user(api.currentUser.$id)),
+    ];
+
     try {
-      await storage.getFile(bucketId: "profiles", fileId: api.currentUser.$id);
       await storage.deleteFile(
           bucketId: "profiles", fileId: api.currentUser.$id);
       await api.incrementPfpVersion();
@@ -200,17 +206,53 @@ class _SettingsPageState extends State<SettingsPage> {
     } on AppwriteException catch (_) {
       // File didn't exist yet — fine, proceed to create
     }
-    await storage.createFile(
-      bucketId: "profiles",
-      fileId: api.currentUser.$id,
-      file: profilePicture,
-      permissions: [
-        Permission.read(Role.any()),
-        Permission.write(Role.user(api.currentUser.$id)),
-        Permission.update(Role.user(api.currentUser.$id)),
-        Permission.delete(Role.user(api.currentUser.$id)),
-      ],
-    );
+
+    try {
+      await api.client.chunkedUpload(
+        path: '/storage/buckets/profiles/files',
+        params: {
+          'fileId': api.currentUser.$id,
+          'file': profilePicture,
+          'permissions': permissions,
+        },
+        paramName: 'file',
+        idParamName: 'fileId',
+        headers: {
+          'content-type': 'multipart/form-data',
+        },
+      );
+    } on AppwriteException catch (e, st) {
+      if (e.code != 409) {
+        rethrow;
+      }
+
+      debugLog(
+        "Profile upload returned 409; deleting and retrying once: $e",
+        level: 2,
+      );
+      await Posthog().captureException(
+        error: e,
+        stackTrace: st,
+      );
+
+      await storage.deleteFile(
+          bucketId: "profiles", fileId: api.currentUser.$id);
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      await api.client.chunkedUpload(
+        path: '/storage/buckets/profiles/files',
+        params: {
+          'fileId': api.currentUser.$id,
+          'file': profilePicture,
+          'permissions': permissions,
+        },
+        paramName: 'file',
+        idParamName: 'fileId',
+        headers: {
+          'content-type': 'multipart/form-data',
+        },
+      );
+    }
   }
 
   Future<void> deleteAction() async {
