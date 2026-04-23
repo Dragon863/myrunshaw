@@ -9,6 +9,7 @@ import 'package:runshaw/pages/privacy/privacy_policy.dart';
 import 'package:runshaw/pages/splash/splash.dart';
 import 'package:runshaw/pages/terms/terms_of_use.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/logging.dart';
 import 'package:runshaw/utils/theme/dark.dart';
 import 'package:runshaw/utils/theme/light.dart';
@@ -21,6 +22,7 @@ void main() async {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   debugLog("Starting app...", level: 0);
+  MyRunshawConfig.logApiUrlsOnStartup();
 
   // new in v1.3.24, analytics are now initialised on the splash page so
   // surveys are shown *after* automatic navigation to the home page, not before.

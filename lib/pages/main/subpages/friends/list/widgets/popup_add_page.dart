@@ -148,7 +148,7 @@ class _PopupFriendAddPageState extends State<PopupFriendAddPage>
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(textController.text);
+                  Navigator.of(context).pop(textController.text.trim());
                   // Pop twice to close the scanner and the dialog
                 },
                 child: const Text("Submit"),
@@ -163,8 +163,8 @@ class _PopupFriendAddPageState extends State<PopupFriendAddPage>
                   if (await Gaimon.canSupportsHaptic) {
                     Gaimon.medium();
                   }
-                  await returnValue(value);
                 }
+                await returnValue(value);
               }
             }
           });

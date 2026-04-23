@@ -180,20 +180,4 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
       eventName: 'account_closed',
     );
   }
-
-  Future<String> resetPasswordWithoutAuth(
-      String studentId, String code, String newPassword) async {
-    final response = await httpClient.post(
-      Uri.parse(
-          '${MyRunshawConfig.passwordResetMicroserviceUrl}/api/reset_password?user_id=$studentId&code=$code'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({'new_password': newPassword}),
-    );
-    await Posthog().capture(
-      eventName: 'password_reset_attempt',
-    );
-    return jsonDecode(response.body)["message"];
-  }
 }

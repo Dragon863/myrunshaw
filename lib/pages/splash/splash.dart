@@ -241,22 +241,33 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> _cacheData(BaseAPI api) async {
-    try {
-      debugLog("Caching friends");
-      await api.cacheFriends();
-      debugLog("Caching names");
-      await Future.wait(
-        [
-          api.cacheNames(),
-          api.cachePfpVersions(),
-          api.cacheTimetables(),
-        ],
-      );
-      debugLog("Caching names done");
-      debugLog("Caching pfp versions done");
-      debugLog("Caching timetables done");
-    } catch (e) {
-      debugLog("Error caching data: $e");
+    const int maxAttempts = 2;
+    int attempt = 0;
+
+    while (attempt < maxAttempts) {
+      attempt++;
+      try {
+        debugLog("Caching friends (attempt $attempt/$maxAttempts)");
+        await api.cacheFriends();
+        debugLog(
+            "Caching names/pfp/timetables (attempt $attempt/$maxAttempts)");
+        await Future.wait(
+          [
+            api.cacheNames(),
+            api.cachePfpVersions(),
+            api.cacheTimetables(),
+          ],
+        );
+        debugLog("Caching names done");
+        debugLog("Caching pfp versions done");
+        debugLog("Caching timetables done");
+        return;
+      } catch (e) {
+        debugLog("Error caching data (attempt $attempt/$maxAttempts): $e");
+        if (attempt >= maxAttempts) {
+          return;
+        }
+      }
     }
   }
 
