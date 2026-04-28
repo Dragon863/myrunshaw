@@ -14,7 +14,11 @@ Client httpClient() {
     return CronetClient.defaultCronetEngine();
   }
   if (Platform.isIOS || Platform.isMacOS) {
-    return CupertinoClient.defaultSessionConfiguration();
+    try {
+      return CupertinoClient.defaultSessionConfiguration();
+    } catch (_) {
+      return IOClient();
+    }
   }
   return IOClient();
 }

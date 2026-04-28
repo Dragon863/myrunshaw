@@ -15,9 +15,13 @@ import 'package:runshaw/utils/theme/dark.dart';
 import 'package:runshaw/utils/theme/light.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
+import 'package:background_fetch/background_fetch.dart';
+import 'package:runshaw/utils/widgets/runshaw_pay_widget_sync.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  BackgroundFetch.registerHeadlessTask(runshawPayWidgetHeadlessTask);
 
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -29,6 +33,7 @@ void main() async {
 
   final themeProvider = ThemeProvider();
   await themeProvider.initTheme();
+  await RunshawPayWidgetSync.initialize();
 
   runApp(
     MultiProvider(
@@ -124,6 +129,8 @@ class BaseApp extends StatelessWidget {
               const PasswordResetPage(),
           '/terms': (BuildContext context) => const TermsOfUsePage(),
           '/about': (BuildContext context) => const AboutPage(),
+          '/refresh-balance': (BuildContext context) =>
+              const SplashPage(nextRoute: '/pay'),
           // We can only add routes here that don't need data passing to them
         },
         navigatorKey: globalKey,

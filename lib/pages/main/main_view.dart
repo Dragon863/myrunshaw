@@ -52,6 +52,9 @@ class _MainPageState extends State<MainPage> {
           } else if (widget.nextRoute == "/friends") {
             _currentIndex = 2;
             title = "Friends";
+          } else if (widget.nextRoute == "/pay") {
+            _currentIndex = 4;
+            title = "Pay";
           } else {
             _currentIndex = 0;
           }
