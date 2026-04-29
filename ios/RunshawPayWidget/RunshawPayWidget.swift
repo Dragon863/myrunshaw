@@ -8,7 +8,13 @@ private enum WidgetConstants {
     static let statusKey = "runshawpay_status"
     static let updatedAtKey = "runshawpay_updated_at"
     static let refreshUrl = URL(string: "runshaw://uk.danieldb.myrunshaw/refresh-balance")!
+    static let backgroundGradient = LinearGradient(
+        colors: [Color(red: 244/255, green: 67/255, blue: 54/255), Color(red: 138/255, green: 49/255, blue: 43/255)],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
 }
+
 
 struct RunshawPayEntry: TimelineEntry {
     let date: Date
@@ -76,16 +82,7 @@ struct RunshawPayWidgetEntryView: View {
     var entry: RunshawPayProvider.Entry
 
     var body: some View {
-        ZStack {
-            ContainerRelativeShape()
-                .fill(
-                    LinearGradient(
-                        colors: [Color(red: 0.75, green: 0.07, blue: 0.14), Color(red: 0.49, green: 0.03, blue: 0.08)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-
+        widgetSurface {
             VStack(alignment: .leading, spacing: 8) {
                 Text("RunshawPay")
                     .font(.caption)
@@ -114,6 +111,23 @@ struct RunshawPayWidgetEntryView: View {
         .widgetURL(WidgetConstants.refreshUrl)
     }
 
+    private func widgetSurface<Content: View>(@ViewBuilder _ content: () -> Content) -> AnyView {
+        if #available(iOS 17.0, *) {
+            return AnyView(
+                content()
+                    .containerBackground(WidgetConstants.backgroundGradient, for: .widget)
+            )
+        } else {
+            return AnyView(
+                content()
+                    .background(
+                        ContainerRelativeShape()
+                            .fill(WidgetConstants.backgroundGradient)
+                    )
+            )
+        }
+    }
+
     private var statusLabel: String {
         switch entry.status {
         case "ok":
@@ -133,12 +147,22 @@ struct RunshawPayWidget: Widget {
     let kind: String = WidgetConstants.kind
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: RunshawPayProvider()) { entry in
+        let configuration = StaticConfiguration(kind: kind, provider: RunshawPayProvider()) { entry in
             RunshawPayWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("RunshawPay Balance")
-        .description("Shows your latest RunshawPay balance.")
-        .supportedFamilies([.systemSmall, .systemMedium])
+
+        if #available(iOS 17.0, *) {
+            return configuration
+                .contentMarginsDisabled()
+                .configurationDisplayName("RunshawPay Balance")
+                .description("Shows your latest RunshawPay balance.")
+                .supportedFamilies([.systemSmall, .systemMedium])
+        } else {
+            return configuration
+                .configurationDisplayName("RunshawPay Balance")
+                .description("Shows your latest RunshawPay balance.")
+                .supportedFamilies([.systemSmall, .systemMedium])
+        }
     }
 }
 
