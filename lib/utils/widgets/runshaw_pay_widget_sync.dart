@@ -25,11 +25,12 @@ class RunshawPayWidgetSync {
   static StreamSubscription<Uri?>? _widgetClickSub;
 
   static Future<void> initialize() async {
-    if (kIsWeb || !Platform.isIOS) {
-      return;
-    }
+    if (kIsWeb) return;
 
-    await HomeWidget.setAppGroupId(_widgetAppGroupId);
+    // iOS requires an App Group id for widget communication.
+    if (Platform.isIOS) {
+      await HomeWidget.setAppGroupId(_widgetAppGroupId);
+    }
 
     _widgetClickSub ??= HomeWidget.widgetClicked.listen((Uri? uri) async {
       if (_shouldRefreshFromUri(uri)) {
@@ -37,12 +38,18 @@ class RunshawPayWidgetSync {
       }
     });
 
-    final Uri? launchedFromWidget =
-        await HomeWidget.initiallyLaunchedFromHomeWidget();
-    if (_shouldRefreshFromUri(launchedFromWidget)) {
-      await updateBalanceForWidget(trigger: 'widget_tap_launch');
+    if (Platform.isIOS) {
+      final Uri? launchedFromWidget =
+          await HomeWidget.initiallyLaunchedFromHomeWidget();
+      if (_shouldRefreshFromUri(launchedFromWidget)) {
+        await updateBalanceForWidget(trigger: 'widget_tap_launch');
+      } else {
+        // sync on app startup, so the widget has initial data
+        updateBalanceForWidget(trigger: 'app_startup');
+      }
     } else {
-      // sync on app startup, so the widget has initial data
+      // on Android just perform an initial sync on startup so
+      // any native widget code can read the saved values.
       updateBalanceForWidget(trigger: 'app_startup');
     }
 
@@ -134,15 +141,23 @@ class RunshawPayWidgetSync {
     required String? balance,
     required String status,
   }) async {
-    if (kIsWeb || !Platform.isIOS) return;
-    
+    if (kIsWeb) return;
+
     await HomeWidget.saveWidgetData<String>(_balanceKey, balance ?? 'Unknown');
     await HomeWidget.saveWidgetData<String>(_statusKey, status);
     await HomeWidget.saveWidgetData<int>(
       _updatedAtKey,
       DateTime.now().millisecondsSinceEpoch,
     );
-    await HomeWidget.updateWidget(iOSName: _widgetName);
+
+    // Trigger a widget update where supported. iOS needs the iOSName; on
+    // Android: trigger the native provider update using the qualified class name
+    if (Platform.isIOS) {
+      await HomeWidget.updateWidget(iOSName: _widgetName);
+    } else if (Platform.isAndroid) {
+      await HomeWidget.updateWidget(
+          qualifiedAndroidName: 'com.daniel.runshaw.RunshawPayWidgetReceiver');
+    }
   }
 }
 
@@ -156,6 +171,9 @@ void runshawPayWidgetHeadlessTask(HeadlessEvent task) async {
     return;
   }
 
-  await RunshawPayWidgetSync.updateBalanceForWidget(trigger: taskId);
-  BackgroundFetch.finish(taskId);
+  try {
+    await RunshawPayWidgetSync.updateBalanceForWidget(trigger: taskId);
+  } finally {
+    BackgroundFetch.finish(taskId);
+  }
 }

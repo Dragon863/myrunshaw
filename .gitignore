@@ -88,6 +88,7 @@ unlinked_spec.ds
 *.jks
 local.properties
 **/.cxx/
+android/.kotlin/sessions/*
 
 # iOS/XCode related
 ios/build/
