@@ -44,6 +44,40 @@ class RunshawPayWidget : GlanceAppWidget() {
                         }
                 }
         }
+
+        override public suspend fun providePreview(context: Context, widgetCategory: Int) {
+                provideContent {
+                        runshawPayWidgetGlanceTheme {
+                                runshawPayWidgetContent(
+                                        context,
+                                        HomeWidgetGlanceState(
+                                                preferences =
+                                                        context.getSharedPreferences(
+                                                                        "preview",
+                                                                        Context.MODE_PRIVATE
+                                                                )
+                                                                .apply {
+                                                                        edit().putString(
+                                                                                        "runshawpay_balance",
+                                                                                        "£12.34"
+                                                                                )
+                                                                                .apply()
+                                                                        edit().putString(
+                                                                                        "runshawpay_status",
+                                                                                        "ok"
+                                                                                )
+                                                                                .apply()
+                                                                        edit().putLong(
+                                                                                        "runshawpay_updated_at",
+                                                                                        System.currentTimeMillis()
+                                                                                )
+                                                                                .apply()
+                                                                }
+                                        )
+                                )
+                        }
+                }
+        }
 }
 
 @Composable
@@ -124,16 +158,24 @@ private fun runshawPayWidgetContent(context: Context, currentState: HomeWidgetGl
                                 )
                 )
 
-                Spacer(modifier = GlanceModifier.height(8.dp))
+                Spacer(modifier = GlanceModifier.height(4.dp))
 
-                Text(
+                // Text(
+                //         text = balance,
+                //         style =
+                //                 TextStyle(
+                //                         color = GlanceTheme.colors.primary,
+                //                         fontSize = 26.sp,
+                //                         fontWeight = FontWeight.Bold,
+                //                         fontFamily = FontFamily.Monospace,
+                //                 )
+                // )
+                CustomText(
                         text = balance,
-                        style =
-                                TextStyle(
-                                        color = GlanceTheme.colors.primary,
-                                        fontSize = 26.sp,
-                                        fontWeight = FontWeight.Bold,
-                                )
+                        font = R.font.rubik_bold,
+                        fontSize = 36.sp,
+                        modifier = GlanceModifier.padding(bottom = 4.dp),
+                        color = GlanceTheme.colors.primary.getColor(context),
                 )
 
                 Spacer(modifier = GlanceModifier.height(22.dp))

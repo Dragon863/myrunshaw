@@ -38,7 +38,8 @@
     <meta-data android:name="com.posthog.posthog.TRACK_APPLICATION_LIFECYCLE_EVENTS"
       android:value="true" />
     <meta-data android:name="com.posthog.posthog.AUTO_INIT" android:value="false" />
-    <receiver android:name="com.daniel.runshaw.RunshawPayWidgetReceiver" android:exported="true">
+    <receiver android:name="com.daniel.runshaw.RunshawPayWidgetReceiver" android:exported="true"
+      android:label="RunshawPay">
       <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
       </intent-filter>
