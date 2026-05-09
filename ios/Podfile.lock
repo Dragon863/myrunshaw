@@ -19,12 +19,14 @@ PODS:
   - mobile_scanner (7.0.0):
     - Flutter
     - FlutterMacOS
-  - onesignal_flutter (5.5.1):
+  - network_info_plus (0.0.1):
     - Flutter
-    - OneSignalXCFramework (= 5.5.0)
-  - OneSignalXCFramework (5.5.0):
-    - OneSignalXCFramework/OneSignalComplete (= 5.5.0)
-  - OneSignalXCFramework/OneSignal (5.5.0):
+  - onesignal_flutter (5.5.4):
+    - Flutter
+    - OneSignalXCFramework (= 5.5.1)
+  - OneSignalXCFramework (5.5.1):
+    - OneSignalXCFramework/OneSignalComplete (= 5.5.1)
+  - OneSignalXCFramework/OneSignal (5.5.1):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalExtension
     - OneSignalXCFramework/OneSignalLiveActivities
@@ -32,49 +34,51 @@ PODS:
     - OneSignalXCFramework/OneSignalOSCore
     - OneSignalXCFramework/OneSignalOutcomes
     - OneSignalXCFramework/OneSignalUser
-  - OneSignalXCFramework/OneSignalComplete (5.5.0):
+  - OneSignalXCFramework/OneSignalComplete (5.5.1):
     - OneSignalXCFramework/OneSignal
     - OneSignalXCFramework/OneSignalInAppMessages
     - OneSignalXCFramework/OneSignalLocation
-  - OneSignalXCFramework/OneSignalCore (5.5.0)
-  - OneSignalXCFramework/OneSignalExtension (5.5.0):
+  - OneSignalXCFramework/OneSignalCore (5.5.1)
+  - OneSignalXCFramework/OneSignalExtension (5.5.1):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalOutcomes
-  - OneSignalXCFramework/OneSignalInAppMessages (5.5.0):
+  - OneSignalXCFramework/OneSignalInAppMessages (5.5.1):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalNotifications
     - OneSignalXCFramework/OneSignalOSCore
     - OneSignalXCFramework/OneSignalOutcomes
     - OneSignalXCFramework/OneSignalUser
-  - OneSignalXCFramework/OneSignalLiveActivities (5.5.0):
+  - OneSignalXCFramework/OneSignalLiveActivities (5.5.1):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalOSCore
     - OneSignalXCFramework/OneSignalUser
-  - OneSignalXCFramework/OneSignalLocation (5.5.0):
+  - OneSignalXCFramework/OneSignalLocation (5.5.1):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalNotifications
     - OneSignalXCFramework/OneSignalOSCore
     - OneSignalXCFramework/OneSignalUser
-  - OneSignalXCFramework/OneSignalNotifications (5.5.0):
+  - OneSignalXCFramework/OneSignalNotifications (5.5.1):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalExtension
     - OneSignalXCFramework/OneSignalOutcomes
-  - OneSignalXCFramework/OneSignalOSCore (5.5.0):
+  - OneSignalXCFramework/OneSignalOSCore (5.5.1):
     - OneSignalXCFramework/OneSignalCore
-  - OneSignalXCFramework/OneSignalOutcomes (5.5.0):
+  - OneSignalXCFramework/OneSignalOutcomes (5.5.1):
     - OneSignalXCFramework/OneSignalCore
-  - OneSignalXCFramework/OneSignalUser (5.5.0):
+  - OneSignalXCFramework/OneSignalUser (5.5.1):
     - OneSignalXCFramework/OneSignalCore
     - OneSignalXCFramework/OneSignalNotifications
     - OneSignalXCFramework/OneSignalOSCore
     - OneSignalXCFramework/OneSignalOutcomes
   - package_info_plus (0.4.5):
     - Flutter
-  - PostHog (3.55.1)
+  - permission_handler_apple (9.3.0):
+    - Flutter
+  - PostHog (3.58.1)
   - posthog_flutter (0.0.1):
     - Flutter
     - FlutterMacOS
-    - PostHog (< 4.0.0, >= 3.50.0)
+    - PostHog (< 4.0.0, >= 3.56.0)
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -98,9 +102,11 @@ DEPENDENCIES:
   - home_widget (from `.symlinks/plugins/home_widget/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - mobile_scanner (from `.symlinks/plugins/mobile_scanner/darwin`)
+  - network_info_plus (from `.symlinks/plugins/network_info_plus/ios`)
   - onesignal_flutter (from `.symlinks/plugins/onesignal_flutter/ios`)
   - OneSignalXCFramework (< 6.0, >= 5.0.0)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
+  - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - posthog_flutter (from `.symlinks/plugins/posthog_flutter/darwin`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
@@ -132,10 +138,14 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_picker_ios/ios"
   mobile_scanner:
     :path: ".symlinks/plugins/mobile_scanner/darwin"
+  network_info_plus:
+    :path: ".symlinks/plugins/network_info_plus/ios"
   onesignal_flutter:
     :path: ".symlinks/plugins/onesignal_flutter/ios"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
+  permission_handler_apple:
+    :path: ".symlinks/plugins/permission_handler_apple/ios"
   posthog_flutter:
     :path: ".symlinks/plugins/posthog_flutter/darwin"
   shared_preferences_foundation:
@@ -154,14 +164,16 @@ SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_web_auth_2: 646fc9df97a01c59e5eea99b237da2c6360f8439
   gaimon: 1979ed07cdcfd0bf0d208f255f550936a196cf5a
-  home_widget: f169fc41fd807b4d46ab6615dc44d62adbf9f64f
+  home_widget: 54b4f6b36ed8d64cfee594a476225c35c3e45091
   image_picker_ios: e0ece4aa2a75771a7de3fa735d26d90817041326
   mobile_scanner: 9157936403f5a0644ca3779a38ff8404c5434a93
-  onesignal_flutter: e2e682f7c4b0604ddba445d4f8ea6e79c77dabe1
-  OneSignalXCFramework: 943852e7d70d719f73e9669d48620aeec1b93022
+  network_info_plus: cf61925ab5205dce05a4f0895989afdb6aade5fc
+  onesignal_flutter: 3192ae43820471ee056625cbc303676665c9d643
+  OneSignalXCFramework: 2b46c36b38528b65dce33ed9d83375f8c98bf40c
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
-  PostHog: fdc697d6d759d95d0dec66cc7276a244d67adf43
-  posthog_flutter: 7d1eca9c14e96d1fb31cf35d75a32c31fbc776c5
+  permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
+  PostHog: 162c013c6a8e442382f6804076bf3ad072c8778a
+  posthog_flutter: 03b15ff7a78e2a4162baaf11f8db37b079412106
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
   TSBackgroundFetch: 18918b6449a1e3f01eb0f5b44d6d79ce6160a5a5
