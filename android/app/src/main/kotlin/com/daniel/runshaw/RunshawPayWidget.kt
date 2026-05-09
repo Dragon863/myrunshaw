@@ -1,8 +1,5 @@
 package com.daniel.runshaw
 
-import HomeWidgetGlanceState
-import HomeWidgetGlanceStateDefinition
-import HomeWidgetGlanceWidgetReceiver
 import android.content.Context
 import android.os.Build
 import androidx.compose.runtime.Composable
@@ -29,6 +26,9 @@ import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import es.antonborri.home_widget.HomeWidgetGlanceState
+import es.antonborri.home_widget.HomeWidgetGlanceStateDefinition
+import es.antonborri.home_widget.HomeWidgetGlanceWidgetReceiver
 import es.antonborri.home_widget.actionStartActivity
 import java.text.DateFormat
 import java.util.Date

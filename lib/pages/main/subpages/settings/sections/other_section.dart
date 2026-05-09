@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
+import 'package:runshaw/pages/wifisurvey/wifisurvey.dart';
 import 'package:runshaw/utils/widgets/runshaw_pay_widget_sync.dart';
 import 'package:runshaw/utils/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -90,14 +91,14 @@ class _SettingsOtherSectionState extends State<SettingsOtherSection> {
             );
           },
         ),
-        if (kDebugMode && !kIsWeb && Platform.isIOS)
+        if (kDebugMode && !kIsWeb)
           ListTile(
             title: const Text(
               "Refresh RunshawPay Widget",
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
             ),
             subtitle: const Text(
-              "Runs the widget sync without using LLDB.",
+              "Runs the widget sync without using debugger.",
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
             ),
             trailing: const Icon(Icons.refresh),
@@ -122,6 +123,26 @@ class _SettingsOtherSectionState extends State<SettingsOtherSection> {
                         ? "RunshawPay widget refresh complete."
                         : "RunshawPay widget refresh failed. Check logs.",
                   ),
+                ),
+              );
+            },
+          ),
+        if (kDebugMode && !kIsWeb && Platform.isAndroid)
+          ListTile(
+            title: const Text(
+              "Run speed test",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+            ),
+            subtitle: const Text(
+              "Runs a speed test to measure wifi performance (Android only).",
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+            ),
+            trailing: const Icon(Icons.touch_app_outlined),
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const WifiSurveyPage(),
                 ),
               );
             },
