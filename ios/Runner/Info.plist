@@ -58,7 +58,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>This app needs camera access to scan the QR codes on Student ID Badges</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs location when in use to determine bus arrival times</string>
+	<string>This app uses the location permission to determine whether you are connected to the "eduroam" network before participating in campus Wi-Fi speednsurveys.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app needs photos access to select a profile picture from photo library</string>
 	<key>UIApplicationSceneManifest</key>

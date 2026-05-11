@@ -36,8 +36,9 @@ class WifiSurveyStageTwo extends StatelessWidget {
           Center(
             child: ElevatedButton(
               onPressed: () async {
-                // Request necessary permissions for (i.e. location) on Android)
-                if (Theme.of(context).platform == TargetPlatform.android) {
+                // Request necessary permissions for (i.e. location)
+                if (Theme.of(context).platform == TargetPlatform.android ||
+                    Theme.of(context).platform == TargetPlatform.iOS) {
                   PermissionStatus permission =
                       await Permission.location.request();
                   if (permission.isGranted) {
@@ -55,7 +56,7 @@ class WifiSurveyStageTwo extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
-                          "Please grant permissions in settings to continue.",
+                          "Please grant permissions in the settings app to continue.",
                         ),
                       ),
                     );

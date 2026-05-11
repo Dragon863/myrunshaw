@@ -35,69 +35,71 @@ class _WifiSurveyPageState extends State<WifiSurveyPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const RunshawAppBar(title: "Wi-Fi Speed Survey"),
-      body: Container(
-        constraints: const BoxConstraints(
-          minWidth: 150,
-          maxWidth: 1000,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              flex: 8,
-              child: PageView.builder(
-                controller: _pageController,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: 3,
-                itemBuilder: (context, index) {
-                  switch (index) {
-                    case 0:
-                      return const WifiSurveyStageOne();
-                    case 1:
-                      return WifiSurveyStageTwo(
-                        onPermissionGranted: (granted) {
-                          setState(() => _permissionsGranted = granted);
-                        },
-                      );
-                    case 2:
-                      return WifiSurveyStageThree(
-                        onComplete: (result) {
-                          setState(() {
-                            _didCompleteTest = true;
-                          });
-                        },
-                      );
-                    default:
-                      return const SizedBox.shrink();
-                  }
-                },
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: List.generate(3, (index) {
-                    final isActive = _currentPage == index;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                      width: isActive ? 24 : 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: isActive ? Colors.red : Colors.grey,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    );
-                  }),
+      body: SafeArea(
+        child: Container(
+          constraints: const BoxConstraints(
+            minWidth: 150,
+            maxWidth: 1000,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                flex: 8,
+                child: PageView.builder(
+                  controller: _pageController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: 3,
+                  itemBuilder: (context, index) {
+                    switch (index) {
+                      case 0:
+                        return const WifiSurveyStageOne();
+                      case 1:
+                        return WifiSurveyStageTwo(
+                          onPermissionGranted: (granted) {
+                            setState(() => _permissionsGranted = granted);
+                          },
+                        );
+                      case 2:
+                        return WifiSurveyStageThree(
+                          onComplete: (result) {
+                            setState(() {
+                              _didCompleteTest = true;
+                            });
+                          },
+                        );
+                      default:
+                        return const SizedBox.shrink();
+                    }
+                  },
                 ),
               ),
-            ),
-            const SizedBox(height: 32),
-          ],
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: List.generate(3, (index) {
+                      final isActive = _currentPage == index;
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                        width: isActive ? 24 : 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: isActive ? Colors.red : Colors.grey,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(

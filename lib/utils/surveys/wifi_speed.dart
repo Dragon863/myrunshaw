@@ -1,8 +1,9 @@
 // 07/05/2026: This is related to the "eduroam" speed survey across campus.
 //             It is purely opt-in and gathers data on wifi speeds for each
-//             AP based on its BSSID. For reasons relating to permissions,
-//             it is only available on Android, and user location is NEVER
-//             accessed or collected.
+//             AP based on its BSSID. It is available on Android and iOS.
+//             On iOS the app must include the "Access WiFi Information"
+//             entitlement and request location permission; no location
+//             coordinates are collected or uploaded.
 
 import 'dart:math';
 

@@ -127,14 +127,14 @@ class _SettingsOtherSectionState extends State<SettingsOtherSection> {
               );
             },
           ),
-        if (kDebugMode && !kIsWeb && Platform.isAndroid)
+        if (kDebugMode)
           ListTile(
             title: const Text(
               "Run speed test",
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
             ),
             subtitle: const Text(
-              "Runs a speed test to measure wifi performance (Android only).",
+              "Runs a speed test to measure wifi performance (mobile only).",
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
             ),
             trailing: const Icon(Icons.touch_app_outlined),

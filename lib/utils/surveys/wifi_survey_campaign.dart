@@ -16,7 +16,10 @@ class WifiSurveyCampaign {
   static bool _isRunning = false;
 
   static Future<void> maybeStart(BuildContext context) async {
-    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
+    // Enable surveys on Android and iOS (skip web and other platforms).
+    if (kIsWeb ||
+        !(defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS)) {
       return;
     }
 
