@@ -18,6 +18,12 @@
       <intent-filter>
         <action android:name="es.antonborri.home_widget.action.LAUNCH" />
       </intent-filter>
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="runshaw" android:host="uk.danieldb.myrunshaw" />
+      </intent-filter>
     </activity>
     <activity android:exported="true" android:name="com.linusu.flutter_web_auth_2.CallbackActivity">
       <intent-filter android:label="flutter_web_auth_2">
