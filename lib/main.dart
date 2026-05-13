@@ -2,12 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:runshaw/pages/about/about.dart';
-import 'package:runshaw/pages/main/subpages/friends/list/widgets/popup_add_page.dart';
-import 'package:runshaw/pages/password/password_reset.dart';
-import 'package:runshaw/pages/privacy/privacy_policy.dart';
-import 'package:runshaw/pages/splash/splash.dart';
-import 'package:runshaw/pages/terms/terms_of_use.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/logging.dart';
@@ -17,6 +11,7 @@ import 'package:runshaw/utils/theme/theme_provider.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:background_fetch/background_fetch.dart';
 import 'package:runshaw/utils/widgets/runshaw_pay_widget_sync.dart';
+import 'package:runshaw/utils/routing/route_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -119,20 +114,10 @@ class BaseApp extends StatelessWidget {
           ),
         ),
         initialRoute: '/splash',
+        onGenerateInitialRoutes: AppRouteHandler.onGenerateInitialRoutes,
         debugShowCheckedModeBanner: false,
-        routes: <String, WidgetBuilder>{
-          '/splash': (BuildContext context) => const SplashPage(),
-          '/friends/add': (BuildContext context) => const PopupFriendAddPage(),
-          '/privacy_policy': (BuildContext context) =>
-              const PrivacyPolicyPage(),
-          '/change_password': (BuildContext context) =>
-              const PasswordResetPage(),
-          '/terms': (BuildContext context) => const TermsOfUsePage(),
-          '/about': (BuildContext context) => const AboutPage(),
-          '/refresh-balance': (BuildContext context) =>
-              const SplashPage(nextRoute: '/pay'),
-          // We can only add routes here that don't need data passing to them
-        },
+        routes: AppRouteHandler.getNamedRoutes(),
+        onGenerateRoute: AppRouteHandler.onGenerateRoute,
         navigatorKey: globalKey,
         navigatorObservers: [
           PosthogObserver(),

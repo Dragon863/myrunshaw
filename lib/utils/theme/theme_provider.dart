@@ -34,7 +34,7 @@ class ThemeProvider with ChangeNotifier {
     }
 
     if (theme == null) {
-      _themeMode = ThemeMode.light;
+      _themeMode = ThemeMode.system;
     } else if (theme == 'dark') {
       _themeMode = ThemeMode.dark;
     } else if (theme == 'light') {

@@ -28,27 +28,42 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
   void initState() {
     super.initState();
     loadIntro();
-    loadBalance();
-    loadTransactions();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        loadBalance();
+        loadTransactions();
+      }
+    });
   }
 
   Future<void> loadBalance() async {
+    if (!mounted) return;
     final BaseAPI api = context.read<BaseAPI>();
-    final bal = await api.getRunshawPayBalance();
-    if (bal != null && mounted) {
-      setState(() {
-        balance = bal;
-        loadingBalance = false;
-      });
-    } else {
-      setState(() {
-        balance = "Unknown";
-        loadingBalance = false;
-      });
+    try {
+      final bal = await api.getRunshawPayBalance();
+      if (bal != null && mounted) {
+        setState(() {
+          balance = bal;
+          loadingBalance = false;
+        });
+      } else if (mounted) {
+        setState(() {
+          balance = "Unknown";
+          loadingBalance = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          balance = "Error";
+          loadingBalance = false;
+        });
+      }
     }
   }
 
   Future<void> loadTransactions() async {
+    if (!mounted) return;
     final BaseAPI api = context.read<BaseAPI>();
     try {
       final transactions = await api.getRunshawPayTransactions();
@@ -127,26 +142,45 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
         });
       }
     } on RunshawPayException catch (e) {
-      setState(() {
-        cardWidgets = [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-          const SizedBox(height: 12),
-          Center(child: Text(e.cause, textAlign: TextAlign.center))
-        ];
-        loadingTransactions = false;
-        balance = "Unknown";
-        loadingBalance = false;
-      });
+      if (mounted) {
+        setState(() {
+          cardWidgets = [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            const SizedBox(height: 12),
+            Center(child: Text(e.cause, textAlign: TextAlign.center))
+          ];
+          loadingTransactions = false;
+          balance = "Unknown";
+          loadingBalance = false;
+        });
+      }
       await Posthog().capture(
         eventName: 'runshawpay_transactions_error',
         properties: {
           'error_cause': e.cause,
         },
       );
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          cardWidgets = [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            const SizedBox(height: 12),
+            const Center(
+                child: Text("An unexpected error occurred",
+                    textAlign: TextAlign.center))
+          ];
+          loadingTransactions = false;
+        });
+      }
     }
   }
 

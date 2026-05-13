@@ -192,7 +192,8 @@ class _EmailPageState extends State<EmailPage> {
                     onPressed: () async {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text("You can only sign up with a QR code"),
+                          content: Text(
+                              "You can only sign up with a QR code - press 'Next' on the previous page"),
                         ),
                       );
                     },

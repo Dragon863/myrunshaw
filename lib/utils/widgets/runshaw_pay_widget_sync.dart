@@ -49,9 +49,25 @@ class RunshawPayWidgetSync {
         // sync on app startup, so the widget has initial data
         updateBalanceForWidget(trigger: 'app_startup');
       }
+    } else if (Platform.isAndroid) {
+      // Android: check if app was launched from widget tap
+      try {
+        final Uri? launchedFromWidget =
+            await HomeWidget.initiallyLaunchedFromHomeWidget();
+        if (_shouldRefreshFromUri(launchedFromWidget)) {
+          debugLog('App launched from widget tap (Android)', level: 1);
+          await updateBalanceForWidget(trigger: 'widget_tap_launch_android');
+        } else {
+          // sync on app startup, so the widget has initial data
+          updateBalanceForWidget(trigger: 'app_startup');
+        }
+      } catch (e) {
+        debugLog('Error detecting widget launch on Android: $e', level: 2);
+        // Fallback: perform normal startup sync
+        updateBalanceForWidget(trigger: 'app_startup');
+      }
     } else {
-      // on Android just perform an initial sync on startup so
-      // any native widget code can read the saved values.
+      // on other platforms just perform an initial sync on startup
       updateBalanceForWidget(trigger: 'app_startup');
     }
 
