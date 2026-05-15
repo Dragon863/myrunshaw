@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
-import 'package:zoomable_interactive_viewer/zoomable_interactive_viewer.dart';
+import 'package:runshaw/utils/vendor/interactive_viewer/zoomable_interactive_viewer.dart';
 
 class IndividualBuildingMapPage extends StatefulWidget {
   final String fileName;

@@ -5,8 +5,8 @@ import 'package:flutter_image_map/flutter_image_map.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:runshaw/pages/main/subpages/map/individual_map.dart';
 import 'package:runshaw/pages/main/subpages/map/locations.dart';
+import 'package:runshaw/utils/vendor/interactive_viewer/zoomable_interactive_viewer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zoomable_interactive_viewer/zoomable_interactive_viewer.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});

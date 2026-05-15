@@ -38,7 +38,6 @@ dependencies:
   cronet_http: ^1.8.0
   cupertino_http: ^2.4.0
   fetch_client: ^1.2.0
-  zoomable_interactive_viewer: ^0.0.5
 
 dev_dependencies:
   flutter_test:
