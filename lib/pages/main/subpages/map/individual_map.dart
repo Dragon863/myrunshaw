@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
+import 'package:runshaw/utils/vendor/interactive_viewer/zoomable_interactive_viewer.dart';
 
 class IndividualBuildingMapPage extends StatefulWidget {
   final String fileName;
@@ -33,13 +34,14 @@ class _IndividualBuildingMapPageState extends State<IndividualBuildingMapPage> {
       appBar: RunshawAppBar(
         title: widget.subtext[0].toUpperCase() + widget.subtext.substring(1),
       ),
-      body: SingleChildScrollView(
+      body: ZoomableInteractiveViewer (
+        minScale: 1.0,
+        boundaryMargin: EdgeInsets.zero,
+
         child: Center(
-          child: InteractiveViewer(
             child: Image.asset('assets/img/map/${widget.fileName}.png'),
           ),
         ),
-      ),
     );
   }
 

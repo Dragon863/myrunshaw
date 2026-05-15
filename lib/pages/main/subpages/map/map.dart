@@ -1,9 +1,11 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_map/flutter_image_map.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:runshaw/pages/main/subpages/map/individual_map.dart';
 import 'package:runshaw/pages/main/subpages/map/locations.dart';
+import 'package:runshaw/utils/vendor/interactive_viewer/zoomable_interactive_viewer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MapPage extends StatefulWidget {
@@ -77,7 +79,7 @@ class _MapPageState extends State<MapPage> {
           return AlertDialog(
             title: const Text("Map Page"),
             content: const Text(
-              "Tap on a building to view its floorplan, or scroll down to search for a room below. This page uses landscape mode so the floorplans are easier to view.",
+              "Tap on a building to view its floorplan. Pinch, zoom and swipe for easier navigation. Search for specific rooms via the bottom right button. This page uses landscape mode so the floorplans are easier to view.",
             ),
             actions: <Widget>[
               TextButton(
@@ -125,20 +127,20 @@ class _MapPageState extends State<MapPage> {
 ''',
       Colors.transparent,
     );
+
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(0.0),
-        child: SingleChildScrollView(
+      body: ZoomableInteractiveViewer (
+        minScale: 1.0,
+        boundaryMargin: EdgeInsets.zero,
+
+        child: Padding(
+          padding: const EdgeInsets.all(0.0),
           child: Center(
-            child: Container(
-              constraints: const BoxConstraints(
-                minWidth: 150,
-                maxWidth: 1000,
-              ),
-              child: Column(
-                children: <Widget>[
-                  ImageMap(
-                    image: Image.asset('assets/img/campus.png'),
+            child: Column(
+              children: <Widget>[
+                Expanded(
+                  child: ImageMap(
+                    image: Image.asset('assets/img/campus.png', fit: BoxFit.fitHeight),
                     onTap: (region) {
                       final List roomObjList = locations[region.link!];
                       if (roomObjList.length == 1) {
@@ -171,10 +173,10 @@ class _MapPageState extends State<MapPage> {
                                           MaterialPageRoute(
                                             builder: (context) =>
                                                 IndividualBuildingMapPage(
-                                              fileName: roomObj['img'],
-                                              subtext: roomObj['title'],
-                                              referredByMainMap: true,
-                                            ),
+                                                  fileName: roomObj['img'],
+                                                  subtext: roomObj['title'],
+                                                  referredByMainMap: true,
+                                                ),
                                           ),
                                         );
                                       },
@@ -190,36 +192,48 @@ class _MapPageState extends State<MapPage> {
                       ...htmlDataRegions,
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      "Tap on a building to view its floorplan, or search for a room below",
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SearchBar(
-                      controller: _searchController,
-                      hintText: "Search a room number...",
-                      trailing: [
-                        IconButton(
-                          icon: const Icon(Icons.search),
-                          onPressed: submit,
-                        ),
-                      ],
-                      onSubmitted: (value) async {
-                        submit();
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-              ),
+                ),
+              ],
             ),
-          ),
+          )
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {displaySearchMenu();},
+        child: const Icon(Icons.search),
+      ),
+    );
+  }
+
+  void displaySearchMenu() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        insetPadding: const EdgeInsets.all(0),
+        contentPadding: const EdgeInsets.all(0),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SearchBar(
+                controller: _searchController,
+                hintText: "Search a room number...",
+                autoFocus: true,
+                trailing: [
+                  IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      submit();
+                    }),
+                ],
+                onSubmitted: (value) async {
+                  Navigator.pop(context);
+                  submit();
+                },
+              ),
+            ],
+          ),
+        ),
     );
   }
 
