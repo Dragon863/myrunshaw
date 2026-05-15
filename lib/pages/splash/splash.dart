@@ -168,95 +168,120 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<dynamic> _navigateToHome() async {
-    if (!await serverReachable() && !kIsWeb) {
-      if (!await hasNetwork("google.com")) {
-        // If we can't resolve google.com, then we have no internet
+    try {
+      if (!await serverReachable() && !kIsWeb) {
+        if (!await hasNetwork("google.com")) {
+          // If we can't resolve google.com, then we have no internet
+          return Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => const NoNetworkPage(),
+            ),
+          );
+        }
+        // If we can resolve google, then we have internet but no server - oh no!
         return Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => const NoNetworkPage(),
+            builder: (context) => const NoServersPage(),
           ),
         );
       }
-      // If we can resolve google, then we have internet but no server - oh no!
-      return Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const NoServersPage(),
-        ),
-      );
-    }
-    debugLog("API init");
-    final api = context.read<BaseAPI>();
-    await api.init();
-    await api.loadUser();
-    final status = api.status;
+      debugLog("API init");
+      final api = context.read<BaseAPI>();
+      await api.init();
+      await api.loadUser();
+      final status = api.status;
 
-    if (status == AccountStatus.authenticated) {
-      debugLog("User is authenticated");
+      if (status == AccountStatus.authenticated) {
+        debugLog("User is authenticated");
 
-      // Don't wait for caching to finish, do it in the background
-      api.caching = _cacheData(api);
+        // Don't wait for caching to finish, do it in the background
+        api.caching = _cacheData(api);
 
-      if (!await isOnBoarded()) {
+        if (!await isOnBoarded()) {
+          _setupAnalytics();
+          return Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => const OnBoardingPage(),
+            ),
+            (r) => false,
+          );
+        }
+
+        setState(() {
+          loadingStageText = "Let's go!";
+        });
+
+        Navigator.of(context).pushAndRemoveUntil(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => MainPage(
+              nextRoute: widget.nextRoute,
+            ),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) =>
+                    FadeTransition(opacity: animation, child: child),
+            transitionDuration: const Duration(milliseconds: 300),
+            settings: const RouteSettings(name: "/home"),
+          ),
+          (route) => false,
+        );
+
+        _setupAnalytics().then((_) async {
+          await Posthog().capture(
+            eventName: 'app_opened',
+          );
+        });
+      } else {
         _setupAnalytics();
-        return Navigator.of(context).pushAndRemoveUntil(
+        Navigator.pushAndRemoveUntil(
+          context,
           MaterialPageRoute(
-            builder: (context) => const OnBoardingPage(),
+            builder: (context) => const StageOneLogin(),
           ),
           (r) => false,
         );
       }
+    } catch (e, stackTrace) {
+      debugLog("Fatal error during initialization: $e", level: 3);
+      debugLog("Stack trace: $stackTrace", level: 3);
 
-      setState(() {
-        loadingStageText = "Let's go!";
-      });
-
-      Navigator.of(context).pushAndRemoveUntil(
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => MainPage(
-            nextRoute: widget.nextRoute,
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const NoServersPage(),
           ),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-              FadeTransition(opacity: animation, child: child),
-          transitionDuration: const Duration(milliseconds: 300),
-          settings: const RouteSettings(name: "/home"),
-        ),
-        (route) => false,
-      );
-
-      _setupAnalytics().then((_) async {
-        await Posthog().capture(
-          eventName: 'app_opened',
         );
-      });
-    } else {
-      _setupAnalytics();
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const StageOneLogin(),
-        ),
-        (r) => false,
-      );
+      }
     }
   }
 
   Future<void> _cacheData(BaseAPI api) async {
-    try {
-      debugLog("Caching friends");
-      await api.cacheFriends();
-      debugLog("Caching names");
-      await Future.wait(
-        [
-          api.cacheNames(),
-          api.cachePfpVersions(),
-          api.cacheTimetables(),
-        ],
-      );
-      debugLog("Caching names done");
-      debugLog("Caching pfp versions done");
-      debugLog("Caching timetables done");
-    } catch (e) {
-      debugLog("Error caching data: $e");
+    const int maxAttempts = 2;
+    int attempt = 0;
+
+    while (attempt < maxAttempts) {
+      attempt++;
+      try {
+        debugLog("Caching friends (attempt $attempt/$maxAttempts)");
+        await api.cacheFriends();
+        debugLog(
+            "Caching names/pfp/timetables (attempt $attempt/$maxAttempts)");
+        await Future.wait(
+          [
+            api.cacheNames(),
+            api.cachePfpVersions(),
+            api.cacheTimetables(),
+          ],
+        );
+        debugLog("Caching names done");
+        debugLog("Caching pfp versions done");
+        debugLog("Caching timetables done");
+        return;
+      } catch (e) {
+        debugLog("Error caching data (attempt $attempt/$maxAttempts): $e");
+        if (attempt >= maxAttempts) {
+          return;
+        }
+      }
     }
   }
 

@@ -91,12 +91,14 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
       email: "$email${MyRunshawConfig.emailExtension}",
       password: password,
     );
+    jwt = null;
     await afterLogin();
   }
 
   Future<void> createOAuth2Session({required OAuthProvider provider}) async {
     await account.createOAuth2Session(provider: provider);
     try {
+      jwt = null;
       await afterLogin();
     } on AppwriteException catch (e) {
       if (e.code == 401) {
@@ -107,6 +109,7 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
   }
 
   Future<void> afterLogin() async {
+    jwt = null;
     currentUser = await Account(client).get();
     if (!kIsWeb) {
       if (!Platform.isLinux) {
@@ -156,6 +159,7 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
   }
 
   Future<void> closeAccount() async {
+    jwt = null;
     final String jwtToken = await getJwt();
     final response = await httpClient.post(
       Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/account/close'),
@@ -175,21 +179,5 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
     await Posthog().capture(
       eventName: 'account_closed',
     );
-  }
-
-  Future<String> resetPasswordWithoutAuth(
-      String studentId, String code, String newPassword) async {
-    final response = await httpClient.post(
-      Uri.parse(
-          '${MyRunshawConfig.passwordResetMicroserviceUrl}/api/reset_password?user_id=$studentId&code=$code'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({'new_password': newPassword}),
-    );
-    await Posthog().capture(
-      eventName: 'password_reset_attempt',
-    );
-    return jsonDecode(response.body)["message"];
   }
 }

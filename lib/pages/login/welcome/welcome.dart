@@ -32,15 +32,24 @@ class StageOneLogin extends StatelessWidget {
                 children: [
                   ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: 400, minWidth: 200),
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        bottom: 24.0,
-                        left: MediaQuery.of(context).size.width * 0.2,
-                        right: MediaQuery.of(context).size.width * 0.2,
-                      ),
-                      child: Image.asset(
-                        'assets/img/student_id.png',
-                      ),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final screenWidth = MediaQuery.of(context).size.width;
+                        final isDesktop = screenWidth >= 700;
+                        final imageWidth = isDesktop
+                            ? (constraints.maxWidth * 0.6).clamp(220.0, 320.0)
+                            : constraints.maxWidth * 0.6;
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 24.0),
+                          child: SizedBox(
+                            width: imageWidth,
+                            child: Image.asset(
+                              'assets/img/student_id.png',
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                   const Text(
@@ -101,7 +110,7 @@ class StageOneLogin extends StatelessWidget {
                       onPressed: () async {
                         final BaseAPI api = context.read<BaseAPI>();
                         try {
-                          await api.account.createOAuth2Session(
+                          await api.createOAuth2Session(
                             provider: OAuthProvider.microsoft,
                           );
 

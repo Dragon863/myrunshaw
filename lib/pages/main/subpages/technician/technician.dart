@@ -112,8 +112,7 @@ class _TechnicianPageState extends State<TechnicianPage> {
                     elevation: 1,
                     child: InkWell(
                       onTap: () async {
-                        const String appwriteURL =
-                            MyRunshawConfig.endpointHostname;
+                        String appwriteURL = MyRunshawConfig.endpointHostname;
                         const String appwriteProject =
                             MyRunshawConfig.projectId;
 
@@ -230,8 +229,7 @@ class _TechnicianPageState extends State<TechnicianPage> {
                         title: Text(friend['name'] ?? 'Unknown'),
                         subtitle: Text(friend['id'] ?? 'Unknown'),
                         onTap: () async {
-                          const String appwriteURL =
-                              MyRunshawConfig.endpointHostname;
+                          String appwriteURL = MyRunshawConfig.endpointHostname;
                           const String appwriteProject =
                               MyRunshawConfig.projectId;
 

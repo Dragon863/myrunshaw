@@ -8,6 +8,19 @@ import 'api_friends.dart';
 
 mixin ApiTimetable on ApiCore, ApiFriends {
   Future<void> cacheTimetables() async {
+    if (timetableCacheInFlight != null) {
+      return timetableCacheInFlight!;
+    }
+
+    timetableCacheInFlight = _cacheTimetablesInternal();
+    try {
+      await timetableCacheInFlight;
+    } finally {
+      timetableCacheInFlight = null;
+    }
+  }
+
+  Future<void> _cacheTimetablesInternal() async {
     final String jwtToken = await getJwt();
     final friends = await getFriends();
 
@@ -28,6 +41,10 @@ mixin ApiTimetable on ApiCore, ApiFriends {
         'user_ids': userIds,
       }),
     );
+
+    if (response.statusCode != 200) {
+      throw "Error caching timetables";
+    }
     cachedTimetables = jsonDecode(response.body);
   }
 
@@ -83,6 +100,15 @@ mixin ApiTimetable on ApiCore, ApiFriends {
     }
 
     Map events;
+
+    if (allowCache && !cachedTimetables.containsKey(userId)) {
+      // Prefer batch cache population over individual fetches when cache usage is requested.
+      if (timetableCacheInFlight != null) {
+        await timetableCacheInFlight;
+      } else {
+        await cacheTimetables();
+      }
+    }
 
     if (!cachedTimetables.containsKey(userId) || !allowCache) {
       debugLog("Fetching timetable for $userId");

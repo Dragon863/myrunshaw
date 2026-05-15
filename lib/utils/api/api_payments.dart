@@ -3,6 +3,7 @@ import 'package:http/retry.dart';
 import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/models/exceptions.dart';
 import 'package:runshaw/utils/models/transaction.dart';
+import 'package:runshaw/utils/widgets/runshaw_pay_widget_sync.dart';
 import 'api_core.dart';
 
 mixin ApiPayments on ApiCore {
@@ -17,9 +18,12 @@ mixin ApiPayments on ApiCore {
       },
     );
     if (response.statusCode != 200) {
+      await RunshawPayWidgetSync.saveWidgetPayload(balance: null, status: 'error');
       return null;
     } else {
-      return jsonDecode(utf8.decode(response.bodyBytes))["balance"];
+      final String balance = jsonDecode(utf8.decode(response.bodyBytes))["balance"];
+      await RunshawPayWidgetSync.saveWidgetPayload(balance: balance, status: 'ok');
+      return balance;
     }
   }
 

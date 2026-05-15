@@ -1,6 +1,24 @@
+import 'package:runshaw/utils/logging.dart';
+
 class MyRunshawConfig {
-  static const String endpoint = "https://appwrite.danieldb.uk/v1";
-  static const String endpointHostname = "appwrite.danieldb.uk";
+  static String _getEnv() =>
+      const String.fromEnvironment('env', defaultValue: 'prod');
+
+  static bool get _isDev => _getEnv() == 'dev';
+  static bool get _isLocalDev => _getEnv() == 'localdev';
+
+  static String get endpoint {
+    final host = (_isLocalDev || _isDev)
+        ? 'dev-appwrite.danieldb.uk'
+        : 'appwrite.danieldb.uk';
+    return 'https://$host/v1';
+  }
+
+  static String get endpointHostname {
+    return (_isLocalDev || _isDev)
+        ? 'dev-appwrite.danieldb.uk'
+        : 'appwrite.danieldb.uk';
+  }
 
   static const String projectId = "66fdb56000209ea9ac18";
   static const String profileBucketId = "profiles";
@@ -19,12 +37,22 @@ class MyRunshawConfig {
   static const String oneSignalAppId =
       "001b2238-9af7-49f1-bd60-6dfe630b7175"; //"72211047-33fc-4036-96d8-100c4a7bf85a";
 
-  static const String friendsMicroserviceUrl = // "http://0.0.0.0:5006";
-      "https://runshaw-api.danieldb.uk";
+  static String get friendsMicroserviceUrl {
+    if (_isLocalDev) {
+      return 'http://localhost:5006';
+    }
 
-  static const String passwordResetMicroserviceUrl =
-      //"http://192.168.1.101:8080";
-      "https://runshaw-pwd-api.danieldb.uk";
+    return (_isLocalDev || _isDev)
+        ? 'https://dev-runshaw-api.danieldb.uk'
+        : 'https://runshaw-api.danieldb.uk';
+  }
+
+  static void logApiUrlsOnStartup() {
+    debugLog('Config environment: ${_getEnv()}', level: 1);
+    debugLog('Appwrite endpoint: $endpoint', level: 1);
+    debugLog('Appwrite hostname: $endpointHostname', level: 1);
+    debugLog('Friends microservice URL: $friendsMicroserviceUrl', level: 1);
+  }
 
   static const String emailExtension = "@student.runshaw.ac.uk";
 

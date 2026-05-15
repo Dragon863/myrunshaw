@@ -34,6 +34,7 @@ class FreeFriendInfo {
 
 class HomeController extends ChangeNotifier {
   final BaseAPI api;
+  bool _isDisposed = false;
 
   String? pfpUrl;
   String name = "Loading...";
@@ -47,6 +48,27 @@ class HomeController extends ChangeNotifier {
 
   HomeController(this.api);
 
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  void _notifySafe() {
+    if (!_isDisposed) {
+      notifyListeners();
+    }
+  }
+
+  Future<void> _ensureTimetableCacheReady(String uid) async {
+    if (api.cachedTimetables.containsKey(uid)) {
+      return;
+    }
+
+    // wait for any in-flight timetable batch cache to finish (or trigger one).
+    await api.cacheTimetables();
+  }
+
   Future<void> init() async {
     await loadPfp();
     await Future.wait([loadData(), loadEvents()]);
@@ -57,15 +79,16 @@ class HomeController extends ChangeNotifier {
     name = api.user!.name.isNotEmpty ? api.user!.name : "Name not set";
     userId = api.user!.$id;
     pfpUrl = api.getPfpUrl(userId);
-    notifyListeners();
+    _notifySafe();
   }
 
   Future<void> loadEvents() async {
     try {
       final String? uid = api.user?.$id;
       if (uid == null) return;
+      await _ensureTimetableCacheReady(uid);
       events = await api.fetchEvents(userId: uid, allowCache: true);
-      notifyListeners();
+      _notifySafe();
     } catch (e) {
       debugLog("Error loading events: $e", level: 3);
     }
@@ -88,17 +111,18 @@ class HomeController extends ChangeNotifier {
     if (loading) return;
     loading = true;
     freeFriendsData = [];
-    notifyListeners();
+    _notifySafe();
 
     try {
       final String? uid = api.user?.$id;
       if (uid == null) {
         loading = false;
-        notifyListeners();
+        _notifySafe();
         return;
       }
 
-      await api.caching;
+      await _ensureTimetableCacheReady(uid);
+      if (_isDisposed) return;
 
       List<Event> evts =
           await api.fetchEvents(userId: uid, allowCache: allowCache);
@@ -174,8 +198,17 @@ class HomeController extends ChangeNotifier {
       busBayInfos = newBusBayInfos;
 
       final List friends = await api.getFriends();
+
+      final bool hasAllFriendTimetables = friends.every(
+          (friend) => api.cachedTimetables.containsKey(friend["userid"]));
+      if (!hasAllFriendTimetables) {
+        await api.cacheTimetables();
+      }
+      if (_isDisposed) return;
+
       final List<FreeFriendInfo> newFreeFriends = [];
       for (final friend in friends) {
+        if (_isDisposed) return;
         final String friendUid = friend["userid"];
         final friendCurrentLesson = await _loadCurrentEventFor(friendUid);
         final friendName = await api.getName(friendUid);
@@ -195,6 +228,6 @@ class HomeController extends ChangeNotifier {
     }
 
     loading = false;
-    notifyListeners();
+    _notifySafe();
   }
 }

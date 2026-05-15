@@ -27,6 +27,7 @@ abstract class ApiCore extends ChangeNotifier {
   late Account account;
 
   Map cachedTimetables = {};
+  Future<void>? timetableCacheInFlight;
   Map cachedPfpVersions = {};
   Map cachedNames = {};
   List? cachedFriends;

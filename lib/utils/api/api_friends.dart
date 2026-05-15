@@ -67,7 +67,7 @@ mixin ApiFriends on ApiCore {
 
     if (isPreview) {
       // Used to save data when rendering in small widgets, as used on the home page
-      urlPath = "/preview?";
+      urlPath = "/preview";
     }
     if (cachedPfpVersions.containsKey(userId)) {
       return "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/$userId$urlPath?project=${MyRunshawConfig.projectId}&version=${cachedPfpVersions[userId]}&width=$previewSize&height=$previewSize";

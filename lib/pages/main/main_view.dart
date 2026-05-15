@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
@@ -9,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/slider/slider_view.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/surveys/wifi_survey_campaign.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
 import 'main_helpers.dart';
 
@@ -40,6 +43,11 @@ class _MainPageState extends State<MainPage> {
     }
     super.initState();
     nextRoute();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        unawaited(WifiSurveyCampaign.maybeStart(context));
+      }
+    });
   }
 
   void nextRoute() {
@@ -52,6 +60,9 @@ class _MainPageState extends State<MainPage> {
           } else if (widget.nextRoute == "/friends") {
             _currentIndex = 2;
             title = "Friends";
+          } else if (widget.nextRoute == "/pay") {
+            _currentIndex = 4;
+            title = "Pay";
           } else {
             _currentIndex = 0;
           }

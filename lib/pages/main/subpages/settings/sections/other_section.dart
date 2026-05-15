@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
+import 'package:runshaw/pages/wifisurvey/wifisurvey.dart';
+import 'package:runshaw/utils/widgets/runshaw_pay_widget_sync.dart';
 import 'package:runshaw/utils/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -89,6 +91,62 @@ class _SettingsOtherSectionState extends State<SettingsOtherSection> {
             );
           },
         ),
+        if (kDebugMode && !kIsWeb)
+          ListTile(
+            title: const Text(
+              "Refresh RunshawPay Widget",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+            ),
+            subtitle: const Text(
+              "Runs the widget sync without using debugger.",
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+            ),
+            trailing: const Icon(Icons.refresh),
+            onTap: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              messenger.showSnackBar(
+                const SnackBar(
+                  content: Text("Refreshing RunshawPay widget..."),
+                ),
+              );
+
+              final bool success =
+                  await RunshawPayWidgetSync.updateBalanceForWidget(
+                trigger: 'debug_manual',
+              );
+
+              if (!context.mounted) return;
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text(
+                    success
+                        ? "RunshawPay widget refresh complete."
+                        : "RunshawPay widget refresh failed. Check logs.",
+                  ),
+                ),
+              );
+            },
+          ),
+        if (kDebugMode)
+          ListTile(
+            title: const Text(
+              "Run speed test",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+            ),
+            subtitle: const Text(
+              "Runs a speed test to measure wifi performance (mobile only).",
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+            ),
+            trailing: const Icon(Icons.touch_app_outlined),
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const WifiSurveyPage(),
+                ),
+              );
+            },
+          ),
         ListTile(
           title: const Text(
             "Report Bug",

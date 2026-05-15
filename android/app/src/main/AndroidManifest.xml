@@ -15,6 +15,15 @@
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
+      <intent-filter>
+        <action android:name="es.antonborri.home_widget.action.LAUNCH" />
+      </intent-filter>
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="runshaw" android:host="uk.danieldb.myrunshaw" />
+      </intent-filter>
     </activity>
     <activity android:exported="true" android:name="com.linusu.flutter_web_auth_2.CallbackActivity">
       <intent-filter android:label="flutter_web_auth_2">
@@ -35,6 +44,14 @@
     <meta-data android:name="com.posthog.posthog.TRACK_APPLICATION_LIFECYCLE_EVENTS"
       android:value="true" />
     <meta-data android:name="com.posthog.posthog.AUTO_INIT" android:value="false" />
+    <receiver android:name="com.daniel.runshaw.RunshawPayWidgetReceiver" android:exported="true"
+      android:label="RunshawPay">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+      </intent-filter>
+      <meta-data android:name="android.appwidget.provider"
+        android:resource="@xml/runshaw_pay_widget_info" />
+    </receiver>
   </application>
   <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
@@ -48,5 +65,5 @@
     </intent>
   </queries>
   <uses-permission android:name="android.permission.INTERNET" />
-
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 </manifest>

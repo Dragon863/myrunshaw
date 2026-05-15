@@ -138,206 +138,313 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
 
     await showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (context) {
-        return BottomSheet(
-          onClosing: () {},
-          enableDrag: false,
-          builder: (context) {
-            return StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: AutofillGroup(
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 12),
-                        Text(
-                          exists ? "Log In" : "Sign Up",
-                          style: GoogleFonts.rubik(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        TextField(
-                          controller: controllerPwd,
-                          obscureText: !showFieldOneText,
-                          autocorrect: false,
-                          autofocus: false,
-                          autofillHints: const [AutofillHints.password],
-                          decoration: InputDecoration(
-                            labelText: "Password",
-                            suffixIcon: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  showFieldOneText = !showFieldOneText;
-                                });
-                              },
-                              icon: Icon(
-                                showFieldOneText
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
+        return AnimatedPadding(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.viewInsetsOf(context).bottom,
+          ),
+          child: FractionallySizedBox(
+            heightFactor: 0.5,
+            widthFactor: 1,
+            alignment: Alignment.bottomCenter,
+            child: Material(
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
+              color: Theme.of(context).bottomSheetTheme.backgroundColor ??
+                  Theme.of(context).scaffoldBackgroundColor,
+              child: StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+                  return SingleChildScrollView(
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: AutofillGroup(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(height: 12),
+                            Text(
+                              exists ? "Log In" : "Sign Up",
+                              style: GoogleFonts.rubik(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ),
-                        ),
-                        Visibility(
-                          visible: !exists,
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 12),
-                              TextField(
-                                controller: controllerPwdConfirm,
-                                obscureText: !showFieldTwoText,
-                                autocorrect: false,
-                                decoration: InputDecoration(
-                                  labelText: "Confirm Password",
-                                  suffixIcon: IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        showFieldTwoText = !showFieldTwoText;
-                                      });
-                                    },
-                                    icon: Icon(
-                                      showFieldTwoText
-                                          ? Icons.visibility
-                                          : Icons.visibility_off,
-                                    ),
+                            const SizedBox(height: 24),
+                            TextField(
+                              controller: controllerPwd,
+                              obscureText: !showFieldOneText,
+                              autocorrect: false,
+                              autofocus: false,
+                              autofillHints: const [AutofillHints.password],
+                              decoration: InputDecoration(
+                                labelText: "Password",
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      showFieldOneText = !showFieldOneText;
+                                    });
+                                  },
+                                  icon: Icon(
+                                    showFieldOneText
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                        Visibility(
-                          visible: !exists,
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 12),
-                              Row(
+                            ),
+                            Visibility(
+                              visible: !exists,
+                              child: Column(
                                 children: [
-                                  Checkbox(
-                                    value: agreesToPolicies,
-                                    onChanged: (bool? value) {
-                                      if (value != null) {
-                                        setState(() {
-                                          agreesToPolicies = !agreesToPolicies;
-                                        });
-                                      }
-                                    },
-                                  ),
-                                  RichText(
-                                    text: TextSpan(
-                                      children: [
-                                        TextSpan(
-                                          text: 'I agree to the ',
-                                          style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurface,
-                                          ),
+                                  const SizedBox(height: 12),
+                                  TextField(
+                                    controller: controllerPwdConfirm,
+                                    obscureText: !showFieldTwoText,
+                                    autocorrect: false,
+                                    decoration: InputDecoration(
+                                      labelText: "Confirm Password",
+                                      suffixIcon: IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            showFieldTwoText =
+                                                !showFieldTwoText;
+                                          });
+                                        },
+                                        icon: Icon(
+                                          showFieldTwoText
+                                              ? Icons.visibility
+                                              : Icons.visibility_off,
                                         ),
-                                        TextSpan(
-                                          text: 'Terms of Use',
-                                          style: const TextStyle(
-                                              color: Colors.red,
-                                              decoration:
-                                                  TextDecoration.underline),
-                                          recognizer: TapGestureRecognizer()
-                                            ..onTap = () {
-                                              Navigator.of(context).pushNamed(
-                                                "/terms",
-                                              );
-                                            },
-                                        ),
-                                        TextSpan(
-                                          text: ' and ',
-                                          style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurface,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: 'Privacy Policy',
-                                          style: const TextStyle(
-                                              color: Colors.red,
-                                              decoration:
-                                                  TextDecoration.underline),
-                                          recognizer: TapGestureRecognizer()
-                                            ..onTap = () {
-                                              Navigator.of(context).pushNamed(
-                                                "/privacy_policy",
-                                              );
-                                            },
-                                        ),
-                                      ],
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
-                        Visibility(
-                          visible: exists,
-                          child: const SizedBox(height: 6),
-                        ),
-                        Visibility(
-                          visible: exists,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text("(or "),
-                              InkWell(
-                                child: const Text(
-                                  'reset password here',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const PasswordResetLoginPage(),
-                                    ),
-                                  );
-                                },
+                            ),
+                            Visibility(
+                              visible: !exists,
+                              child: Column(
+                                children: [
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    children: [
+                                      Checkbox(
+                                        value: agreesToPolicies,
+                                        onChanged: (bool? value) {
+                                          if (value != null) {
+                                            setState(() {
+                                              agreesToPolicies =
+                                                  !agreesToPolicies;
+                                            });
+                                          }
+                                        },
+                                      ),
+                                      Expanded(
+                                        child: RichText(
+                                          text: TextSpan(
+                                            children: [
+                                              TextSpan(
+                                                text: 'I agree to the ',
+                                                style: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface,
+                                                ),
+                                              ),
+                                              TextSpan(
+                                                text: 'Terms of Use',
+                                                style: const TextStyle(
+                                                  color: Colors.red,
+                                                  decoration:
+                                                      TextDecoration.underline,
+                                                ),
+                                                recognizer:
+                                                    TapGestureRecognizer()
+                                                      ..onTap = () {
+                                                        Navigator.of(context)
+                                                            .pushNamed(
+                                                          "/terms",
+                                                        );
+                                                      },
+                                              ),
+                                              TextSpan(
+                                                text: ' and ',
+                                                style: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface,
+                                                ),
+                                              ),
+                                              TextSpan(
+                                                text: 'Privacy Policy',
+                                                style: const TextStyle(
+                                                  color: Colors.red,
+                                                  decoration:
+                                                      TextDecoration.underline,
+                                                ),
+                                                recognizer:
+                                                    TapGestureRecognizer()
+                                                      ..onTap = () {
+                                                        Navigator.of(context)
+                                                            .pushNamed(
+                                                          "/privacy_policy",
+                                                        );
+                                                      },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                              const Text(")"),
-                            ],
-                          ),
-                        ),
-                        Visibility(
-                          visible: exists,
-                          child: const SizedBox(height: 6),
-                        ),
-                        Visibility(
-                          visible: agreesToPolicies || exists,
-                          child: Align(
-                            alignment: Alignment.bottomRight,
-                            child: FloatingActionButton(
-                              onPressed: () async {
-                                setState(() {
-                                  fabLoading = true;
-                                });
-                                if (!exists) {
-                                  // New user; create account
-                                  if (controllerPwd.text ==
-                                      controllerPwdConfirm.text) {
-                                    if (controllerPwd.text.length >= 8) {
+                            ),
+                            Visibility(
+                              visible: exists,
+                              child: const SizedBox(height: 6),
+                            ),
+                            Visibility(
+                              visible: exists,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text("(or "),
+                                  InkWell(
+                                    child: const Text(
+                                      'reset password here',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const PasswordResetLoginPage(),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  const Text(")"),
+                                ],
+                              ),
+                            ),
+                            Visibility(
+                              visible: exists,
+                              child: const SizedBox(height: 6),
+                            ),
+                            Visibility(
+                              visible: agreesToPolicies || exists,
+                              child: Align(
+                                alignment: Alignment.bottomRight,
+                                child: FloatingActionButton(
+                                  onPressed: () async {
+                                    setState(() {
+                                      fabLoading = true;
+                                    });
+                                    if (!exists) {
+                                      // New user; create account
+                                      if (controllerPwd.text ==
+                                          controllerPwdConfirm.text) {
+                                        if (controllerPwd.text.length >= 8) {
+                                          password = controllerPwd.text;
+                                          try {
+                                            await api.createUser(
+                                              email:
+                                                  "$studentID${MyRunshawConfig.emailExtension}",
+                                              password: password,
+                                            );
+                                            TextInput.finishAutofillContext();
+                                            navigateToSplash();
+                                            setState(() {
+                                              fabLoading = false;
+                                            });
+                                          } on AppwriteException catch (e) {
+                                            setState(() {
+                                              fabLoading = false;
+                                            });
+                                            await showDialog(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                title: const Text("Error"),
+                                                content: Text(
+                                                  e.message ??
+                                                      "Sorry, we ran into an unknown issue",
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: const Text("Okay"),
+                                                  )
+                                                ],
+                                              ),
+                                            );
+                                          }
+                                        } else {
+                                          setState(() {
+                                            fabLoading = false;
+                                          });
+                                          await showDialog(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: const Text("Error"),
+                                              content: const Text(
+                                                "Passwords must be at least 8 characters! This ensures the security of your account",
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: const Text("Okay"),
+                                                )
+                                              ],
+                                            ),
+                                          );
+                                        }
+                                      } else {
+                                        setState(() {
+                                          fabLoading = false;
+                                        });
+                                        await showDialog(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            title: const Text("Error"),
+                                            content: const Text(
+                                              "Passwords do not match! Try again, ensuring you typed the same in both boxes",
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text("Okay"),
+                                              )
+                                            ],
+                                          ),
+                                        );
+                                      }
+                                    } else {
+                                      // User exists; login
                                       password = controllerPwd.text;
                                       try {
-                                        await api.createUser(
+                                        await api.createEmailSession(
                                           email:
                                               "$studentID${MyRunshawConfig.emailExtension}",
                                           password: password,
                                         );
                                         TextInput.finishAutofillContext();
-                                        navigateToSplash();
                                         setState(() {
                                           fabLoading = false;
                                         });
+                                        navigateToSplash();
                                       } on AppwriteException catch (e) {
                                         setState(() {
                                           fabLoading = false;
@@ -346,114 +453,45 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                                           context: context,
                                           builder: (context) => AlertDialog(
                                             title: const Text("Error"),
-                                            content: Text(e.message ??
-                                                "Sorry, we ran into an unknown issue"),
+                                            content: Text(
+                                              e.message ??
+                                                  "Sorry, we ran into an unknown issue",
+                                            ),
                                             actions: [
                                               TextButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: const Text("Okay"))
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text("Okay"),
+                                              )
                                             ],
                                           ),
                                         );
                                       }
-                                    } else {
-                                      setState(() {
-                                        fabLoading = false;
-                                      });
-                                      await showDialog(
-                                        context: context,
-                                        builder: (context) => AlertDialog(
-                                          title: const Text("Error"),
-                                          content: const Text(
-                                              "Passwords must be at least 8 characters! This ensures the security of your account"),
-                                          actions: [
-                                            TextButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                child: const Text("Okay"))
-                                          ],
-                                        ),
-                                      );
                                     }
-                                  } else {
-                                    setState(() {
-                                      fabLoading = false;
-                                    });
-                                    await showDialog(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: const Text("Error"),
-                                        content: const Text(
-                                            "Passwords do not match! Try again, ensuring you typed the same in both boxes"),
-                                        actions: [
-                                          TextButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                              child: const Text("Okay"))
-                                        ],
-                                      ),
-                                    );
-                                  }
-                                } else {
-                                  // User exists; login
-                                  password = controllerPwd.text;
-                                  try {
-                                    await api.createEmailSession(
-                                      email:
-                                          "$studentID${MyRunshawConfig.emailExtension}",
-                                      password: password,
-                                    );
-                                    TextInput.finishAutofillContext();
-                                    setState(() {
-                                      fabLoading = false;
-                                    });
-                                    navigateToSplash();
-                                  } on AppwriteException catch (e) {
-                                    setState(() {
-                                      fabLoading = false;
-                                    });
-                                    await showDialog(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: const Text("Error"),
-                                        content: Text(e.message ??
-                                            "Sorry, we ran into an unknown issue"),
-                                        actions: [
-                                          TextButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                              child: const Text("Okay"))
-                                        ],
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
-                              child: fabLoading
-                                  ? const SizedBox(
-                                      height: 16,
-                                      width: 16,
-                                      child: CircularProgressIndicator(
-                                        color: Colors.black,
-                                        strokeWidth: 3,
-                                      ),
-                                    )
-                                  : const Icon(Icons.keyboard_arrow_right),
-                            ),
-                          ),
-                        )
-                      ],
+                                  },
+                                  child: fabLoading
+                                      ? const SizedBox(
+                                          height: 16,
+                                          width: 16,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.black,
+                                            strokeWidth: 3,
+                                          ),
+                                        )
+                                      : const Icon(Icons.keyboard_arrow_right),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                );
-              },
-            );
-          },
+                  );
+                },
+              ),
+            ),
+          ),
         );
       },
     );
