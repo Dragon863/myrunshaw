@@ -401,7 +401,7 @@ const Map locations = {
       ],
     },
   ],
-  "l-and-c": [
+  "Langdale & Coniston": [
     {
       "title": "Ground Floor",
       "img": "lc-ground",
