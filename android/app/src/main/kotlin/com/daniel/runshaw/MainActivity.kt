@@ -71,11 +71,15 @@ class MainActivity : FlutterActivity() {
                 return@launch
             }
 
-            GlanceAppWidgetManager(this@MainActivity)
-                    .setWidgetPreviews(
-                            RunshawPayWidgetReceiver::class,
-                            intSetOf(AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN)
-                    )
+            try {
+                appWidgetManager.setWidgetPreview(
+                        providerComponent,
+                        AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN,
+                        android.widget.RemoteViews(packageName, R.layout.widget_preview)
+                )
+            } catch (e: Exception) {
+                // Ignore
+            }
         }
     }
 }

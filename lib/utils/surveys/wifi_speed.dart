@@ -11,7 +11,9 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:network_info_plus/network_info_plus.dart';
 
-import 'package:runshaw/utils/http/http_client_factory.dart' as http_factory;
+import 'package:runshaw/utils/http/http_client_factory.dart'
+    if (dart.library.js_interop) 'package:runshaw/utils/http/http_client_factory_web.dart'
+    as http_factory;
 import 'package:runshaw/utils/logging.dart';
 
 class WifiSpeedSurveyResult {

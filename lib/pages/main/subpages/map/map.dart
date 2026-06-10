@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_map/flutter_image_map.dart';
@@ -121,7 +120,7 @@ class _MapPageState extends State<MapPage> {
     <area title="Rydal"                   href="rydal" coords="972,275,968,310,971,341,1031,341,1055,311,1051,274" shape="poly">
     <area title="Buttermere"              href="buttermere" coords="1019,452,1074,447,1075,405,1097,404,1096,382,1070,357,1013,362,1019,377,990,376,988,400,1019,401" shape="poly">
     <area title="Patterdale"              href="patterdale" coords="942,452,1014,450,1013,405,986,402,985,386,941,392,946,414,924,410,925,432,943,436" shape="poly">
-    <area title="Langdale &amp; Coniston" href="l-and-c" coords="836,445,830,362,933,354,939,408,923,406,921,445" shape="poly">
+    <area title="Langdale &amp; Coniston" href="Langdale & Coniston" coords="836,445,830,362,933,354,939,408,923,406,921,445" shape="poly">
     <area title="Octagon"                 href="octagon" coords="787,452,792,360,827,360,832,452" shape="poly">
 </map>
 ''',
@@ -129,77 +128,78 @@ class _MapPageState extends State<MapPage> {
     );
 
     return Scaffold(
-      body: ZoomableInteractiveViewer (
+      body: ZoomableInteractiveViewer(
         minScale: 1.0,
         boundaryMargin: EdgeInsets.zero,
-
         child: Padding(
-          padding: const EdgeInsets.all(0.0),
-          child: Center(
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: ImageMap(
-                    image: Image.asset('assets/img/campus.png', fit: BoxFit.fitHeight),
-                    onTap: (region) {
-                      final List roomObjList = locations[region.link!];
-                      if (roomObjList.length == 1) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => IndividualBuildingMapPage(
-                              fileName: roomObjList[0]['img'],
-                              subtext: roomObjList[0]['title'],
-                              referredByMainMap: true,
-                            ),
-                          ),
-                        );
-                      } else {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text(region.title!),
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  for (final roomObj in roomObjList)
-                                    ListTile(
-                                      title: Text(roomObj['title']),
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                IndividualBuildingMapPage(
-                                                  fileName: roomObj['img'],
-                                                  subtext: roomObj['title'],
-                                                  referredByMainMap: true,
-                                                ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                ],
+            padding: const EdgeInsets.all(0.0),
+            child: Center(
+              child: Column(
+                children: <Widget>[
+                  Expanded(
+                    child: ImageMap(
+                      image: Image.asset('assets/img/campus.png',
+                          fit: BoxFit.fitHeight),
+                      onTap: (region) {
+                        final List roomObjList = locations[region.link!];
+                        if (roomObjList.length == 1) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => IndividualBuildingMapPage(
+                                fileName: roomObjList[0]['img'],
+                                subtext: roomObjList[0]['title'],
+                                referredByMainMap: true,
                               ),
-                            );
-                          },
-                        );
-                      }
-                    },
-                    regions: [
-                      ...htmlDataRegions,
-                    ],
+                            ),
+                          );
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text(region.title!),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    for (final roomObj in roomObjList)
+                                      ListTile(
+                                        title: Text(roomObj['title']),
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  IndividualBuildingMapPage(
+                                                fileName: roomObj['img'],
+                                                subtext: roomObj['title'],
+                                                referredByMainMap: true,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        }
+                      },
+                      regions: [
+                        ...htmlDataRegions,
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          )
-        ),
+                ],
+              ),
+            )),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {displaySearchMenu();},
+        onPressed: () {
+          displaySearchMenu();
+        },
         child: const Icon(Icons.search),
       ),
     );
@@ -211,29 +211,29 @@ class _MapPageState extends State<MapPage> {
       builder: (context) => AlertDialog(
         insetPadding: const EdgeInsets.all(0),
         contentPadding: const EdgeInsets.all(0),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SearchBar(
-                controller: _searchController,
-                hintText: "Search a room number...",
-                autoFocus: true,
-                trailing: [
-                  IconButton(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SearchBar(
+              controller: _searchController,
+              hintText: "Search a room number...",
+              autoFocus: true,
+              trailing: [
+                IconButton(
                     icon: const Icon(Icons.search),
                     onPressed: () {
                       Navigator.pop(context);
                       submit();
                     }),
-                ],
-                onSubmitted: (value) async {
-                  Navigator.pop(context);
-                  submit();
-                },
-              ),
-            ],
-          ),
+              ],
+              onSubmitted: (value) async {
+                Navigator.pop(context);
+                submit();
+              },
+            ),
+          ],
         ),
+      ),
     );
   }
 
