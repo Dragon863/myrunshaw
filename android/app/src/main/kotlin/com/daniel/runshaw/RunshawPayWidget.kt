@@ -45,39 +45,6 @@ class RunshawPayWidget : GlanceAppWidget() {
                 }
         }
 
-        override public suspend fun providePreview(context: Context, widgetCategory: Int) {
-                provideContent {
-                        runshawPayWidgetGlanceTheme {
-                                runshawPayWidgetContent(
-                                        context,
-                                        HomeWidgetGlanceState(
-                                                preferences =
-                                                        context.getSharedPreferences(
-                                                                        "preview",
-                                                                        Context.MODE_PRIVATE
-                                                                )
-                                                                .apply {
-                                                                        edit().putString(
-                                                                                        "runshawpay_balance",
-                                                                                        "£12.34"
-                                                                                )
-                                                                                .apply()
-                                                                        edit().putString(
-                                                                                        "runshawpay_status",
-                                                                                        "ok"
-                                                                                )
-                                                                                .apply()
-                                                                        edit().putLong(
-                                                                                        "runshawpay_updated_at",
-                                                                                        System.currentTimeMillis()
-                                                                                )
-                                                                                .apply()
-                                                                }
-                                        )
-                                )
-                        }
-                }
-        }
 }
 
 @Composable

@@ -28,6 +28,7 @@ class RunshawPayWidgetSync {
 
   static Future<void> initialize() async {
     if (kIsWeb) return;
+    if (!Platform.isAndroid && !Platform.isIOS) return;
 
     // iOS requires an App Group id for widget communication.
     if (Platform.isIOS) {
