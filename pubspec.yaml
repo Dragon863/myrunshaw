@@ -2,7 +2,7 @@ name: runshaw
 description: "My Runshaw mobile app"
 publish_to: "none" # don't remove this line! we don't want to accidentally publish this app to pub.dev
 
-version: 2.0.0+53
+version: 2.0.1+54
 
 environment:
   sdk: ^3.5.1
@@ -29,7 +29,7 @@ dependencies:
   flutter_image_map: ^1.0.1
   pub_semver: ^2.1.5
   skeletonizer: ^2.0.1
-  posthog_flutter: ^5.30.0
+  posthog_flutter: ^5.30.00
   device_info_plus: ^13.2.0
   gaimon: ^1.4.2
   flutter_cache_manager: ^3.4.1
@@ -38,8 +38,6 @@ dependencies:
   fetch_client: ^1.2.0
   home_widget: ^0.9.2
   background_fetch: ^1.7.0
-  permission_handler: ^12.0.3
-  network_info_plus: ^8.2.0
   cupertino_icons: ^1.0.2
   flutter_web_auth_2: ^5.0.3
   timeago: ^3.7.1
