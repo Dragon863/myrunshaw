@@ -4,9 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/buses/bus_list/bus_list.dart';
+import 'package:runshaw/pages/main/subpages/buses/bus_list/individual_bus.dart';
+import 'package:runshaw/pages/main/subpages/buses/bus_widgets.dart';
 import 'package:runshaw/pages/main/subpages/buses/helpers.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
+import 'package:runshaw/utils/vendor/spinner/loading_indicator.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class BusesPage extends StatefulWidget {
   const BusesPage({super.key});
@@ -18,9 +23,10 @@ class BusesPage extends StatefulWidget {
 class _BusesPageState extends State<BusesPage> {
   bool loading = true;
   List<Widget> busPins = [];
-  List<Widget> richTextWidgets = [];
+  List<Widget> arrivalCardContents = [];
   Timer? timer;
   bool _isInitialLoad = true;
+  String arrivalText = "";
 
   Future<void> loadData({bool showLoading = true}) async {
     if (!mounted) return;
@@ -29,47 +35,19 @@ class _BusesPageState extends State<BusesPage> {
       setState(() {
         loading = true;
         busPins = [];
-        richTextWidgets = [
-          RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-              text: 'The ',
-              style: GoogleFonts.rubik(
-                fontSize: 24,
-                fontWeight: FontWeight.normal,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-              children: [
-                TextSpan(
-                  text: 'bus tracker',
-                  style: GoogleFonts.rubik(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-                TextSpan(
-                  text: ' is loading...',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-              ],
-            ),
-          ),
+        arrivalCardContents = [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: LoadingIndicator(),
+          )
         ];
       });
     }
+
     int index = 0;
 
     final api = context.read<BaseAPI>();
-    final busNumber = await api.getBusNumber();
-    final List<String> allBusesList = await api.getAllBuses();
-    if (busNumber != null &&
-        !allBusesList.contains(busNumber) &&
-        busNumber != "") {
-      allBusesList.add(busNumber);
-    }
+    final List<String> allBusesList = await api.getAllSubscribedBuses();
 
     allBusesList.sort(
       (a, b) => int.parse(a.replaceAll(RegExp(r'[A-Z]'), "")).compareTo(
@@ -77,28 +55,24 @@ class _BusesPageState extends State<BusesPage> {
       ),
     );
 
-    final List<Color> colors = [
-      Colors.red,
-      Colors.blue,
-      Colors.purple,
-      Colors.orange,
-      Colors.pink,
-      Colors.teal,
-      Colors.amber,
-      Colors.cyan,
-      Colors.lime,
-    ];
-    final busBays = await api.getBusBays();
+    final List<Color> colors = MyRunshawConfig.busBayColors;
+    Map<String, String?> busBays = {};
+    final busArrivals = await api.getBusArrivals();
+    for (var bus in busArrivals) {
+      busBays[bus["bus_id"]] = bus["bus_bay"]?.toString();
+      // turn busBays into a map like { "760": "A1", "762": "B2" }
+    }
 
     List<Widget> pins = [];
-    List<Widget> newRichTextWidgets = [];
+    List<Widget> newArrivalCardContents = [];
 
     if (!mounted) return;
 
     if (allBusesList.isEmpty) {
       if (!mounted) return;
       setState(() {
-        richTextWidgets = [
+        arrivalCardContents = [
+          SizedBox(height: 6),
           RichText(
             textAlign: TextAlign.center,
             text: TextSpan(
@@ -136,73 +110,36 @@ class _BusesPageState extends State<BusesPage> {
       if (!allBusesList.contains(bus)) {
         return;
       }
+      final busColor = colors[index % colors.length];
 
       if (bay != null && bay != "RSP_NYA" && bay != "RSP_UNK" && bay != "0") {
-        final busColor = colors[index % colors.length];
-        newRichTextWidgets.add(
-          RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-              style: TextStyle(
-                fontSize: 24.0,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
+        newArrivalCardContents.add(
+          BusCard(
+            bus: BusInfo(
+              number: bus,
+              bay: bay,
+              bayColor: busColor,
+              status: BusStatus.arrived,
+              arrivedTimeAgo: timeago.format(
+                DateTime.parse(
+                  busArrivals.firstWhere(
+                      (element) => element["bus_id"] == bus)["arrival_time"],
+                ),
               ),
-              children: [
-                TextSpan(
-                  text: 'The ',
-                  style: GoogleFonts.rubik(
-                    fontSize: 24,
-                    fontWeight: FontWeight.normal,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  ),
-                ),
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.middle,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
-                    decoration: BoxDecoration(
-                      color: busColor,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      bus,
-                      style: GoogleFonts.rubik(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ),
-                ),
-                TextSpan(
-                  text: ' is in bay ',
-                  style: GoogleFonts.rubik(
-                    fontSize: 24,
-                    fontWeight: FontWeight.normal,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  ),
-                ),
-                TextSpan(
-                  text: bay,
-                  style: GoogleFonts.rubik(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  ),
-                ),
-                TextSpan(
-                  text: "!",
-                  style: GoogleFonts.rubik(
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  ),
-                ),
-              ],
             ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => IndividualBusPage(
+                    busNumber: bus,
+                    bay: bay,
+                    color: busColor,
+                  ),
+                ),
+              );
+            },
           ),
-        );
-
-        newRichTextWidgets.add(
-          const SizedBox(height: 2),
         );
 
         final position = calculatePosition(bay);
@@ -235,59 +172,41 @@ class _BusesPageState extends State<BusesPage> {
           ),
         );
       } else {
-        newRichTextWidgets.add(
-          RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-              text: 'The ',
-              style: GoogleFonts.rubik(
-                fontSize: 24,
-                fontWeight: FontWeight.normal,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
-              ),
-              children: [
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.middle,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
-                    decoration: BoxDecoration(
-                      color: colors[index % colors.length],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      bus,
-                      style: GoogleFonts.rubik(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ),
-                ),
-                TextSpan(
-                  text: " hasn't arrived yet",
-                  style: GoogleFonts.rubik(
-                    fontSize: 24,
-                    fontWeight: FontWeight.normal,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  ),
-                ),
-              ],
+        newArrivalCardContents.add(
+          BusCard(
+            bus: BusInfo(
+              number: bus,
+              bay: bay ?? "...",
+              bayColor: busColor,
+              status: BusStatus.waiting,
             ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => IndividualBusPage(
+                    busNumber: bus,
+                    bay: bay ?? "...",
+                    color: busColor,
+                  ),
+                ),
+              );
+            },
           ),
         );
       }
       index++;
-      newRichTextWidgets.add(
-        const SizedBox(height: 2),
-      );
     });
+
+    final String totalBuses = busBays.length.toString();
+    final String totalArrived =
+        busBays.values.where((bay) => bay != "0").length.toString();
 
     if (!mounted) return;
     setState(() {
       busPins = pins;
-      richTextWidgets = newRichTextWidgets;
+      arrivalCardContents = newArrivalCardContents;
+      arrivalText = "$totalArrived/$totalBuses arrived";
       loading = false;
     });
   }
@@ -296,7 +215,7 @@ class _BusesPageState extends State<BusesPage> {
   void initState() {
     super.initState();
     timer = Timer.periodic(
-      const Duration(seconds: 20),
+      const Duration(seconds: 10),
       (Timer t) => loadData(showLoading: false),
     );
   }
@@ -345,45 +264,47 @@ class _BusesPageState extends State<BusesPage> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                ...richTextWidgets,
-                const SizedBox(height: 22),
-                _buildCard("View all buses", Icons.directions_bus, () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const BusListPage()),
-                  );
-                }),
-                _buildCard("CCTV Policy", Icons.videocam, () async {
-                  await showModalBottomSheet(
-                    context: context,
-                    builder: (context) {
-                      return const Padding(
-                        padding: EdgeInsets.all(12.0),
-                        child: Column(
-                          children: [
-                            Text(
-                              "CCTV Recording",
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 12),
-                            Text(
-                              "Please note that College bus services may have CCTV surveillance systems fitted. "
-                              "These may record images as well as audio. The College can request access "
-                              "to these recordings in order to ensure the safety of students and in order "
-                              "to meet any crime detection and prevention obligations placed upon us by relevant "
-                              "law enforcement agencies. For more information please review the relevant signage "
-                              "affixed to your college bus and the bus operators privacy notices. ",
-                            ),
-                          ],
+                ...arrivalCardContents,
+                const SizedBox(height: 6),
+                if (arrivalText != "")
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "$arrivalText  •",
+                          style: GoogleFonts.rubik(
+                            fontSize: 14,
+                          ),
                         ),
-                      );
-                    },
-                  );
-                }),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const BusListPage(),
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              top: 8.0, bottom: 8.0, right: 8.0),
+                          child: Text(
+                            'View All',
+                            style: GoogleFonts.rubik(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFFD94040),
+                              decoration: TextDecoration.underline,
+                              decorationColor: const Color(0xFFD94040),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -392,38 +313,6 @@ class _BusesPageState extends State<BusesPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: loadData,
         child: const Icon(Icons.refresh),
-      ),
-    );
-  }
-
-  Widget _buildCard(String text, IconData icon, VoidCallback onTap) {
-    return SizedBox(
-      width: double.infinity,
-      child: Card(
-        elevation: 1,
-        child: InkWell(
-          splashColor: context.read<ThemeProvider>().isLightMode
-              ? Colors.grey.shade300
-              : null,
-          borderRadius: BorderRadius.circular(8),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Icon(icon),
-                const SizedBox(width: 12),
-                Text(
-                  text,
-                  style: GoogleFonts.rubik(
-                    fontSize: 16,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

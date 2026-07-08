@@ -207,7 +207,7 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
 
   void loadIntro() async {
     final SharedPreferences preferences = await SharedPreferences.getInstance();
-    final bool? shownBefore = preferences.getBool("shownRunshawPayIntro");
+    final bool? shownBefore = preferences.getBool("shown_runshawpay_intro");
     if (shownBefore == null || !shownBefore) {
       showDialog(
         context: context,
@@ -279,7 +279,7 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                preferences.setBool("shownRunshawPayIntro", true);
+                preferences.setBool("shown_runshawpay_intro", true);
               },
               child: const Text("Accept"),
             ),

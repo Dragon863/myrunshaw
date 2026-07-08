@@ -1,9 +1,10 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/utils/api.dart';
-import 'package:runshaw/utils/config.dart';
+import 'package:runshaw/utils/vendor/spinner/loading_indicator.dart';
 
 class OnBoardingStageThree extends StatefulWidget {
   const OnBoardingStageThree({super.key});
@@ -16,6 +17,7 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
   String? busNumber;
   BaseAPI? api;
   List<String> _extraBuses = [];
+  List<String> _availableBuses = [];
   bool _loading = true;
   final _formKey = GlobalKey<FormState>();
   late ValueNotifier<String?> _busNumberNotifier;
@@ -25,7 +27,8 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
       _loading = true;
     });
     final api = context.read<BaseAPI>();
-    final response = await api.getAllBuses();
+    final response = await api.getAllSubscribedBuses();
+    response.sort((a, b) => a.compareTo(b));
 
     setState(() {
       _extraBuses = response;
@@ -33,9 +36,21 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
     });
   }
 
+  Future<void> populateBusList() async {
+    final api = context.read<BaseAPI>();
+    final List<Map<String, dynamic>> response = await api.getBusArrivals();
+
+    setState(() {
+      _availableBuses =
+          response.map((bus) => bus['bus_id'].toString()).toList();
+    });
+  }
+
   @override
   void initState() {
+    FocusManager.instance.primaryFocus?.unfocus();
     _busNumberNotifier = ValueNotifier<String?>(null);
+    populateBusList();
     fetchCurrentBuses();
     super.initState();
   }
@@ -47,6 +62,16 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
   }
 
   Future<void> addBus() async {
+    if (_availableBuses.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content:
+              Text("Please wait a second while we fetch the available buses!"),
+        ),
+      );
+      return;
+    }
+
     final api = context.read<BaseAPI>();
     await showDialog(
         context: context,
@@ -67,10 +92,10 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
                     hintText: busNumber,
                   ),
                   hint: const Text(
-                    'Select Your Bus Number',
+                    'Select Your Bus',
                     style: TextStyle(fontSize: 14),
                   ),
-                  items: MyRunshawConfig.busNumbers
+                  items: _availableBuses
                       .map((item) => DropdownItem<String>(
                             value: item.toString(),
                             child: Text(
@@ -83,7 +108,7 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
                       .toList(),
                   validator: (value) {
                     if (value == null) {
-                      return 'Please select bus number.';
+                      return 'Please select bus.';
                     }
                     return null;
                   },
@@ -91,16 +116,6 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
                     _busNumberNotifier.value = value;
                     busNumber = value;
                   },
-                  buttonStyleData: const FormFieldButtonStyleData(
-                    padding: EdgeInsets.only(right: 16),
-                  ),
-                  iconStyleData: const IconStyleData(
-                    icon: Icon(
-                      Icons.arrow_drop_down,
-                      color: Colors.black45,
-                    ),
-                    iconSize: 24,
-                  ),
                   dropdownStyleData: DropdownStyleData(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
@@ -124,16 +139,22 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     try {
-                      await api.addExtraBus(busNumber!);
+                      await api.addBus(busNumber!);
+                      if (!mounted) return;
+                      Navigator.pop(context);
+                      fetchCurrentBuses();
                     } catch (e) {
+                      if (!mounted) return;
+                      await Posthog().captureException(
+                        error: e,
+                        stackTrace: StackTrace.current,
+                      );
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(e.toString()),
                         ),
                       );
                     }
-                    Navigator.pop(context);
-                    fetchCurrentBuses();
                   }
                 },
                 child: const Text("Add"),
@@ -149,48 +170,38 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
       padding: const EdgeInsets.all(8.0),
       child: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Center(
               child: Container(
                 constraints: const BoxConstraints(
                   minWidth: 150,
-                  maxWidth: 600,
+                  maxWidth: 250,
                 ),
-                child: Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: SizedBox.fromSize(
-                      size: const Size.fromRadius(120),
-                      child: Image.asset('assets/img/stage3.png'),
-                    ),
-                  ),
-                ),
+                child: Image.asset('assets/img/onboarding/bus-graphic.png'),
               ),
             ),
             const SizedBox(height: 16),
             Text(
-              "Setup Buses",
+              "Bus Tracking",
               style: GoogleFonts.rubik(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Text(
-              "If you take the bus to college, you can be notified when your bus arrives at the college with the bay number it is at. Please add any college buses you take below.",
+              "If you use the college bus services, you can subscribe to push notifications for when they arrive. Please add any you wish to subscribe to.",
               style: GoogleFonts.rubik(
                 fontSize: 16,
               ),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             ListView.builder(
               shrinkWrap: true,
+              physics:
+                  const NeverScrollableScrollPhysics(), // already in a scroll view
               itemBuilder: (context, index) {
                 return ListTile(
                   title: Text(_extraBuses[index]),
@@ -198,7 +209,7 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
                     icon: const Icon(Icons.delete_outline),
                     onPressed: () async {
                       try {
-                        await context.read<BaseAPI>().removeExtraBus(
+                        await context.read<BaseAPI>().removeBus(
                               _extraBuses[index],
                             );
                         fetchCurrentBuses();
@@ -216,16 +227,20 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
               itemCount: _extraBuses.length,
             ),
             _loading
-                ? const Row(
-                    children: [
-                      SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(),
-                      ),
-                      SizedBox(width: 8),
-                      Text("Please wait..."),
-                    ],
+                ? Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: LoadingIndicator(),
+                        ),
+                        SizedBox(width: 8),
+                        Text("Please wait..."),
+                      ],
+                    ),
                   )
                 : Align(
                     alignment: Alignment.bottomCenter,

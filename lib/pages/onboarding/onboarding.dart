@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:runshaw/pages/onboarding/pages/five.dart';
 import 'package:runshaw/pages/onboarding/pages/four.dart';
 import 'package:runshaw/pages/onboarding/pages/one.dart';
 import 'package:runshaw/pages/onboarding/pages/three.dart';
 import 'package:runshaw/pages/onboarding/pages/two.dart';
 import 'package:runshaw/utils/api.dart';
-import 'package:runshaw/utils/theme/appbar.dart';
+import 'package:runshaw/utils/vendor/spinner/loading_indicator.dart';
 
 abstract class OnboardingStage {
   Future<bool> onLeaveStage();
@@ -31,13 +33,17 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
     const OnBoardingStageTwo(),
     const OnBoardingStageThree(),
     const OnBoardingStageFour(),
+    const OnBoardingStageFive(),
   ];
 
   Future<bool> handlePageTransition() async {
     if (contents[_currentPage] is OnboardingStage) {
       final onboardingStage = contents[_currentPage] as OnboardingStage;
       setState(() {
-        fabIcon = const CircularProgressIndicator(color: Colors.white);
+        fabIcon = SizedBox(
+            width: 28,
+            height: 28,
+            child: LoadingIndicator(activeIndicatorColor: Colors.white));
       });
       final bool canContinue = await onboardingStage.onLeaveStage();
       if (!canContinue) {
@@ -79,14 +85,15 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
       Navigator.pushReplacementNamed(context, '/splash');
     }
     if (!canContinue) {
-      if (_currentPage == contents.length - 1) {
+      if (_currentPage == contents.length - 2) {
+        // timetable stage
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
             title: Text("Warning!",
                 style: GoogleFonts.rubik(fontWeight: FontWeight.bold)),
             content: const Text(
-                "You haven't provided your timetable. Sharing your timetable is a key feature of this app - if possible, please consider adding it! Are you sure you want to skip this step?"),
+                "You haven't provided your timetable. \nSharing your timetable is a key feature of this app and enables RunshawPay support - if possible, please consider adding it! \nAre you sure you want to skip this step?"),
             actions: [
               TextButton(
                 onPressed: () async {
@@ -133,54 +140,63 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
   }
 
   @override
+  void initState() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const RunshawAppBar(title: "Introduction"),
-      body: Center(
-        child: Container(
-          constraints: const BoxConstraints(
-            minWidth: 150,
-            maxWidth: 1000,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                flex: 8,
-                child: PageView.builder(
-                  controller: _pageController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: contents.length,
-                  itemBuilder: (context, index) {
-                    return contents[index];
-                  },
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: List.generate(contents.length, (index) {
-                      final isActive = _currentPage == index;
-                      return AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                        width: isActive ? 24 : 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: isActive ? Colors.red : Colors.grey,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                      );
-                    }),
+      body: SafeArea(
+        child: Center(
+          child: Container(
+            constraints: const BoxConstraints(
+              minWidth: 150,
+              maxWidth: 1000,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // actual content
+                Expanded(
+                  flex: 8,
+                  child: PageView.builder(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: contents.length,
+                    itemBuilder: (context, index) {
+                      return contents[index];
+                    },
                   ),
                 ),
-              ),
-              const SizedBox(height: 18),
-            ],
+                // progress indicator dots
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: List.generate(contents.length, (index) {
+                        final isActive = _currentPage == index;
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: const EdgeInsets.symmetric(horizontal: 3.0),
+                          width: isActive ? 30 : 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: isActive ? Colors.red : Colors.grey.shade400,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
+              ],
+            ),
           ),
         ),
       ),
@@ -190,6 +206,8 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
           FloatingActionButton(
             heroTag: "back",
             onPressed: goToPreviousPage,
+            mini: true,
+            elevation: 0,
             child: const Icon(Icons.keyboard_arrow_left, color: Colors.black),
           ),
           const SizedBox(width: 8),

@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:appwrite/appwrite.dart';
 import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:http/retry.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/http/http_client_factory.dart'
     if (dart.library.js_interop) 'package:runshaw/utils/http/http_client_factory_web.dart'
@@ -21,6 +21,24 @@ const String _widgetRefreshPath = '/refresh-balance';
 const String _balanceKey = 'runshawpay_balance';
 const String _statusKey = 'runshawpay_status';
 const String _updatedAtKey = 'runshawpay_updated_at';
+
+// this is a top-level function so the OS can execute it in a background isolate
+@pragma('vm:entry-point')
+void runshawPayWidgetHeadlessTask(HeadlessEvent task) async {
+  final String taskId = task.taskId;
+  final bool isTimeout = task.timeout;
+
+  if (isTimeout) {
+    BackgroundFetch.finish(taskId);
+    return;
+  }
+
+  try {
+    await RunshawPayWidgetSync.updateBalanceForWidget(trigger: taskId);
+  } finally {
+    BackgroundFetch.finish(taskId);
+  }
+}
 
 class RunshawPayWidgetSync {
   static StreamSubscription<Uri?>? _widgetClickSub;
@@ -59,16 +77,13 @@ class RunshawPayWidgetSync {
           debugLog('App launched from widget tap (Android)', level: 1);
           await updateBalanceForWidget(trigger: 'widget_tap_launch_android');
         } else {
-          // sync on app startup, so the widget has initial data
           updateBalanceForWidget(trigger: 'app_startup');
         }
       } catch (e) {
         debugLog('Error detecting widget launch on Android: $e', level: 2);
-        // Fallback: perform normal startup sync
         updateBalanceForWidget(trigger: 'app_startup');
       }
     } else {
-      // on other platforms just perform an initial sync on startup
       updateBalanceForWidget(trigger: 'app_startup');
     }
 
@@ -83,7 +98,6 @@ class RunshawPayWidgetSync {
         }
       } catch (e) {
         debugLog('Could not determine widget presence: $e', level: 2);
-        // Avoid starting BackgroundFetch if we cannot determine presence.
         return;
       }
     }
@@ -101,13 +115,14 @@ class RunshawPayWidgetSync {
       _onBackgroundFetchTimeout,
     );
 
+    // Register the headless task for when the app is completely terminated
+    BackgroundFetch.registerHeadlessTask(runshawPayWidgetHeadlessTask);
+
     await BackgroundFetch.start();
   }
 
   static bool _shouldRefreshFromUri(Uri? uri) {
-    if (uri == null) {
-      return false;
-    }
+    if (uri == null) return false;
     return uri.host == _widgetRefreshHost ||
         uri.path.contains(_widgetRefreshHost) ||
         uri.path.contains(_widgetRefreshPath);
@@ -127,9 +142,6 @@ class RunshawPayWidgetSync {
   }
 
   static Future<bool> updateBalanceForWidget({required String trigger}) async {
-    // Background fetch tasks should avoid unnecessary network usage when
-    // there's no widget present. Allow explicit triggers from app startup or
-    // widget taps to always run so initial syncs still occur.
     final allowedImmediateTriggers = {
       'app_startup',
       'widget_tap',
@@ -143,8 +155,6 @@ class RunshawPayWidgetSync {
         final String? existingStatus =
             await HomeWidget.getWidgetData<String>(_statusKey);
 
-        // If there is no stored widget data, assume no widget needs updating
-        // and skip the network fetch to avoid unnecessary requests.
         if ((existingBalance == null || existingBalance == 'Unknown') &&
             existingStatus == null) {
           debugLog('No widget data found; skipping background fetch ($trigger)',
@@ -152,8 +162,6 @@ class RunshawPayWidgetSync {
           return false;
         }
       } catch (e) {
-        // If we cannot determine widget presence from HomeWidget, be
-        // conservative and skip to avoid unwanted network usage.
         debugLog('Widget presence check failed; skipping fetch: $e', level: 2);
         return false;
       }
@@ -175,24 +183,29 @@ class RunshawPayWidgetSync {
   }
 
   static Future<String?> _fetchRunshawPayBalance() async {
-    final client = Client()
-        .setEndpoint(MyRunshawConfig.endpoint)
-        .setProject(MyRunshawConfig.projectId);
+    // grab the JWT from SharedPreferences instead of Appwrite!
+    final prefs = await SharedPreferences.getInstance();
+    final jwt = prefs.getString('jwt_token');
 
-    final account = Account(client);
-    final jwt = await account.createJWT();
+    if (jwt == null) {
+      debugLog('Cannot fetch balance for widget: No JWT found in storage.',
+          level: 2);
+      return null;
+    }
 
+    // fetch the balance
     final response =
         await RetryClient(http_factory.httpClient(), retries: 2).get(
-      Uri.parse(
-          '${MyRunshawConfig.friendsMicroserviceUrl}/api/payments/balance'),
+      Uri.parse('${MyRunshawConfig.apiUrl}/api/payments/balance'),
       headers: {
-        'Authorization': 'Bearer ${jwt.jwt}',
+        'Authorization': 'Bearer $jwt',
         'Content-Type': 'application/json',
       },
     );
 
     if (response.statusCode != 200) {
+      debugLog('Failed to fetch balance. API returned ${response.statusCode}',
+          level: 2);
       return null;
     }
 
@@ -217,30 +230,11 @@ class RunshawPayWidgetSync {
       DateTime.now().millisecondsSinceEpoch,
     );
 
-    // Trigger a widget update where supported. iOS needs the iOSName; on
-    // Android: trigger the native provider update using the qualified class name
     if (Platform.isIOS) {
       await HomeWidget.updateWidget(iOSName: _widgetName);
     } else if (Platform.isAndroid) {
       await HomeWidget.updateWidget(
           qualifiedAndroidName: 'com.daniel.runshaw.RunshawPayWidgetReceiver');
     }
-  }
-}
-
-@pragma('vm:entry-point')
-void runshawPayWidgetHeadlessTask(HeadlessEvent task) async {
-  final String taskId = task.taskId;
-  final bool isTimeout = task.timeout;
-
-  if (isTimeout) {
-    BackgroundFetch.finish(taskId);
-    return;
-  }
-
-  try {
-    await RunshawPayWidgetSync.updateBalanceForWidget(trigger: taskId);
-  } finally {
-    BackgroundFetch.finish(taskId);
   }
 }

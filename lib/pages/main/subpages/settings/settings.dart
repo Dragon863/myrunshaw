@@ -1,9 +1,9 @@
-import 'package:appwrite/appwrite.dart';
-import 'package:appwrite/models.dart' as models;
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:crop_your_image/crop_your_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -17,7 +17,6 @@ import 'package:runshaw/pages/main/subpages/settings/sections/other_section.dart
 import 'package:runshaw/pages/main/subpages/settings/sections/profile_section.dart';
 import 'package:runshaw/pages/main/subpages/settings/sections/theme_section.dart';
 import 'package:runshaw/utils/api.dart';
-import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/logging.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -44,16 +43,17 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> fetchPrefs() async {
     final BaseAPI api = context.read<BaseAPI>();
-    final models.User latestUserModel = await api.account.get();
-    final String displayName = latestUserModel.name;
+    await api.refreshUser(); // Get latest user object from the C# backend
+
+    if (api.currentUser == null) return;
     if (!mounted) return;
 
     setState(() {
-      profilePicUrl =
-          "https://appwrite.danieldb.uk/v1/storage/buckets/${MyRunshawConfig.profileBucketId}/files/${api.currentUser.$id}/view?project=${MyRunshawConfig.projectId}&ts=${DateTime.now().millisecondsSinceEpoch}";
-      name = displayName.isEmpty ? "Anonymous" : displayName;
+      profilePicUrl = api.getPfpUrl(api.currentUser!.id);
+      name =
+          api.currentUser!.name.isEmpty ? "Anonymous" : api.currentUser!.name;
       nameLoaded = true;
-      email = latestUserModel.email;
+      email = api.currentUser!.email;
     });
 
     final tags = await OneSignal.User.getTags();
@@ -148,7 +148,7 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       ).then((_) => uploading = false);
 
-      // Timeout of 15 seconds, just in case!
+      // Timeout of 15 seconds
       Future.delayed(const Duration(seconds: 15), () {
         if (mounted && uploading) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -162,95 +162,45 @@ class _SettingsPageState extends State<SettingsPage> {
       });
 
       final Uint8List croppedBytes = (result as CropSuccess).croppedImage;
-      final InputFile profilePicture = InputFile.fromBytes(
-        bytes: croppedBytes,
-        filename: file.name,
+
+      // Save bytes to a temporary local file so we can upload it
+      final tempFile = File('${Directory.systemTemp.path}/profile_upload.png');
+      await tempFile.writeAsBytes(croppedBytes);
+
+      final api = context.read<BaseAPI>();
+
+      // Hit the C# multipart endpoint!
+      final StreamedResponse uploadResponse = await api.apiMultipart(
+        '/api/users/me/profile-pic',
+        tempFile.path,
       );
 
-      await _updateProfilePic(profilePicture);
-      final api = context.read<BaseAPI>();
-      await api.incrementPfpVersion();
+      if (uploadResponse.statusCode == 200) {
+        // Manually trigger a version increment locally so our cache busts instantly
+        api.cachedPfpVersions[api.currentUser!.id] =
+            (api.cachedPfpVersions[api.currentUser!.id] ?? 0) + 1;
 
-      setState(() {
-        profilePicUrl = "https://appwrite.danieldb.uk/v1/storage/buckets"
-            "/${MyRunshawConfig.profileBucketId}/files/${api.currentUser.$id}/"
-            "view?project=${MyRunshawConfig.projectId}"
-            "&ts=${DateTime.now().millisecondsSinceEpoch}";
-      });
+        setState(() {
+          profilePicUrl = api.getPfpUrl(api.currentUser!.id);
+        });
+
+        await Posthog().capture(eventName: 'pfp_updated');
+      } else {
+        final responseBody = await Response.fromStream(uploadResponse);
+        debugLog(responseBody.body, level: 1);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(responseBody.body)),
+          );
+        }
+      }
+
       if (mounted && uploading) {
         Navigator.of(context, rootNavigator: true).pop();
       }
     } else if (result.runtimeType == CropFailure) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Error cropping image")),
-      );
-    }
-  }
-
-  Future<void> _updateProfilePic(InputFile profilePicture) async {
-    final api = context.read<BaseAPI>();
-    final Storage storage = Storage(api.client);
-    final List<String> permissions = [
-      Permission.read(Role.any()),
-      Permission.write(Role.user(api.currentUser.$id)),
-      Permission.update(Role.user(api.currentUser.$id)),
-      Permission.delete(Role.user(api.currentUser.$id)),
-    ];
-
-    try {
-      await storage.deleteFile(
-          bucketId: "profiles", fileId: api.currentUser.$id);
-      await api.incrementPfpVersion();
-      // Sometimes takes a second to propogate. Users won't notice since we show a loading dialog
-      await Future.delayed(const Duration(seconds: 1));
-    } on AppwriteException catch (_) {
-      // File didn't exist yet — fine, proceed to create
-    }
-
-    try {
-      await api.client.chunkedUpload(
-        path: '/storage/buckets/profiles/files',
-        params: {
-          'fileId': api.currentUser.$id,
-          'file': profilePicture,
-          'permissions': permissions,
-        },
-        paramName: 'file',
-        idParamName: 'fileId',
-        headers: {
-          'content-type': 'multipart/form-data',
-        },
-      );
-    } on AppwriteException catch (e, st) {
-      if (e.code != 409) {
-        rethrow;
-      }
-
-      debugLog(
-        "Profile upload returned 409; deleting and retrying once: $e",
-        level: 2,
-      );
-      await Posthog().captureException(
-        error: e,
-        stackTrace: st,
-      );
-
-      await storage.deleteFile(
-          bucketId: "profiles", fileId: api.currentUser.$id);
-      await Future.delayed(const Duration(milliseconds: 300));
-
-      await api.client.chunkedUpload(
-        path: '/storage/buckets/profiles/files',
-        params: {
-          'fileId': api.currentUser.$id,
-          'file': profilePicture,
-          'permissions': permissions,
-        },
-        paramName: 'file',
-        idParamName: 'fileId',
-        headers: {
-          'content-type': 'multipart/form-data',
-        },
       );
     }
   }
@@ -277,24 +227,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (result == true) {
       final api = context.read<BaseAPI>();
-      final Storage storage = Storage(api.client);
-      try {
-        await storage.getFile(
-            bucketId: "profiles", fileId: api.currentUser.$id);
-        await storage.deleteFile(
-            bucketId: "profiles", fileId: api.currentUser.$id);
-      } catch (e) {
-        debugLog("Error deleting profile picture: $e", level: 3);
-        await Posthog().captureException(
-          error: e,
-          stackTrace: StackTrace.current,
-        );
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Error deleting profile picture")),
-        );
-      }
-      if (!mounted) return;
+
+      await api.apiDelete('/api/users/me/profile-pic');
+
       setState(() => profilePicUrl = null);
     }
   }
@@ -316,11 +251,22 @@ class _SettingsPageState extends State<SettingsPage> {
                   onPhotoTap: photoAction,
                   onDeleteTap: deleteAction,
                   onNameChange: (newName) async {
-                    await context
-                        .read<BaseAPI>()
-                        .account
-                        .updateName(name: newName);
-                    fetchPrefs();
+                    final api = context.read<BaseAPI>();
+                    final response = await api.apiPost(
+                      '/api/users/me/name',
+                      body: {'new_name': newName},
+                    );
+
+                    if (response.statusCode == 200) {
+                      await fetchPrefs();
+                    } else {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(api.humanResponse(response.body))),
+                        );
+                      }
+                    }
                   },
                 ),
                 const SettingsThemeSection(),

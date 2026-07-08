@@ -2,12 +2,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:runshaw/pages/main/subpages/buses/bus_list/bus_map_view.dart';
+import 'package:runshaw/pages/main/subpages/buses/bus_list/individual_bus.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/individual_friend.dart';
 import 'package:runshaw/pages/main/subpages/home/home_controller.dart';
 import 'package:runshaw/pages/main/subpages/home/inapp/inapp.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/list.dart';
 import 'package:runshaw/pages/qr/qr_page.dart';
+import 'package:runshaw/pages/scan/scan.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
 import 'package:runshaw/utils/string_utils.dart';
@@ -60,7 +61,7 @@ class _HomePageState extends State<HomePage> {
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => BusMapViewPage(
+            builder: (context) => IndividualBusPage(
               bay: info.bay,
               busNumber: info.busNumber,
               color: info.color,
@@ -244,12 +245,39 @@ class _HomePageState extends State<HomePage> {
                 builder: (context) => AlertDialog(
                   title: const Text("Error"),
                   content: const Text(
-                    "Your QR code is not available, as you signed up with an email address.",
+                    "Before you can use this feature, please scan your student ID to add it.",
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text("OK"),
+                      child: const Text("Dismiss"),
+                    ),
+                    FilledButton(
+                      onPressed: () async {
+                        final String? result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PopupBadgeScan(
+                                prompt: 'Scan your Student ID',
+                                title: 'Add ID Badge',
+                                enableManualInput: false,
+                                includeSuffix: true,
+                              ),
+                            ));
+                        if (result != null) {
+                          final BaseAPI api = context.read<BaseAPI>();
+                          await api
+                              .setCode(result.split("-")[1]); // suffix only
+                          Navigator.of(context).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  "Student ID badge added! Tap again to view your QR code."),
+                            ),
+                          );
+                        }
+                      },
+                      child: const Text("Scan"),
                     ),
                   ],
                 ),

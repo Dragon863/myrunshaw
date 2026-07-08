@@ -1,44 +1,38 @@
-import 'dart:async';
+import 'dart:io';
 
-import 'package:appwrite/appwrite.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:gaimon/gaimon.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:provider/provider.dart';
-import 'package:runshaw/main.dart';
-import 'package:runshaw/pages/login/password_reset/password_reset.dart';
 import 'package:runshaw/pages/scan/controller.dart';
-import 'package:runshaw/utils/api.dart';
-import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
 
-class ScanPage extends StatefulWidget {
-  const ScanPage({super.key});
+class PopupBadgeScan extends StatefulWidget {
+  final String prompt;
+  final String title;
+  final bool enableManualInput;
+  final bool includeSuffix;
+
+  const PopupBadgeScan({
+    super.key,
+    required this.prompt,
+    required this.title,
+    required this.enableManualInput,
+    this.includeSuffix = false,
+  });
 
   @override
-  State<ScanPage> createState() => _ScanPageState();
+  State<PopupBadgeScan> createState() => _PopupBadgeScanState();
 }
 
-class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
+class _PopupBadgeScanState extends State<PopupBadgeScan>
+    with WidgetsBindingObserver {
   Barcode? _barcode;
   bool inProgress = false;
 
-  void navigateToSplash() {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const BaseApp(),
-      ),
-      (r) => false,
-    );
-  }
-
   Widget _buildBarcode(Barcode? value) {
     if (value == null) {
-      return const Text(
-        'Please scan your Student ID Badge!',
+      return Text(
+        widget.prompt,
         overflow: TextOverflow.fade,
         style: TextStyle(
           color: Colors.white,
@@ -48,7 +42,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     }
 
     if (validate(value.displayValue ?? "")) {
-      String studentId = value.displayValue!;
+      String studentId = value.displayValue!.split("-")[0];
       return Wrap(
         children: [
           Text(
@@ -86,431 +80,36 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     final bool valid = validate(_barcode?.displayValue ?? "");
 
     if (valid) {
-      String studentId = _barcode!.displayValue!;
-      await maybeLogin(studentId);
+      String studentId;
+
+      if (widget.includeSuffix) {
+        studentId = _barcode!.displayValue!;
+      } else {
+        studentId = _barcode!.displayValue!.split("-")[0];
+      }
+
+      if (!Platform.isLinux) {
+        if (await Gaimon.canSupportsHaptic) {
+          Gaimon.medium();
+        }
+      }
+      await returnValue(studentId);
     }
   }
 
-  Future<void> maybeLogin(String studentID) async {
-    if (inProgress) {
-      return;
-    }
-
-    setState(() {
+  Future<void> returnValue(String studentID) async {
+    if (mounted && !inProgress) {
+      Navigator.of(context).pop(studentID);
+      // Prevents the user from scanning multiple times as widget is closing which breaks stuff as it removes all routes
       inProgress = true;
-    });
-
-    final api = context.read<BaseAPI>();
-    bool exists;
-
-    try {
-      exists = await api.userExists(studentID.split("-")[0]);
-    } catch (e) {
-      await showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text("Error"),
-            content: Text(
-                "Error: could not reach My Runshaw servers. Try again later.: $e"),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text("OK"),
-              ),
-            ],
-          );
-        },
-      );
-      return;
     }
-
-    final TextEditingController controllerPwd = TextEditingController();
-    final TextEditingController controllerPwdConfirm = TextEditingController();
-    bool showFieldOneText = false;
-    bool showFieldTwoText = false;
-    bool agreesToPolicies = false;
-    bool fabLoading = false;
-
-    String password;
-
-    await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) {
-        return AnimatedPadding(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.viewInsetsOf(context).bottom,
-          ),
-          child: FractionallySizedBox(
-            heightFactor: 0.5,
-            widthFactor: 1,
-            alignment: Alignment.bottomCenter,
-            child: Material(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(24)),
-              color: Theme.of(context).bottomSheetTheme.backgroundColor ??
-                  Theme.of(context).scaffoldBackgroundColor,
-              child: StatefulBuilder(
-                builder: (BuildContext context, StateSetter setState) {
-                  return SingleChildScrollView(
-                    keyboardDismissBehavior:
-                        ScrollViewKeyboardDismissBehavior.onDrag,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: AutofillGroup(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(height: 12),
-                            Text(
-                              exists ? "Log In" : "Sign Up",
-                              style: GoogleFonts.rubik(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            TextField(
-                              controller: controllerPwd,
-                              obscureText: !showFieldOneText,
-                              autocorrect: false,
-                              autofocus: false,
-                              autofillHints: const [AutofillHints.password],
-                              decoration: InputDecoration(
-                                labelText: "Password",
-                                suffixIcon: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      showFieldOneText = !showFieldOneText;
-                                    });
-                                  },
-                                  icon: Icon(
-                                    showFieldOneText
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Visibility(
-                              visible: !exists,
-                              child: Column(
-                                children: [
-                                  const SizedBox(height: 12),
-                                  TextField(
-                                    controller: controllerPwdConfirm,
-                                    obscureText: !showFieldTwoText,
-                                    autocorrect: false,
-                                    decoration: InputDecoration(
-                                      labelText: "Confirm Password",
-                                      suffixIcon: IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            showFieldTwoText =
-                                                !showFieldTwoText;
-                                          });
-                                        },
-                                        icon: Icon(
-                                          showFieldTwoText
-                                              ? Icons.visibility
-                                              : Icons.visibility_off,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Visibility(
-                              visible: !exists,
-                              child: Column(
-                                children: [
-                                  const SizedBox(height: 12),
-                                  Row(
-                                    children: [
-                                      Checkbox(
-                                        value: agreesToPolicies,
-                                        onChanged: (bool? value) {
-                                          if (value != null) {
-                                            setState(() {
-                                              agreesToPolicies =
-                                                  !agreesToPolicies;
-                                            });
-                                          }
-                                        },
-                                      ),
-                                      Expanded(
-                                        child: RichText(
-                                          text: TextSpan(
-                                            children: [
-                                              TextSpan(
-                                                text: 'I agree to the ',
-                                                style: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurface,
-                                                ),
-                                              ),
-                                              TextSpan(
-                                                text: 'Terms of Use',
-                                                style: const TextStyle(
-                                                  color: Colors.red,
-                                                  decoration:
-                                                      TextDecoration.underline,
-                                                ),
-                                                recognizer:
-                                                    TapGestureRecognizer()
-                                                      ..onTap = () {
-                                                        Navigator.of(context)
-                                                            .pushNamed(
-                                                          "/terms",
-                                                        );
-                                                      },
-                                              ),
-                                              TextSpan(
-                                                text: ' and ',
-                                                style: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurface,
-                                                ),
-                                              ),
-                                              TextSpan(
-                                                text: 'Privacy Policy',
-                                                style: const TextStyle(
-                                                  color: Colors.red,
-                                                  decoration:
-                                                      TextDecoration.underline,
-                                                ),
-                                                recognizer:
-                                                    TapGestureRecognizer()
-                                                      ..onTap = () {
-                                                        Navigator.of(context)
-                                                            .pushNamed(
-                                                          "/privacy_policy",
-                                                        );
-                                                      },
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Visibility(
-                              visible: exists,
-                              child: const SizedBox(height: 6),
-                            ),
-                            Visibility(
-                              visible: exists,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Text("(or "),
-                                  InkWell(
-                                    child: const Text(
-                                      'reset password here',
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const PasswordResetLoginPage(),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  const Text(")"),
-                                ],
-                              ),
-                            ),
-                            Visibility(
-                              visible: exists,
-                              child: const SizedBox(height: 6),
-                            ),
-                            Visibility(
-                              visible: agreesToPolicies || exists,
-                              child: Align(
-                                alignment: Alignment.bottomRight,
-                                child: FloatingActionButton(
-                                  onPressed: () async {
-                                    setState(() {
-                                      fabLoading = true;
-                                    });
-                                    if (!exists) {
-                                      // New user; create account
-                                      if (controllerPwd.text ==
-                                          controllerPwdConfirm.text) {
-                                        if (controllerPwd.text.length >= 8) {
-                                          password = controllerPwd.text;
-                                          try {
-                                            await api.createUser(
-                                              email:
-                                                  "$studentID${MyRunshawConfig.emailExtension}",
-                                              password: password,
-                                            );
-                                            TextInput.finishAutofillContext();
-                                            navigateToSplash();
-                                            setState(() {
-                                              fabLoading = false;
-                                            });
-                                          } on AppwriteException catch (e) {
-                                            setState(() {
-                                              fabLoading = false;
-                                            });
-                                            await showDialog(
-                                              context: context,
-                                              builder: (context) => AlertDialog(
-                                                title: const Text("Error"),
-                                                content: Text(
-                                                  e.message ??
-                                                      "Sorry, we ran into an unknown issue",
-                                                ),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: const Text("Okay"),
-                                                  )
-                                                ],
-                                              ),
-                                            );
-                                          }
-                                        } else {
-                                          setState(() {
-                                            fabLoading = false;
-                                          });
-                                          await showDialog(
-                                            context: context,
-                                            builder: (context) => AlertDialog(
-                                              title: const Text("Error"),
-                                              content: const Text(
-                                                "Passwords must be at least 8 characters! This ensures the security of your account",
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: const Text("Okay"),
-                                                )
-                                              ],
-                                            ),
-                                          );
-                                        }
-                                      } else {
-                                        setState(() {
-                                          fabLoading = false;
-                                        });
-                                        await showDialog(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                            title: const Text("Error"),
-                                            content: const Text(
-                                              "Passwords do not match! Try again, ensuring you typed the same in both boxes",
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                child: const Text("Okay"),
-                                              )
-                                            ],
-                                          ),
-                                        );
-                                      }
-                                    } else {
-                                      // User exists; login
-                                      password = controllerPwd.text;
-                                      try {
-                                        await api.createEmailSession(
-                                          email:
-                                              "$studentID${MyRunshawConfig.emailExtension}",
-                                          password: password,
-                                        );
-                                        TextInput.finishAutofillContext();
-                                        setState(() {
-                                          fabLoading = false;
-                                        });
-                                        navigateToSplash();
-                                      } on AppwriteException catch (e) {
-                                        setState(() {
-                                          fabLoading = false;
-                                        });
-                                        await showDialog(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                            title: const Text("Error"),
-                                            content: Text(
-                                              e.message ??
-                                                  "Sorry, we ran into an unknown issue",
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                child: const Text("Okay"),
-                                              )
-                                            ],
-                                          ),
-                                        );
-                                      }
-                                    }
-                                  },
-                                  child: fabLoading
-                                      ? const SizedBox(
-                                          height: 16,
-                                          width: 16,
-                                          child: CircularProgressIndicator(
-                                            color: Colors.black,
-                                            strokeWidth: 3,
-                                          ),
-                                        )
-                                      : const Icon(Icons.keyboard_arrow_right),
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        );
-      },
-    );
-    setState(() {
-      inProgress = false;
-    });
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const RunshawAppBar(
-        title: "Login",
+      appBar: RunshawAppBar(
+        title: widget.title,
         actions: [],
       ),
       backgroundColor: Colors.black,
@@ -535,6 +134,53 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
           ),
         ],
       ),
+      floatingActionButton: widget.enableManualInput
+          ? FloatingActionButton(
+              onPressed: () {
+                final textController = TextEditingController();
+                final popup = AlertDialog(
+                  title: const Text("Enter Student ID"),
+                  content: TextField(
+                    controller: textController,
+                    autofocus: true,
+                    decoration: const InputDecoration(
+                      hintText: "Student ID",
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      },
+                      child: const Text("Cancel"),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(textController.text.trim());
+                        // Pop twice to close the scanner and the dialog
+                      },
+                      child: const Text("Submit"),
+                    ),
+                  ],
+                );
+                showDialog(context: context, builder: (context) => popup)
+                    .then((value) async {
+                  if (value != null) {
+                    if (validateNonBadge(value)) {
+                      if (!Platform.isLinux) {
+                        if (await Gaimon.canSupportsHaptic) {
+                          Gaimon.medium();
+                        }
+                      }
+                      await returnValue(value);
+                    }
+                  }
+                });
+              },
+              child: const Icon(Icons.keyboard),
+            )
+          : null,
     );
   }
 }

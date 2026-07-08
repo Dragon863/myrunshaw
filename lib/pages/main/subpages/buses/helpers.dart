@@ -1,3 +1,29 @@
+import 'package:flutter/material.dart';
+
+enum BusStatus {
+  waiting,
+  arrived,
+}
+
+class BusInfo {
+  const BusInfo({
+    required this.number,
+    required this.status,
+    this.bay,
+    this.arrivedTimeAgo,
+    this.bayColor,
+  });
+
+  final String number;
+  final BusStatus status;
+
+  final String? bay;
+
+  final String? arrivedTimeAgo;
+
+  final Color? bayColor;
+}
+
 List<double> calculatePosition(String bayNumber) {
   double xPercentage = 0.0;
   double yPercentage = 0.0;

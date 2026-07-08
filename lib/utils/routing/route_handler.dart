@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:runshaw/pages/main/subpages/friends/list/widgets/popup_add_page.dart';
-import 'package:runshaw/pages/password/password_reset.dart';
 import 'package:runshaw/pages/privacy/privacy_policy.dart';
+import 'package:runshaw/pages/scan/scan.dart';
 import 'package:runshaw/pages/splash/splash.dart';
 import 'package:runshaw/pages/terms/terms_of_use.dart';
 import 'package:runshaw/pages/about/about.dart';
@@ -60,18 +59,17 @@ class AppRouteHandler {
         );
       case '/friends/add':
         return MaterialPageRoute(
-          builder: (context) => const PopupFriendAddPage(),
+          builder: (context) => PopupBadgeScan(
+            prompt: 'Scan a Student ID Badge!',
+            title: 'Add Friend',
+            enableManualInput: true,
+          ),
           settings: const RouteSettings(name: '/friends/add'),
         );
       case '/privacy_policy':
         return MaterialPageRoute(
           builder: (context) => const PrivacyPolicyPage(),
           settings: const RouteSettings(name: '/privacy_policy'),
-        );
-      case '/change_password':
-        return MaterialPageRoute(
-          builder: (context) => const PasswordResetPage(),
-          settings: const RouteSettings(name: '/change_password'),
         );
       case '/terms':
         return MaterialPageRoute(
@@ -97,9 +95,12 @@ class AppRouteHandler {
   static Map<String, WidgetBuilder> getNamedRoutes() {
     return {
       '/splash': (BuildContext context) => const SplashPage(),
-      '/friends/add': (BuildContext context) => const PopupFriendAddPage(),
+      '/friends/add': (BuildContext context) => const PopupBadgeScan(
+            prompt: 'Scan a Student ID Badge!',
+            title: 'Add Friend',
+            enableManualInput: true,
+          ),
       '/privacy_policy': (BuildContext context) => const PrivacyPolicyPage(),
-      '/change_password': (BuildContext context) => const PasswordResetPage(),
       '/terms': (BuildContext context) => const TermsOfUsePage(),
       '/about': (BuildContext context) => const AboutPage(),
       '/refresh-balance': (BuildContext context) =>

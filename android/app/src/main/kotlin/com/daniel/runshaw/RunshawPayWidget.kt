@@ -127,16 +127,6 @@ private fun runshawPayWidgetContent(context: Context, currentState: HomeWidgetGl
 
                 Spacer(modifier = GlanceModifier.height(4.dp))
 
-                // Text(
-                //         text = balance,
-                //         style =
-                //                 TextStyle(
-                //                         color = GlanceTheme.colors.primary,
-                //                         fontSize = 26.sp,
-                //                         fontWeight = FontWeight.Bold,
-                //                         fontFamily = FontFamily.Monospace,
-                //                 )
-                // )
                 CustomText(
                         text = balance,
                         font = R.font.rubik_bold,

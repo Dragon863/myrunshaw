@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/logging.dart';
 import 'package:runshaw/utils/models/event.dart';
 
@@ -38,7 +39,7 @@ class HomeController extends ChangeNotifier {
 
   String? pfpUrl;
   String name = "Loading...";
-  String userId = "12345678901";
+  String userId = "Loading...";
   String nextLesson = "Loading...";
   String nextDetails = "Loading...";
   List<Event> events = [];
@@ -60,33 +61,30 @@ class HomeController extends ChangeNotifier {
     }
   }
 
-  Future<void> _ensureTimetableCacheReady(String uid) async {
-    if (api.cachedTimetables.containsKey(uid)) {
-      return;
-    }
-
-    // wait for any in-flight timetable batch cache to finish (or trigger one).
-    await api.cacheTimetables();
-  }
-
   Future<void> init() async {
-    await loadPfp();
+    await syncData();
+
     await Future.wait([loadData(), loadEvents()]);
   }
 
-  Future<void> loadPfp() async {
+  Future<void> syncData() async {
     await api.refreshUser();
-    name = api.user!.name.isNotEmpty ? api.user!.name : "Name not set";
-    userId = api.user!.$id;
-    pfpUrl = api.getPfpUrl(userId);
+
+    if (api.currentUser != null) {
+      name = api.currentUser!.name.isNotEmpty
+          ? api.currentUser!.name
+          : "Name not set";
+      userId = api.currentUser!.id;
+      pfpUrl = api.getPfpUrl(userId);
+    }
     _notifySafe();
   }
 
   Future<void> loadEvents() async {
     try {
-      final String? uid = api.user?.$id;
+      final String? uid = api.currentUser?.id;
       if (uid == null) return;
-      await _ensureTimetableCacheReady(uid);
+
       events = await api.fetchEvents(userId: uid, allowCache: true);
       _notifySafe();
     } catch (e) {
@@ -95,9 +93,6 @@ class HomeController extends ChangeNotifier {
   }
 
   Future<String> _loadCurrentEventFor(String uid) async {
-    if (api.cachedPfpVersions.isEmpty) {
-      await api.cachePfpVersions();
-    }
     try {
       final List<Event> evts =
           await api.fetchEvents(userId: uid, allowCache: true);
@@ -114,14 +109,13 @@ class HomeController extends ChangeNotifier {
     _notifySafe();
 
     try {
-      final String? uid = api.user?.$id;
+      final String? uid = api.currentUser?.id;
       if (uid == null) {
         loading = false;
         _notifySafe();
         return;
       }
 
-      await _ensureTimetableCacheReady(uid);
       if (_isDisposed) return;
 
       List<Event> evts =
@@ -153,65 +147,47 @@ class HomeController extends ChangeNotifier {
                 : next.description!.replaceAll("Teacher: ", "");
       }
 
-      final busNumber = await api.getBusNumber();
-      final List<String> extraBuses = await api.getAllBuses();
-      if (busNumber != null &&
-          !extraBuses.contains(busNumber) &&
-          busNumber != "") {
-        extraBuses.add(busNumber);
-      }
+      final List<String> extraBuses = await api.getAllSubscribedBuses();
+
       extraBuses.sort(
         (a, b) => int.parse(a.replaceAll(RegExp(r'[A-Z]'), ""))
             .compareTo(int.parse(b.replaceAll(RegExp(r'[A-Z]'), ""))),
       );
 
-      const List<Color> colors = [
-        Colors.red,
-        Colors.blue,
-        Colors.purple,
-        Colors.orange,
-        Colors.pink,
-        Colors.teal,
-        Colors.amber,
-        Colors.cyan,
-        Colors.lime,
-      ];
-
+      final List<Color> colors = MyRunshawConfig.busBayColors;
       final busBays = await api.getBusBays();
       final List<BusBayInfo> newBusBayInfos = [];
-      int index = 0;
-      for (final bus in busBays.keys) {
-        if (!extraBuses.contains(bus)) continue;
+
+      for (var i = 0; i < extraBuses.length; i++) {
+        final bus = extraBuses[i];
         final bay = busBays[bus];
+
         if (bay != "RSP_NYA" &&
             bay != null &&
             bay != "0" &&
             (DateTime.now().hour < 17 || kDebugMode)) {
-          newBusBayInfos.add(BusBayInfo(
-            busNumber: bus,
-            bay: bay,
-            color: colors[index % colors.length],
-          ));
-          index++;
+          newBusBayInfos.add(
+            BusBayInfo(
+              busNumber: bus,
+              bay: bay,
+              color: colors[i % colors.length],
+            ),
+          );
         }
       }
       busBayInfos = newBusBayInfos;
 
-      final List friends = await api.getFriends();
-
-      final bool hasAllFriendTimetables = friends.every(
-          (friend) => api.cachedTimetables.containsKey(friend["userid"]));
-      if (!hasAllFriendTimetables) {
-        await api.cacheTimetables();
-      }
-      if (_isDisposed) return;
-
+      final List friends = api.cachedFriends ?? [];
       final List<FreeFriendInfo> newFreeFriends = [];
+
       for (final friend in friends) {
         if (_isDisposed) return;
+
         final String friendUid = friend["userid"];
         final friendCurrentLesson = await _loadCurrentEventFor(friendUid);
-        final friendName = await api.getName(friendUid);
+
+        final friendName = api.cachedNames[friendUid] ?? "Unknown User";
+
         if (friendCurrentLesson.contains("Aspire") ||
             friendCurrentLesson == "No Event") {
           newFreeFriends.add(FreeFriendInfo(

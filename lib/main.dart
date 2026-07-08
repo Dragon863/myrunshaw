@@ -23,8 +23,7 @@ void main() async {
   debugLog("Starting app...", level: 0);
   MyRunshawConfig.logApiUrlsOnStartup();
 
-  // new in v1.3.24, analytics are now initialised on the splash page so
-  // surveys are shown *after* automatic navigation to the home page, not before.
+  // new in v1.3.24, analytics are now initialised on the splash page
 
   final themeProvider = ThemeProvider();
   await themeProvider.initTheme();

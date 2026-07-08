@@ -101,9 +101,10 @@ class InAppNotice extends StatelessWidget {
                       onPressed: () async {
                         final SharedPreferences prefs =
                             await SharedPreferences.getInstance();
-                        final String noticeId = data["\$id"];
+                        final String noticeId = data["noticeId"];
 
-                        prefs.setBool(noticeId, true); // Set the notice as read
+                        prefs.setBool("notice-$noticeId-shown",
+                            true); // Set the notice as read
                         await Posthog().capture(
                           eventName: "inapp_notice_read",
                           properties: {
@@ -126,9 +127,9 @@ class InAppNotice extends StatelessWidget {
 
   void dispose(BuildContext context) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String noticeId = data["\$id"];
+    final String noticeId = data["noticeId"];
 
-    prefs.setBool(noticeId, true); // Set the notice as read
+    prefs.setBool("notice-$noticeId-shown", true); // Set the notice as read
     await Posthog().capture(
       eventName: "inapp_notice_read",
       properties: {

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/main_helpers.dart';
 import 'package:runshaw/pages/main/slider/slider_widgets.dart';
-import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SliderView extends StatefulWidget {
   final Function(String, int)? onItemClick;
@@ -25,20 +23,9 @@ class SliderView extends StatefulWidget {
 }
 
 class _SliderViewState extends State<SliderView> {
-  int counter = 0;
-  bool isDeveloper = false;
-
   @override
   void initState() {
     super.initState();
-    loadDeveloperState();
-  }
-
-  Future<void> loadDeveloperState() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      isDeveloper = prefs.getBool('isDeveloper') ?? false;
-    });
   }
 
   @override
@@ -66,46 +53,14 @@ class _SliderViewState extends State<SliderView> {
                 child: ListView(
                   physics: const ScrollPhysics(),
                   children: <Widget>[
-                    GestureDetector(
-                      onTap: () async {
-                        if (counter < 10) {
-                          counter++;
-                        } else {
-                          // check with appwrite first
-                          final BaseAPI api = context.read<BaseAPI>();
-                          final isAdmin = await api.isAdmin();
-                          if (isAdmin) {
-                            final SharedPreferences prefs =
-                                await SharedPreferences.getInstance();
-                            prefs.setBool('isDeveloper', true);
-                            loadDeveloperState();
-                            setState(() {});
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Developer mode enabled!"),
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("You are not an admin."),
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
-                          }
-                        }
-                      },
-                      child: CircleAvatar(
-                        radius: 72,
-                        backgroundColor:
-                            Theme.of(context).scaffoldBackgroundColor,
-                        child: const CircleAvatar(
-                          radius: 70,
-                          backgroundImage: AssetImage(
-                            'assets/img/logo-muted.png',
-                          ),
+                    CircleAvatar(
+                      radius: 72,
+                      backgroundColor:
+                          Theme.of(context).scaffoldBackgroundColor,
+                      child: const CircleAvatar(
+                        radius: 70,
+                        backgroundImage: AssetImage(
+                          'assets/img/logo-muted.png',
                         ),
                       ),
                     ),
@@ -147,12 +102,6 @@ class _SliderViewState extends State<SliderView> {
                         Icons.settings,
                         'Settings',
                       ),
-                      if (isDeveloper)
-                        Menu(
-                          Icons.engineering_outlined,
-                          Icons.engineering,
-                          'Technician',
-                        )
                     ].asMap().entries.map(
                           (entry) => SliderMenuItem(
                             title: entry.value.title,

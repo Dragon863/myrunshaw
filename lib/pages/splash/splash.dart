@@ -37,7 +37,7 @@ class _SplashPageState extends State<SplashPage> {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
-      // Just in case the map page is opened which on android can cause the app to stay landscape
+      //Just in case the map page is opened which on android can cause the app to stay landscape. weird.
     ]);
     _setupOneSignal();
     _navigateToHome();
@@ -116,18 +116,21 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<bool> serverReachable() async {
-    if (kIsWeb) return true; // Assume web can always reach the server
+    if (kIsWeb) {
+      return true; // web can always reach the server; after all, it's running on it!
+    }
     setState(() {
       loadingStageText = "Checking server status...";
     });
     try {
       final result = await http.get(
-        Uri.parse("${MyRunshawConfig.endpoint}/health/version"),
+        Uri.parse("${MyRunshawConfig.apiUrl}/health"),
         headers: {
           "User-Agent": "Runshaw App",
           "Accept": "application/json",
         },
       );
+      debugLog("Server status: ${result.statusCode}");
       if (result.statusCode == 200) {
         return true;
       }
@@ -162,9 +165,8 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<bool> isOnBoarded() async {
-    final api = context.read<BaseAPI>();
-    final currentPrefs = await api.account.getPrefs();
-    return currentPrefs.data["onboarding_complete"] == true;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool("onboarding_complete") ?? false;
   }
 
   Future<dynamic> _navigateToHome() async {
@@ -187,15 +189,11 @@ class _SplashPageState extends State<SplashPage> {
       }
       debugLog("API init");
       final api = context.read<BaseAPI>();
-      await api.init();
       await api.loadUser();
       final status = api.status;
 
       if (status == AccountStatus.authenticated) {
         debugLog("User is authenticated");
-
-        // Don't wait for caching to finish, do it in the background
-        api.caching = _cacheData(api);
 
         if (!await isOnBoarded()) {
           _setupAnalytics();
@@ -235,7 +233,7 @@ class _SplashPageState extends State<SplashPage> {
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-            builder: (context) => const StageOneLogin(),
+            builder: (context) => const WelcomeLoginPage(),
           ),
           (r) => false,
         );
@@ -250,37 +248,6 @@ class _SplashPageState extends State<SplashPage> {
             builder: (context) => const NoServersPage(),
           ),
         );
-      }
-    }
-  }
-
-  Future<void> _cacheData(BaseAPI api) async {
-    const int maxAttempts = 2;
-    int attempt = 0;
-
-    while (attempt < maxAttempts) {
-      attempt++;
-      try {
-        debugLog("Caching friends (attempt $attempt/$maxAttempts)");
-        await api.cacheFriends();
-        debugLog(
-            "Caching names/pfp/timetables (attempt $attempt/$maxAttempts)");
-        await Future.wait(
-          [
-            api.cacheNames(),
-            api.cachePfpVersions(),
-            api.cacheTimetables(),
-          ],
-        );
-        debugLog("Caching names done");
-        debugLog("Caching pfp versions done");
-        debugLog("Caching timetables done");
-        return;
-      } catch (e) {
-        debugLog("Error caching data (attempt $attempt/$maxAttempts): $e");
-        if (attempt >= maxAttempts) {
-          return;
-        }
       }
     }
   }

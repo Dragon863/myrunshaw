@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/logging.dart';
@@ -14,11 +15,6 @@ class SettingsAccountSection extends StatelessWidget {
         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
       children: [
-        ListTile(
-          title: const Text("Change Password"),
-          onTap: () => Navigator.of(context).pushNamed("/change_password"),
-          trailing: const Icon(Icons.password),
-        ),
         ListTile(
           title: const Text("Close Account"),
           trailing: const Icon(Icons.no_accounts),
@@ -55,6 +51,8 @@ class SettingsAccountSection extends StatelessWidget {
                             ),
                           );
                         }
+                        await Posthog().captureException(
+                            error: e, stackTrace: StackTrace.current);
                       }
                     },
                     child: const Text("Close"),

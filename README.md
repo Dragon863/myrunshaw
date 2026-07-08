@@ -5,14 +5,13 @@
 | [<img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="50">](https://play.google.com/store/apps/details?id=com.daniel.runshaw&hl=en_GB) | [<img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" height="50">](https://apps.apple.com/gb/app/my-runshaw/id6739817271) |
 
 
-This is an unofficial app allowing students to share timetables with each other to see who is free, it provides bus push notifications and calculates bus bay locations, and it shows a map of the college and its layout. Backend source is available in a [separate repository](https://github.com/Dragon863/myrunshaw-backend). After this gained thousands of users in a few months, building this app has taught me a lot about scaling projects and maintaining production applications.
+This is an unofficial app allowing students to share timetables with each other to see who is free, it provides bus push notifications and calculates bus bay locations, and it shows a map of the college and its layout. Backend source is available in a [separate repository](https://github.com/Dragon863/MyRunshawApi). After this gained thousands of users in a few months, building this app has taught me a lot about scaling projects and maintaining production applications.
 
 ## Installation
 
 You can use the App Store or Google Play Store links at the top of this page to install the app on your device.
 To run your own instance:
-1. Create an appwrite instance (https://appwrite.io/docs/installation) - cloud is fine too
-2. Follow the instructions in the [backend repository](https://github.com/Dragon863/myrunshaw-backend) to set up the backend and database
+1. Follow the instructions in the [backend repository](https://github.com/Dragon863/MyRunshawApi) to set up the backend and database
 3. Clone this repository and configure lib/utils/config.dart
 4. Run the app using `flutter run`, or build it for release using `flutter build apk` or `flutter build ios`
 
@@ -21,9 +20,9 @@ To run your own instance:
 I have written a post [on my website](https://danieldb.uk/posts/runshaw-app/) if you're interested in learning how I created this app.
 The key components include:
 - Flutter frontend
-- FastAPI backend
+- ~~FastAPI backend~~ Migrated to ASP.NET Core backend
 - Postgres database
-- Appwrite auth
+- ~~Appwrite auth~~ Migrated to Entra OAuth2
 - ~~Aptabase analytics~~ Now migrated to Posthog
 - Docker image based deployments
 - OneSignal push notifications

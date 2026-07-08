@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:posthog_flutter/posthog_flutter.dart';
-import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/logging.dart';
 import 'package:runshaw/utils/models/event.dart';
 import 'api_core.dart';
@@ -21,25 +20,16 @@ mixin ApiTimetable on ApiCore, ApiFriends {
   }
 
   Future<void> _cacheTimetablesInternal() async {
-    final String jwtToken = await getJwt();
     final friends = await getFriends();
 
-    List<String> userIds = [];
-    for (var friend in friends) {
-      userIds.add(friend["userid"]);
+    List<String> userIds = friends.map((f) => f["userid"].toString()).toList();
+    if (user != null) {
+      userIds.add(user!.id); // include self in the cache
     }
-    userIds.add(user!.$id); // include self in the cache
 
-    final response = await httpClient.post(
-      Uri.parse(
-          '${MyRunshawConfig.friendsMicroserviceUrl}/api/timetable/batch_get'),
-      headers: {
-        'Authorization': 'Bearer $jwtToken',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'user_ids': userIds,
-      }),
+    final response = await apiPost(
+      '/api/timetable/batch_get',
+      body: {'user_ids': userIds},
     );
 
     if (response.statusCode != 200) {
@@ -48,57 +38,27 @@ mixin ApiTimetable on ApiCore, ApiFriends {
     cachedTimetables = jsonDecode(response.body);
   }
 
-  Future<void> syncTimetable(timetable) async {
-    final String jwtToken = await getJwt();
-    final response = await httpClient.post(
-      Uri.parse('${MyRunshawConfig.friendsMicroserviceUrl}/api/timetable'),
-      headers: {
-        'Authorization': 'Bearer $jwtToken',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({'timetable': timetable}),
-    );
-    if (response.statusCode != 201) {
-      throw "Error syncing timetable";
-    }
-    await Posthog().capture(
-      eventName: 'timetable_synced',
-    );
-    return;
-  }
-
   Future<void> associateTimetableUrl(String url) async {
-    final String jwtToken = await getJwt();
-    final response = await httpClient.post(
-      Uri.parse(
-          '${MyRunshawConfig.friendsMicroserviceUrl}/api/timetable/associate'),
-      headers: {
-        'Authorization': 'Bearer $jwtToken',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({'url': url}),
+    final response = await apiPost(
+      '/api/timetable/associate',
+      body: {'url': url},
     );
+
     if (response.statusCode != 201) {
       throw "Error associating timetable";
     }
-    await Posthog().capture(
-      eventName: 'associated_timetable_url',
-    );
-    return;
+    await Posthog().capture(eventName: 'associated_timetable_url');
   }
 
   Future<List<Event>> fetchEvents(
       {String? userId,
       bool includeAll = false,
       bool allowCache = false}) async {
-    userId ??= user!.$id;
+    userId ??= user?.id;
+    if (userId == null) return [];
 
     List<Event> timetable = [];
-    String query = "";
-    if (userId != user!.$id) {
-      query = "?user_id=$userId";
-    }
-
+    String query = (userId != user?.id) ? "?user_id=$userId" : "";
     Map events;
 
     if (allowCache && !cachedTimetables.containsKey(userId)) {
@@ -112,28 +72,20 @@ mixin ApiTimetable on ApiCore, ApiFriends {
 
     if (!cachedTimetables.containsKey(userId) || !allowCache) {
       debugLog("Fetching timetable for $userId");
-      final String jwtToken = await getJwt();
 
-      final response = await httpClient.get(
-        Uri.parse(
-            '${MyRunshawConfig.friendsMicroserviceUrl}/api/timetable$query'),
-        headers: {
-          'Authorization': 'Bearer $jwtToken',
-        },
-      );
+      final response = await apiGet('/api/timetable$query');
 
       if (response.statusCode != 200) {
         return [];
       }
       events = jsonDecode(response.body)["timetable"];
     } else {
-      if (cachedTimetables[userId].runtimeType == String) {
-        // Legacy API support; not sure why this happend but sometimes the timetable is a string and sometimes it's a map :/
-        events = jsonDecode(cachedTimetables[userId]);
-      } else {
-        events = cachedTimetables[userId];
-      }
+      // Safely handle the legacy string-or-map issue
+      var cached = cachedTimetables[userId];
+      events = (cached is String) ? jsonDecode(cached) : cached;
     }
+
+    if (events["data"] == null) return [];
 
     for (final event in events["data"]) {
       final String start = event["dtstart"]["dt"];

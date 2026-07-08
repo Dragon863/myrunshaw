@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:runshaw/pages/main/subpages/buses/bus_list/bus_map_view.dart';
+import 'package:runshaw/pages/main/subpages/buses/bus_list/individual_bus.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
 
@@ -94,26 +94,15 @@ class _BusListPageState extends State<BusListPage> {
                         ),
                         trailing: const Icon(Icons.keyboard_arrow_right),
                         onTap: () {
-                          if (bay == "0") {
-                            // Response-Not-Yet-Arrived
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  "Bus has not arrived yet",
-                                ),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => IndividualBusPage(
+                                bay: bay.toString(),
+                                busNumber: bus,
                               ),
-                            );
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => BusMapViewPage(
-                                  bay: bay.toString(),
-                                  busNumber: bus,
-                                ),
-                              ),
-                            );
-                          }
+                            ),
+                          );
                         },
                       );
                     },

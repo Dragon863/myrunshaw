@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:runshaw/utils/logging.dart';
 
 class MyRunshawConfig {
@@ -7,110 +8,44 @@ class MyRunshawConfig {
   static bool get _isDev => _getEnv() == 'dev';
   static bool get _isLocalDev => _getEnv() == 'localdev';
 
-  static String get endpoint {
-    final host = (_isLocalDev || _isDev)
-        ? 'dev-appwrite.danieldb.uk'
-        : 'appwrite.danieldb.uk';
-    return 'https://$host/v1';
-  }
-
-  static String get endpointHostname {
-    return (_isLocalDev || _isDev)
-        ? 'dev-appwrite.danieldb.uk'
-        : 'appwrite.danieldb.uk';
-  }
-
-  static const String projectId = "66fdb56000209ea9ac18";
-  static const String profileBucketId = "profiles";
-
-  static const String inAppDbId = "inapp";
-  static const String noticesCollectionId = "notices";
-
-  static const String featureFlagsDbId = "feature-flags";
-  static const String featureFlagsCollectionId = "feature-flags";
-
-  // static const String aptabaseProjectId = "A-SH-5552019394";
-  // static const String aptabaseHost = "https://analytics.danieldb.uk";
   static const String posthogApiKey =
       "phc_FDCLEAW9y4wNcOZzze88JJPz9fPHt7PKBjTyrlZQALO";
 
-  static const String oneSignalAppId =
-      "001b2238-9af7-49f1-bd60-6dfe630b7175"; //"72211047-33fc-4036-96d8-100c4a7bf85a";
+  static const String oneSignalAppId = "001b2238-9af7-49f1-bd60-6dfe630b7175";
 
-  static String get friendsMicroserviceUrl {
+  static String get apiUrl {
     if (_isLocalDev) {
-      return 'http://localhost:5006';
+      return 'http://localhost:5267';
     }
 
-    return (_isLocalDev || _isDev)
-        ? 'https://dev-runshaw-api.danieldb.uk'
-        : 'https://runshaw-api.danieldb.uk';
+    return (_isDev)
+        ? 'https://myrunshaw-core-dev.danieldb.uk'
+        : 'https://myrunshaw-core.danieldb.uk';
   }
 
   static void logApiUrlsOnStartup() {
     debugLog('Config environment: ${_getEnv()}', level: 1);
-    debugLog('Appwrite endpoint: $endpoint', level: 1);
-    debugLog('Appwrite hostname: $endpointHostname', level: 1);
-    debugLog('Friends microservice URL: $friendsMicroserviceUrl', level: 1);
+    debugLog('API Base URL: $apiUrl', level: 1);
   }
 
   static const String emailExtension = "@student.runshaw.ac.uk";
 
-  static const busNumbers = [
-    '102',
-    '103',
-    '115',
-    '117',
-    '119',
-    '125',
-    '566',
-    '712',
-    '715',
-    '718',
-    '720',
-    '760',
-    '761',
-    '762',
-    '763',
-    '764',
-    '765',
-    '778',
-    '800',
-    '801',
-    '803',
-    '807',
-    '809',
-    '819',
-    '820',
-    '821',
-    '822',
-    '823',
-    '824',
-    '825',
-    '826',
-    '827',
-    '953',
-    '954',
-    '956',
-    '957',
-    '958',
-    '959',
-    '959B',
-    '961',
-    '962',
-    '963',
-    '964',
-    '965',
-    '966',
-    '975',
-    '982',
-    '983',
-    '998'
-  ];
+  static const tutorialVideoUrl = "https://s3.danieldb.uk/cdn/intro.mp4";
 
-  static const tutorialVideoUrl =
-      "https://appwrite.danieldb.uk/v1/storage/buckets/cdn/files/intro/view?project=66fdb56000209ea9ac18";
+  static List<Color> get busBayColors => [
+        Colors.red,
+        Colors.orange,
+        Colors.blue,
+        Colors.purple,
+        Colors.pink,
+        Colors.teal,
+        Colors.amber,
+        Colors.cyan,
+        Colors.lime,
+      ];
 
-  static const previewImageResolution =
-      128; // px, used for profile picture previews
+  static const String entraTenantId = "4dcd8020-d84c-482f-bdf6-71d3ca953b8c";
+  static const String entraClientId = "a259dcce-b2fb-4644-a4e5-d88b70554b86";
+  static const String oauthCallbackScheme =
+      "appwrite-callback-66fdb56000209ea9ac18";
 }

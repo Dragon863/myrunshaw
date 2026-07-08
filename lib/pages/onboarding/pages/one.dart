@@ -89,7 +89,7 @@ class OnBoardingStageOne extends StatelessWidget {
             ),
           ),
           Text(
-            "Please don't report issues to the service desk, as they will not be able to help you! Instead use the button in settings",
+            "Please don't report issues to the service desk - instead, use the button in settings",
             style: GoogleFonts.rubik(
               fontSize: 16,
             ),
