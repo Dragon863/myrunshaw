@@ -1,29 +1,5 @@
 PODS:
-  - background_fetch (1.6.2):
-    - Flutter
-    - TSBackgroundFetch (~> 4.1.0)
-  - cupertino_http (0.0.1):
-    - Flutter
-    - FlutterMacOS
-  - device_info_plus (0.0.1):
-    - Flutter
   - Flutter (1.0.0)
-  - flutter_web_auth_2 (5.0.0):
-    - Flutter
-  - gaimon (0.0.1):
-    - Flutter
-  - home_widget (0.0.1):
-    - Flutter
-  - image_picker_ios (0.0.1):
-    - Flutter
-  - mobile_scanner (7.0.0):
-    - Flutter
-    - FlutterMacOS
-  - network_info_plus (0.0.1):
-    - Flutter
-  - onesignal_flutter (5.5.4):
-    - Flutter
-    - OneSignalXCFramework (= 5.5.1)
   - OneSignalXCFramework (5.5.1):
     - OneSignalXCFramework/OneSignalComplete (= 5.5.1)
   - OneSignalXCFramework/OneSignal (5.5.1):
@@ -70,115 +46,28 @@ PODS:
     - OneSignalXCFramework/OneSignalNotifications
     - OneSignalXCFramework/OneSignalOSCore
     - OneSignalXCFramework/OneSignalOutcomes
-  - package_info_plus (0.4.5):
-    - Flutter
   - permission_handler_apple (9.3.0):
     - Flutter
-  - PostHog (3.58.1)
-  - posthog_flutter (0.0.1):
-    - Flutter
-    - FlutterMacOS
-    - PostHog (< 4.0.0, >= 3.56.0)
-  - shared_preferences_foundation (0.0.1):
-    - Flutter
-    - FlutterMacOS
-  - sqflite_darwin (0.0.4):
-    - Flutter
-    - FlutterMacOS
-  - TSBackgroundFetch (4.1.1)
-  - url_launcher_ios (0.0.1):
-    - Flutter
-  - video_player_avfoundation (0.0.1):
-    - Flutter
-    - FlutterMacOS
 
 DEPENDENCIES:
-  - background_fetch (from `.symlinks/plugins/background_fetch/ios`)
-  - cupertino_http (from `.symlinks/plugins/cupertino_http/darwin`)
-  - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - Flutter (from `Flutter`)
-  - flutter_web_auth_2 (from `.symlinks/plugins/flutter_web_auth_2/ios`)
-  - gaimon (from `.symlinks/plugins/gaimon/ios`)
-  - home_widget (from `.symlinks/plugins/home_widget/ios`)
-  - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
-  - mobile_scanner (from `.symlinks/plugins/mobile_scanner/darwin`)
-  - network_info_plus (from `.symlinks/plugins/network_info_plus/ios`)
-  - onesignal_flutter (from `.symlinks/plugins/onesignal_flutter/ios`)
   - OneSignalXCFramework (< 6.0, >= 5.0.0)
-  - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
-  - posthog_flutter (from `.symlinks/plugins/posthog_flutter/darwin`)
-  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
-  - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
-  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
-  - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/darwin`)
 
 SPEC REPOS:
   trunk:
     - OneSignalXCFramework
-    - PostHog
-    - TSBackgroundFetch
 
 EXTERNAL SOURCES:
-  background_fetch:
-    :path: ".symlinks/plugins/background_fetch/ios"
-  cupertino_http:
-    :path: ".symlinks/plugins/cupertino_http/darwin"
-  device_info_plus:
-    :path: ".symlinks/plugins/device_info_plus/ios"
   Flutter:
     :path: Flutter
-  flutter_web_auth_2:
-    :path: ".symlinks/plugins/flutter_web_auth_2/ios"
-  gaimon:
-    :path: ".symlinks/plugins/gaimon/ios"
-  home_widget:
-    :path: ".symlinks/plugins/home_widget/ios"
-  image_picker_ios:
-    :path: ".symlinks/plugins/image_picker_ios/ios"
-  mobile_scanner:
-    :path: ".symlinks/plugins/mobile_scanner/darwin"
-  network_info_plus:
-    :path: ".symlinks/plugins/network_info_plus/ios"
-  onesignal_flutter:
-    :path: ".symlinks/plugins/onesignal_flutter/ios"
-  package_info_plus:
-    :path: ".symlinks/plugins/package_info_plus/ios"
   permission_handler_apple:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
-  posthog_flutter:
-    :path: ".symlinks/plugins/posthog_flutter/darwin"
-  shared_preferences_foundation:
-    :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
-  sqflite_darwin:
-    :path: ".symlinks/plugins/sqflite_darwin/darwin"
-  url_launcher_ios:
-    :path: ".symlinks/plugins/url_launcher_ios/ios"
-  video_player_avfoundation:
-    :path: ".symlinks/plugins/video_player_avfoundation/darwin"
 
 SPEC CHECKSUMS:
-  background_fetch: 31b1fd797189ec25dc022e4ae5e97bebc6f0935d
-  cupertino_http: 94ac07f5ff090b8effa6c5e2c47871d48ab7c86c
-  device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  flutter_web_auth_2: 646fc9df97a01c59e5eea99b237da2c6360f8439
-  gaimon: 1979ed07cdcfd0bf0d208f255f550936a196cf5a
-  home_widget: 54b4f6b36ed8d64cfee594a476225c35c3e45091
-  image_picker_ios: e0ece4aa2a75771a7de3fa735d26d90817041326
-  mobile_scanner: 9157936403f5a0644ca3779a38ff8404c5434a93
-  network_info_plus: cf61925ab5205dce05a4f0895989afdb6aade5fc
-  onesignal_flutter: 3192ae43820471ee056625cbc303676665c9d643
   OneSignalXCFramework: 2b46c36b38528b65dce33ed9d83375f8c98bf40c
-  package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
-  PostHog: 162c013c6a8e442382f6804076bf3ad072c8778a
-  posthog_flutter: 03b15ff7a78e2a4162baaf11f8db37b079412106
-  shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
-  sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
-  TSBackgroundFetch: 18918b6449a1e3f01eb0f5b44d6d79ce6160a5a5
-  url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
-  video_player_avfoundation: dd410b52df6d2466a42d28550e33e4146928280a
 
 PODFILE CHECKSUM: 5c4bafd45caa1c6555c7560904220188ef7faba2
 
