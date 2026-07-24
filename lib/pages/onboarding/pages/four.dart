@@ -165,7 +165,9 @@ class _OnBoardingStageFourState extends State<OnBoardingStageFour> {
               children: [
                 RichText(
                   text: TextSpan(
-                    style: const TextStyle(fontSize: 15, color: Colors.black),
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Theme.of(context).colorScheme.onSurface),
                     children: [
                       const TextSpan(text: '1. Log into the '),
                       TextSpan(
@@ -187,9 +189,11 @@ class _OnBoardingStageFourState extends State<OnBoardingStageFour> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text.rich(
+                Text.rich(
                   TextSpan(
-                    style: TextStyle(fontSize: 15, color: Colors.black),
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Theme.of(context).colorScheme.onSurface),
                     children: [
                       TextSpan(text: '2. Choose '),
                       TextSpan(
@@ -200,9 +204,11 @@ class _OnBoardingStageFourState extends State<OnBoardingStageFour> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text.rich(
+                Text.rich(
                   TextSpan(
-                    style: TextStyle(fontSize: 15, color: Colors.black),
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Theme.of(context).colorScheme.onSurface),
                     children: [
                       TextSpan(text: '3. '),
                       TextSpan(
@@ -215,9 +221,11 @@ class _OnBoardingStageFourState extends State<OnBoardingStageFour> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text.rich(
+                Text.rich(
                   TextSpan(
-                    style: TextStyle(fontSize: 15, color: Colors.black),
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Theme.of(context).colorScheme.onSurface),
                     children: [
                       TextSpan(text: '4. '),
                       TextSpan(
