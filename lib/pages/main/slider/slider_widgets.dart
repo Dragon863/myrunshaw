@@ -11,7 +11,8 @@ class SliderMenuItem extends StatelessWidget {
   final int index;
   final int currentIndex;
 
-  const SliderMenuItem({super.key, 
+  const SliderMenuItem({
+    super.key,
     required this.title,
     required this.inactiveIcon,
     required this.activeIcon,
@@ -23,15 +24,13 @@ class SliderMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: index == currentIndex
-            ? context.read<ThemeProvider>().isLightMode
-                ? const Color.fromARGB(255, 255, 209, 209)
-                : Theme.of(context).colorScheme.surface
-            : Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
+    return Material(
+      color: index == currentIndex
+          ? context.read<ThemeProvider>().isLightMode
+              ? const Color.fromARGB(255, 255, 209, 209)
+              : Theme.of(context).colorScheme.surface
+          : Theme.of(context).scaffoldBackgroundColor,
+      borderRadius: BorderRadius.circular(20),
       child: ListTile(
         title: Row(
           children: [

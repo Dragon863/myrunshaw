@@ -116,15 +116,18 @@ class _SliderViewState extends State<SliderView> {
                   ],
                 ),
               ),
-              ListTile(
-                onTap: () async {
-                  await logOut(context);
-                },
-                title: const Text(
-                  'Log Out',
-                  style: TextStyle(color: Colors.red),
+              Material(
+                color: Colors.transparent,
+                child: ListTile(
+                  onTap: () async {
+                    await logOut(context);
+                  },
+                  title: const Text(
+                    'Log Out',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  leading: const Icon(Icons.logout, color: Colors.red),
                 ),
-                leading: const Icon(Icons.logout, color: Colors.red),
               ),
             ],
           ),
