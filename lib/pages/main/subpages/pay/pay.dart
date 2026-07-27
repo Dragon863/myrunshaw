@@ -7,6 +7,7 @@ import 'package:runshaw/pages/main/subpages/pay/components/transactioncard.dart'
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/models/exceptions.dart';
 import 'package:runshaw/utils/models/transaction.dart';
+import 'package:runshaw/utils/theme/theme_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -40,10 +41,10 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
     if (!mounted) return;
     final BaseAPI api = context.read<BaseAPI>();
     try {
-      final bal = await api.getRunshawPayBalance();
+      final String? bal = await api.getRunshawPayBalance();
       if (bal != null && mounted) {
         setState(() {
-          balance = bal;
+          balance = bal.replaceAll("£", ""); // remove £ symbol if present
           loadingBalance = false;
         });
       } else if (mounted) {
@@ -53,6 +54,12 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
         });
       }
     } catch (e) {
+      await Posthog().capture(
+        eventName: 'runshawpay_balance_error',
+        properties: {
+          'error': e.toString(),
+        },
+      );
       if (mounted) {
         setState(() {
           balance = "Error";
@@ -302,56 +309,176 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 18),
-                Padding(
-                  padding: const EdgeInsets.only(left: 12.0),
-                  child: Row(
+                const SizedBox(height: 8),
+                Card(
+                  color: context.read<ThemeProvider>().isDarkMode
+                      ? Colors.red
+                      : Colors.white,
+                  elevation: 3,
+                  child: Stack(
                     children: [
-                      Text(
-                        "Your RunshawPay balance is",
-                        style: GoogleFonts.rubik(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w300,
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: context.read<ThemeProvider>().isDarkMode
+                              ? Colors.red
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  "RunshawPay Balance",
+                                  style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w300,
+                                    color:
+                                        context.read<ThemeProvider>().isDarkMode
+                                            ? Colors.white
+                                                .withAlpha((0.6 * 255).round())
+                                            : Colors.black
+                                                .withAlpha((0.6 * 255).round()),
+                                  ),
+                                ),
+                                const Spacer(),
+                                Text(
+                                  "BEN••••••59",
+                                  style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w300,
+                                    color:
+                                        context.read<ThemeProvider>().isDarkMode
+                                            ? Colors.white
+                                                .withAlpha((0.6 * 255).round())
+                                            : Colors.black
+                                                .withAlpha((0.6 * 255).round()),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 0.0),
+                                  child: Text(
+                                    "£",
+                                    style: GoogleFonts.oxanium(
+                                      color: context
+                                              .read<ThemeProvider>()
+                                              .isDarkMode
+                                          ? Colors.white
+                                          : Colors.black,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 36,
+                                    ),
+                                  ),
+                                ),
+                                Skeletonizer(
+                                  enabled: loadingBalance,
+                                  textBoneBorderRadius: TextBoneBorderRadius(
+                                    BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    balance,
+                                    style: GoogleFonts.oxanium(
+                                      color: context
+                                              .read<ThemeProvider>()
+                                              .isDarkMode
+                                          ? Colors.white
+                                          : Colors.black,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 57,
+                                      height: 1.1,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            TextButton.icon(
+                              icon: Icon(
+                                Icons.add,
+                                color: context.read<ThemeProvider>().isDarkMode
+                                    ? Colors.black
+                                    : Colors.white,
+                              ),
+                              label: Text(
+                                "Top Up",
+                                style: TextStyle(
+                                    color:
+                                        context.read<ThemeProvider>().isDarkMode
+                                            ? Colors.black
+                                            : Colors.white),
+                              ),
+                              style: TextButton.styleFrom(
+                                backgroundColor:
+                                    context.read<ThemeProvider>().isDarkMode
+                                        ? Colors.white
+                                        : Colors.red,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14.0,
+                                  horizontal: 16.0,
+                                ),
+                              ),
+                              onPressed: () async {
+                                try {
+                                  final BaseAPI api = context.read<BaseAPI>();
+                                  final String topUpUrl =
+                                      await api.getRunshawPayTopupUrl();
+                                  if (await canLaunchUrlString(topUpUrl)) {
+                                    await launchUrlString(
+                                      topUpUrl,
+                                      mode: LaunchMode.externalApplication,
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content:
+                                            Text("Couldn't open top up page."),
+                                      ),
+                                    );
+                                    await Posthog().capture(
+                                      eventName:
+                                          'runshawpay_topup_launch_failed',
+                                    );
+                                  }
+                                } on RunshawPayException catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content:
+                                          Text("An error occurred: ${e.cause}"),
+                                    ),
+                                  );
+                                  await Posthog().capture(
+                                    eventName: 'runshawpay_topup_error',
+                                    properties: {
+                                      'error_cause': e.cause,
+                                    },
+                                  );
+                                }
+                              },
+                            ),
+                          ],
                         ),
                       ),
-                      const Spacer(),
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: Image.asset(
+                          context.read<ThemeProvider>().isDarkMode
+                              ? "assets/img/pay_card_pattern_dark.png"
+                              : "assets/img/pay_card_pattern_light.png",
+                        ),
+                        height: 80,
+                      ),
                     ],
-                  ),
-                ),
-                Skeletonizer(
-                  enabled: loadingBalance,
-                  textBoneBorderRadius: TextBoneBorderRadius(
-                    BorderRadius.circular(12),
-                  ),
-                  child: Container(
-                    transform: Matrix4.translationValues(
-                        0.0, -10.0, 0.0), // shift above top text slightly
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 12.0, top: 0),
-                      child: Text(
-                        balance,
-                        style: GoogleFonts.rubik(
-                          fontSize: 50,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8, left: 12),
-                  child: Container(
-                    height: 11,
-                    width: 100,
-                    transform: Matrix4.translationValues(
-                      0.0,
-                      -12.0,
-                      0.0,
-                    ), // shift again
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
                   ),
                 ),
                 Skeletonizer(
@@ -383,43 +510,6 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
             ),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          try {
-            final BaseAPI api = context.read<BaseAPI>();
-            final String topUpUrl = await api.getRunshawPayTopupUrl();
-            if (await canLaunchUrlString(topUpUrl)) {
-              await launchUrlString(
-                topUpUrl,
-                mode: LaunchMode.externalApplication,
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Couldn't open top up page."),
-                ),
-              );
-              await Posthog().capture(
-                eventName: 'runshawpay_topup_launch_failed',
-              );
-            }
-          } on RunshawPayException catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("An error occurred: ${e.cause}"),
-              ),
-            );
-            await Posthog().capture(
-              eventName: 'runshawpay_topup_error',
-              properties: {
-                'error_cause': e.cause,
-              },
-            );
-          }
-        },
-        icon: const Icon(Icons.add),
-        label: const Text("Top Up"),
       ),
     );
   }

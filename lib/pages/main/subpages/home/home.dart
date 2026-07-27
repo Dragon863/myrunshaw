@@ -47,7 +47,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildBusCard(BusBayInfo info) {
-    return Card.filled(
+    return Material(
       color: info.color,
       child: ListTile(
         title: Text(

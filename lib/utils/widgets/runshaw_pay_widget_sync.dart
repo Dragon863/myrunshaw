@@ -222,6 +222,7 @@ class RunshawPayWidgetSync {
     required String status,
   }) async {
     if (kIsWeb) return;
+    if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) return;
 
     await HomeWidget.saveWidgetData<String>(_balanceKey, balance ?? 'Unknown');
     await HomeWidget.saveWidgetData<String>(_statusKey, status);

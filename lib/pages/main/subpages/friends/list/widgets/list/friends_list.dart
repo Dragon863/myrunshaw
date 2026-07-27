@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/widgets/list/friend_tile.dart';
 import 'package:runshaw/utils/api.dart';
@@ -102,8 +103,7 @@ class _FriendsListState extends State<FriendsList> {
             child: Skeletonizer(
               enabled: isLoading,
               child: ListView.builder(
-                cacheExtent: 9999,
-                itemBuilder: (context, index) {
+                scrollCacheExtent: ScrollCacheExtent.pixels(9999), itemBuilder: (context, index) {
                   if (friends[index]["id"] == "skeleton") {
                     return ListTile(
                       title: Text(

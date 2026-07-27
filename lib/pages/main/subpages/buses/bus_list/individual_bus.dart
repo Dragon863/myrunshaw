@@ -139,9 +139,16 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
                           children: [
                             TileLayer(
                               urlTemplate:
-                                  'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                                  'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                               subdomains: const ['a', 'b', 'c', 'd'],
                               userAgentPackageName: 'uk.danieldb.myrunshaw',
+                              tileProvider: NetworkTileProvider(
+                                httpClient: context.read<BaseAPI>().httpClient,
+                                cachingProvider: BuiltInMapCachingProvider
+                                    .getOrCreateInstance(
+                                  maxCacheSize: 1024 * 1024 * 50, // 50MB
+                                ),
+                              ),
                             ),
                             MarkerLayer(
                               markers: List.generate(_stops.length, (index) {
@@ -272,7 +279,15 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
                       }),
                     ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 5),
+                  Center(
+                    child: const Text(
+                      "(Map data © OpenStreetMap contributors)",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                 ],
               ),
             ),

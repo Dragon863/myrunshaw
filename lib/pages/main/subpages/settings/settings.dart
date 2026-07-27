@@ -55,8 +55,13 @@ class _SettingsPageState extends State<SettingsPage> {
       nameLoaded = true;
       email = api.currentUser!.email;
     });
-
-    final tags = await OneSignal.User.getTags();
+    Map<String, String> tags = {};
+    try {
+      tags = await OneSignal.User.getTags();
+    } catch (e) {
+      tags = {"bus_optout": "false"};
+      debugLog("Error fetching OneSignal tags: $e", level: 1);
+    }
     if (!mounted) return;
     final bool optOut = tags["bus_optout"] == "true";
     if (optOut) {
@@ -113,7 +118,7 @@ class _SettingsPageState extends State<SettingsPage> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        barrierColor: Colors.black.withOpacity(0.7),
+        barrierColor: Colors.black.withValues(alpha: 0.7),
         builder: (BuildContext context) => Dialog(
           insetPadding: const EdgeInsets.all(6),
           child: Padding(

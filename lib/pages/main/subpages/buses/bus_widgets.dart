@@ -35,7 +35,7 @@ class BusCard extends StatelessWidget {
 
     return Card(
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.5),
+      shadowColor: Colors.black.withValues(alpha: 0.5),
       margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16), side: BorderSide.none),
@@ -127,7 +127,7 @@ class _StatusIcon extends StatelessWidget {
 }
 
 class BayBadge extends StatelessWidget {
-  const BayBadge({
+  const BayBadge({super.key, 
     required this.bus,
     required this.colorAt,
   });

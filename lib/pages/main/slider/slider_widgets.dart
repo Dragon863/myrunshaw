@@ -31,6 +31,7 @@ class SliderMenuItem extends StatelessWidget {
               : Theme.of(context).colorScheme.surface
           : Theme.of(context).scaffoldBackgroundColor,
       borderRadius: BorderRadius.circular(20),
+      clipBehavior: Clip.antiAlias,
       child: ListTile(
         title: Row(
           children: [

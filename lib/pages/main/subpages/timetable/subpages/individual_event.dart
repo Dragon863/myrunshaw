@@ -289,7 +289,7 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
                                       "Tap to view",
                                       style: GoogleFonts.rubik(
                                         fontSize: 14,
-                                        color: Colors.white.withOpacity(0.8),
+                                        color: Colors.white.withValues(alpha: 0.8),
                                       ),
                                     ),
                                     Text(
@@ -307,7 +307,7 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
                               child: Material(
                                 color: Colors.transparent,
                                 child: InkWell(
-                                  splashColor: Colors.white.withOpacity(0.3),
+                                  splashColor: Colors.white.withValues(alpha: 0.3),
                                   onTap: () {
                                     Navigator.push(
                                       context,

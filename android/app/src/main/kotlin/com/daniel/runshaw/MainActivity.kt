@@ -6,7 +6,6 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.os.Build
 import android.os.Bundle
-import androidx.collection.intSetOf
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine

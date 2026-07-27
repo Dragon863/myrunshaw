@@ -117,7 +117,9 @@ class _SliderViewState extends State<SliderView> {
                 ),
               ),
               Material(
-                color: Colors.transparent,
+                color: Theme.of(context).scaffoldBackgroundColor,
+                borderRadius: BorderRadius.circular(20),
+                clipBehavior: Clip.antiAlias,
                 child: ListTile(
                   onTap: () async {
                     await logOut(context);

@@ -36,7 +36,7 @@ class OnBoardingStageOne extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            "Before we get started, we need to explain that this app is unofficial - it is built and maintained by a student at the college.",
+            "Before we get started, we need to explain that this app is unofficial - it is built and maintained by a student.",
             style: GoogleFonts.rubik(
               fontSize: 16,
             ),
@@ -44,11 +44,14 @@ class OnBoardingStageOne extends StatelessWidget {
           RichText(
             text: TextSpan(
               children: [
-                TextSpan(
-                  text: "The official portal can be found ",
-                  style: GoogleFonts.rubik(
-                    fontSize: 16,
-                    color: Theme.of(context).colorScheme.onSurface,
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.middle,
+                  child: Text(
+                    "The official portal can be found ",
+                    style: GoogleFonts.rubik(
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                 ),
                 WidgetSpan(
