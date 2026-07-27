@@ -36,7 +36,8 @@ class _MainPageState extends State<MainPage> {
     loadNotifications();
     try {
       // On android, dragging from the side goes back
-      isDraggable = Platform.isIOS;
+      isDraggable = Platform.isIOS && _currentIndex != 5;
+      // map uses gestures to pan and zoom
     } catch (e) {
       isDraggable = false;
     }
