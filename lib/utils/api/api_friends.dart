@@ -113,14 +113,4 @@ mixin ApiFriends on ApiCore {
     }
     return "Unknown";
   }
-
-  /// TODO: redundant with entra login?
-  Future<bool> userExists(String userId) async {
-    try {
-      final response = await apiGet('/api/name/get/$userId');
-      return response.statusCode == 200;
-    } catch (e) {
-      return false;
-    }
-  }
 }
