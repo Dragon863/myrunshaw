@@ -89,6 +89,7 @@ unlinked_spec.ds
 local.properties
 **/.cxx/
 android/.kotlin/sessions/*
+android/build/reports/
 
 # iOS/XCode related
 ios/build/
