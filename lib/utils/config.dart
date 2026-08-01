@@ -19,7 +19,7 @@ class MyRunshawConfig {
 
     return (_isDev)
         ? 'https://myrunshaw-core-dev.danieldb.uk'
-        : 'https://9e6a-81-179-98-185.ngrok-free.app';
+        : 'https://myrunshaw-core.danieldb.uk';
   }
 
   static void logApiUrlsOnStartup() {
