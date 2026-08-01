@@ -72,7 +72,7 @@ class PrivacyPolicyPage extends StatelessWidget {
                 const Text(
                   'We use the information you provide to:\n'
                   '• Create and manage your account.\n'
-                  '• Send notifications through OneSignal, a GDPR-compliant service.\n'
+                  '• Send notifications through Firebase Cloud Messaging.\n'
                   '• Enhance your experience by improving our app\'s features and functionality.\n'
                   '• Provide support and respond to your inquiries.\n',
                   style: TextStyle(fontSize: 16),

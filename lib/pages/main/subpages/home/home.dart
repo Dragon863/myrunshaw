@@ -47,24 +47,28 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildBusCard(BusBayInfo info) {
-    return Material(
-      color: info.color,
-      child: ListTile(
-        title: Text(
-          'The ${info.busNumber} is in bay ${info.bay}!',
-          style: GoogleFonts.rubik(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Material(
+        color: info.color,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: ListTile(
+          title: Text(
+            'The ${info.busNumber} is in bay ${info.bay}!',
+            style: GoogleFonts.rubik(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
-        ),
-        trailing: const Icon(Icons.directions_bus, color: Colors.white),
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => IndividualBusPage(
-              bay: info.bay,
-              busNumber: info.busNumber,
-              color: info.color,
+          trailing: const Icon(Icons.directions_bus, color: Colors.white),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => IndividualBusPage(
+                bay: info.bay,
+                busNumber: info.busNumber,
+                color: info.color,
+              ),
             ),
           ),
         ),

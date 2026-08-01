@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:runshaw/utils/logging.dart';
 
 class MyRunshawConfig {
@@ -10,8 +11,6 @@ class MyRunshawConfig {
 
   static const String posthogApiKey =
       "phc_FDCLEAW9y4wNcOZzze88JJPz9fPHt7PKBjTyrlZQALO";
-
-  static const String oneSignalAppId = "001b2238-9af7-49f1-bd60-6dfe630b7175";
 
   static String get apiUrl {
     if (_isLocalDev) {
@@ -47,5 +46,25 @@ class MyRunshawConfig {
   static const String entraTenantId = "4dcd8020-d84c-482f-bdf6-71d3ca953b8c";
   static const String entraClientId = "a259dcce-b2fb-4644-a4e5-d88b70554b86";
   static const String oauthCallbackScheme =
-      "appwrite-callback-66fdb56000209ea9ac18";
+      "appwrite-callback-66fdb56000209ea9ac18"; // preserved from appwrite, but works fine for Entra too
+  static const List<AndroidNotificationChannel> notificationChannels = [
+    AndroidNotificationChannel(
+      'bus_channel', // id
+      'Bus Notifications', // title
+      description: 'This channel is used to notify you about bus arrivals.',
+      importance: Importance.max,
+    ),
+    AndroidNotificationChannel(
+      'friend_channel',
+      'Friend Notifications',
+      description: 'This channel is used to notify you about friend requests.',
+      importance: Importance.max,
+    ),
+    AndroidNotificationChannel(
+      'general_channel',
+      'General Notifications',
+      description: 'This channel is used to notify you about general events.',
+      importance: Importance.defaultImportance,
+    ),
+  ];
 }

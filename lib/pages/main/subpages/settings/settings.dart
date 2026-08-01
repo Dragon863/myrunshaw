@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
@@ -55,17 +54,13 @@ class _SettingsPageState extends State<SettingsPage> {
       nameLoaded = true;
       email = api.currentUser!.email;
     });
-    Map<String, String> tags = {};
     try {
-      tags = await OneSignal.User.getTags();
+      final preference = await api.getCurrentDeviceNotificationPreference();
+      if (mounted)
+        setState(() => showNotifs = preference.busNotificationsEnabled);
     } catch (e) {
-      tags = {"bus_optout": "false"};
-      debugLog("Error fetching OneSignal tags: $e", level: 1);
-    }
-    if (!mounted) return;
-    final bool optOut = tags["bus_optout"] == "true";
-    if (optOut) {
-      setState(() => showNotifs = false);
+      // Notification registration is optional; leave the default enabled when it
+      // has not been completed yet.
     }
   }
 

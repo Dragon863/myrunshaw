@@ -28,3 +28,18 @@ Future<void> logOut(BuildContext context) async {
   await Posthog().reset();
   Navigator.of(context).pushNamedAndRemoveUntil('/splash', (route) => false);
 }
+
+class LeadingIcon extends StatelessWidget {
+  final AnimationController animationController;
+  final VoidCallback? onTap;
+
+  const LeadingIcon({required this.animationController, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+        icon: AnimatedIcon(
+            icon: AnimatedIcons.menu_close, progress: animationController),
+        onPressed: onTap);
+  }
+}

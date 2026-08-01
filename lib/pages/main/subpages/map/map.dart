@@ -108,20 +108,32 @@ class _MapPageState extends State<MapPage> {
 <img src="campus.png" usemap="#image-map">
 
 <map name="image-map">
-    <area title="Hawkshead"               href="hawkshead" coords="83,324,53,274,96,233,177,197,215,309,129,326" shape="poly">
-    <area title="Eskdale"                 href="eskdale" coords="341,306,397,288,346,89,252,111,270,176,297,176,332,278" shape="poly">
-    <area title="Dalehead Student Zone"   href="dalehead-sz" coords="410,210,522,101" shape="rect">
-    <area title="Dalehead"                href="dalehead" coords="530,198,527,145,626,124,635,173" shape="poly">
-    <area title="Tyndale"                 href="tyndale" coords="386,402,493,400,486,480,392,480,389,445" shape="poly">
-    <area title="Ferndale"                href="ferndale" coords="565,464,564,440,602,440,599,416,494,414,494,465" shape="poly">
-    <area title="Silverdale"              href="silverdale" coords="473,371,525,404,602,408,589,275,514,283,509,315,473,324" shape="poly">
-    <area title="Mardale"                 href="mardale" coords="604,462,601,417,613,417,603,323,645,264,793,260,783,453" shape="poly">
-    <area title="Grizedale"               href="grizedale" coords="967,346,963,302,968,275,857,274,861,319,887,339" shape="poly">
-    <area title="Rydal"                   href="rydal" coords="972,275,968,310,971,341,1031,341,1055,311,1051,274" shape="poly">
-    <area title="Buttermere"              href="buttermere" coords="1019,452,1074,447,1075,405,1097,404,1096,382,1070,357,1013,362,1019,377,990,376,988,400,1019,401" shape="poly">
-    <area title="Patterdale"              href="patterdale" coords="942,452,1014,450,1013,405,986,402,985,386,941,392,946,414,924,410,925,432,943,436" shape="poly">
-    <area title="Langdale &amp; Coniston" href="Langdale & Coniston" coords="836,445,830,362,933,354,939,408,923,406,921,445" shape="poly">
-    <area title="Octagon"                 href="octagon" coords="787,452,792,360,827,360,832,452" shape="poly">
+    <area title="Tyndale"                 href="tyndale" coords="181,1892,653,1543" shape="rect">
+    <area title="Ferndale"                href="ferndale" coords="665,1892,1136,1543" shape="rect">
+    <area title="Silverdale"              href="silverdale" coords="1236,1949,1708,1550" shape="rect">
+    <area title="Mardale"                 href="mardale" coords="1757,2067,2229,1541" shape="rect">
+    <area title="Octagon"                 href="octagon" coords="2278,1877,2750,1540" shape="rect">
+    <area title="Langdale &amp; Coniston" href="Langdale & Coniston" coords="2812,2013,3391,1541" shape="rect">
+    <area title="Patterdale"              href="patterdale" coords="2924,1478,3396,1195" shape="rect">
+    <area title="Buttermere"              href="buttermere" coords="2919,1024,3391,709" shape="rect">
+    <area title="Rydal"                   href="rydal" coords="2793,408,3391,89" shape="rect">
+    <area title="Grizedale"               href="grizedale" coords="2225,409,2766,83" shape="rect">
+    <area title="Dalehead"                href="dalehead" coords="1627,400,2099,85" shape="rect">
+    <area title="Eskdale"                 href="eskdale" coords="745,453,1520,88" shape="rect">
+    <area title="Hawkshead"               href="hawkshead" coords="181,365,649,89" shape="rect">
+    <area title="Tyndale"                 href="tyndale" coords="1366,1221,1347,1240,1347,1259,1328,1278,1328,1321,1351,1324,1351,1371,1451,1374,1520,1378,1539,1355,1539,1225" shape="poly">
+    <area title="Ferndale"                href="ferndale" coords="1543,1354,1531,1377,1650,1385,1669,1362,1665,1285,1543,1281" shape="poly">
+    <area title="Silverdale"              href="silverdale" coords="1492,1197,1595,1197,1595,1254,1760,1254,1756,1189,1741,1085,1722,1001,1575,1001,1572,1085,1507,1082,1496,1105,1497,1193" shape="poly">
+    <area title="Mardale"                 href="mardale" coords="1765,1060,1762,1344,1869,1329,1973,1376,2106,1332,2109,1202,2103,972,1819,969,1819,1064" shape="poly">
+    <area title="Octagon"                 href="octagon" coords="2119,1201,2119,1286,2134,1340,2185,1337,2210,1302,2216,1270,2201,1242,2216,1217,2210,1188,2194,1166,2163,1163" shape="poly">
+    <area title="Langdale &amp; Coniston" href="Langdale & Coniston" coords="2191,1154,2213,1182,2220,1208,2220,1226,2213,1245,2223,1264,2220,1290,2210,1318,2216,1343,2292,1350,2365,1359,2390,1337,2390,1280,2371,1249,2377,1151,2207,1144" shape="poly">
+    <area title="Patterdale"              href="patterdale" coords="2390,1233,2396,1331,2504,1331,2519,1309,2513,1221,2488,1211,2444,1208,2444,1221,2403,1217" shape="poly">
+    <area title="Buttermere"              href="buttermere" coords="2511,1174,2514,1215,2520,1221,2527,1316,2511,1341,2587,1344,2603,1322,2603,1158,2533,1151" shape="poly">
+    <area title="Rydal"                   href="rydal" coords="2459,1032,2466,1083,2456,1133,2557,1136,2576,1117,2598,1086,2602,1035,2573,1029" shape="poly">
+    <area title="Grizedale"               href="grizedale" coords="2450,1026,2447,1130,2428,1140,2295,1137,2295,1108,2261,1105,2254,1061,2292,1029" shape="poly">
+    <area title="Dalehead"                href="dalehead" coords="1796,707,1812,795,1626,827,1620,736" shape="poly">
+    <area title="Eskdale"                 href="eskdale" coords="1023,717,1039,774,1118,748,1238,1052,1272,1099,1351,1074,1364,1001,1339,922,1216,597,1133,622,1111,647,1121,679" shape="poly">
+    <area title="Hawkshead"               href="hawkshead" coords="644,978,672,1073,736,1063,770,1048,792,1098,957,1041,950,972,912,864,751,921" shape="poly">
 </map>
 ''',
       Colors.transparent,
@@ -130,6 +142,8 @@ class _MapPageState extends State<MapPage> {
     return Scaffold(
       body: ZoomableInteractiveViewer(
         minScale: 1.0,
+        maxScale: 5.0,
+        constrained: true,
         boundaryMargin: EdgeInsets.zero,
         child: Padding(
             padding: const EdgeInsets.all(0.0),

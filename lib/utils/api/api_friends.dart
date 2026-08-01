@@ -30,7 +30,10 @@ mixin ApiFriends on ApiCore {
     );
 
     await cacheFriends();
-    return humanResponse(response.body);
+    if (response.statusCode != 200) {
+      return humanResponse(response.body);
+    }
+    return "Sent friend request.";
   }
 
   Future<void> blockUser(String userId) async {

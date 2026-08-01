@@ -1,24 +1,47 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:posthog_flutter/posthog_flutter.dart';
+import 'package:background_fetch/background_fetch.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'firebase_options.dart';
+
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/logging.dart';
 import 'package:runshaw/utils/theme/dark.dart';
 import 'package:runshaw/utils/theme/light.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
-import 'package:posthog_flutter/posthog_flutter.dart';
-import 'package:background_fetch/background_fetch.dart';
 import 'package:runshaw/utils/widgets/runshaw_pay_widget_sync.dart';
 import 'package:runshaw/utils/routing/route_handler.dart';
+import 'package:runshaw/utils/notifications/notification_service.dart';
+import 'package:runshaw/pages/splash/splash.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  }
   BackgroundFetch.registerHeadlessTask(runshawPayWidgetHeadlessTask);
 
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  final initialNotification = await NotificationService.instance.start(
+    onOpened: (destination) {
+      navigatorKey.currentState?.pushAndRemoveUntil(
+        MaterialPageRoute(
+            builder: (_) => SplashPage(notificationDestination: destination)),
+        (_) => false,
+      );
+    },
+  );
 
   debugLog("Starting app...", level: 0);
   MyRunshawConfig.logApiUrlsOnStartup();
@@ -37,6 +60,7 @@ void main() async {
       ],
       child: BaseApp(
         globalKey: navigatorKey,
+        initialNotification: initialNotification,
       ),
     ),
   );
@@ -44,7 +68,8 @@ void main() async {
 
 class BaseApp extends StatelessWidget {
   final GlobalKey<NavigatorState>? globalKey;
-  const BaseApp({super.key, this.globalKey});
+  final NotificationDestination? initialNotification;
+  const BaseApp({super.key, this.globalKey, this.initialNotification});
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +138,19 @@ class BaseApp extends StatelessWidget {
           ),
         ),
         initialRoute: '/splash',
-        onGenerateInitialRoutes: AppRouteHandler.onGenerateInitialRoutes,
+        onGenerateInitialRoutes: (initialRoute) {
+          if (initialNotification != null &&
+              (initialRoute == '/' || initialRoute == '/splash')) {
+            return [
+              MaterialPageRoute(
+                builder: (_) =>
+                    SplashPage(notificationDestination: initialNotification),
+                settings: const RouteSettings(name: '/splash'),
+              ),
+            ];
+          }
+          return AppRouteHandler.onGenerateInitialRoutes(initialRoute);
+        },
         debugShowCheckedModeBanner: false,
         routes: AppRouteHandler.getNamedRoutes(),
         onGenerateRoute: AppRouteHandler.onGenerateRoute,

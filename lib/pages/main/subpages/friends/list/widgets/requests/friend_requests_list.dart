@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/widgets/requests/friend_req_tile.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/vendor/spinner/loading_indicator.dart';
 
 class FriendRequestsList extends StatefulWidget {
   const FriendRequestsList({super.key});
@@ -13,23 +14,31 @@ class FriendRequestsList extends StatefulWidget {
 class _FriendRequestsListState extends State<FriendRequestsList> {
   List<Map> requests = [];
   String profilePicUrl = "";
+  bool _loading = false;
 
   Future<void> loadFriends() async {
-    // Load friends from API
-    final api = context.read<BaseAPI>();
-    final response = await api.getFriendRequests();
-    for (final friendRequest in response) {
-      final String url = api.getPfpUrl(friendRequest["sender_id"], isPreview: true);
-      if (mounted) {
-        setState(() {
-          requests.add({
-            "id": friendRequest["sender_id"],
-            "req_id": friendRequest["id"],
-            "pfpUrl": url,
-          });
+    if (_loading || !mounted) return;
+    setState(() {
+      _loading = true;
+    });
+    try {
+      // Load friends from API
+      final api = context.read<BaseAPI>();
+      final response = await api.getFriendRequests();
+      for (final friendRequest in response) {
+        final String url =
+            api.getPfpUrl(friendRequest["sender_id"], isPreview: true);
+        requests.add({
+          "id": friendRequest["sender_id"],
+          "req_id": friendRequest["id"],
+          "pfpUrl": url,
         });
       }
+    } finally {
+      _loading = false;
     }
+    if (!mounted) return;
+    setState(() {}); // Update the UI after loading
   }
 
   @override
@@ -45,7 +54,7 @@ class _FriendRequestsListState extends State<FriendRequestsList> {
         setState(() {
           requests = [];
         });
-        loadFriends();
+        await loadFriends();
       },
       child: SingleChildScrollView(
         child: Column(
@@ -64,8 +73,17 @@ class _FriendRequestsListState extends State<FriendRequestsList> {
               itemCount: requests.length,
             ),
             requests.isEmpty ? const SizedBox(height: 12) : const SizedBox(),
+            // Show loading indicator if loading
+            if (_loading)
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: LoadingIndicator(),
+                ),
+              ),
+
             Center(
-              child: requests.isEmpty
+              child: requests.isEmpty && !_loading
                   ? TextButton(
                       onPressed: () {
                         loadFriends();
