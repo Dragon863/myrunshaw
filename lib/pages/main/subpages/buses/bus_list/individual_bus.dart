@@ -59,18 +59,18 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
       'longitude': -2.6898653,
     });
 
+    // automatically zoom map to fit all stops
+    if (stops.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _fitMapToBounds();
+      });
+    }
+
     setState(() {
       _stops = stops;
       _routeDescription = routeDescription;
       _isLoading = false;
     });
-
-    // automatically zoom map to fit all stops
-    if (_stops.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _fitMapToBounds();
-      });
-    }
   }
 
   void _fitMapToBounds() {
@@ -179,18 +179,23 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
                           ],
                         ),
                       ),
-                      IgnorePointer(
-                        child: Container(
-                          height: 80,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                theme.scaffoldBackgroundColor
-                                    .withValues(alpha: 0.0),
-                                theme.scaffoldBackgroundColor,
-                              ],
+                      Positioned(
+                        bottom: -1,
+                        left: 0,
+                        right: 0,
+                        child: IgnorePointer(
+                          child: Container(
+                            height: 80,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  theme.scaffoldBackgroundColor
+                                      .withValues(alpha: 0.0),
+                                  theme.scaffoldBackgroundColor,
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -287,7 +292,7 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),

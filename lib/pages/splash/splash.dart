@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/error/server_issues.dart';
@@ -19,10 +18,12 @@ import 'package:runshaw/utils/logging.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
 import 'package:runshaw/utils/vendor/spinner/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:runshaw/utils/notifications/notification_service.dart';
 
 class SplashPage extends StatefulWidget {
   final String? nextRoute;
-  const SplashPage({super.key, this.nextRoute});
+  final NotificationDestination? notificationDestination;
+  const SplashPage({super.key, this.nextRoute, this.notificationDestination});
 
   @override
   State<SplashPage> createState() => _SplashPageState();
@@ -39,7 +40,6 @@ class _SplashPageState extends State<SplashPage> {
       DeviceOrientation.portraitDown,
       //Just in case the map page is opened which on android can cause the app to stay landscape. weird.
     ]);
-    _setupOneSignal();
     _navigateToHome();
   }
 
@@ -50,46 +50,9 @@ class _SplashPageState extends State<SplashPage> {
     super.didChangeDependencies();
   }
 
-  Future<void> _setupOneSignal() async {
-    if (kIsWeb || Platform.isLinux) return;
-
-    OneSignal.initialize(MyRunshawConfig.oneSignalAppId);
-    OneSignal.Notifications.addClickListener((OSNotificationClickEvent event) {
-      String? route;
-      if (event.notification.body?.contains("has arrived in bay") ?? false) {
-        route = "/bus";
-      } else if (event.notification.body
-              ?.toString()
-              .contains("friend request") ??
-          false) {
-        route = "/friends";
-      }
-
-      if (route != null && mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) => SplashPage(
-              nextRoute: route,
-            ),
-          ),
-          (route) => false,
-        );
-      }
-    });
-
-    OneSignal.Notifications.addForegroundWillDisplayListener(
-        (OSNotificationWillDisplayEvent event) {
-      event.preventDefault();
-      event.notification.display();
-    });
-
-    await OneSignal.Notifications.requestPermission(true);
-  }
-
   Future<void> _setupAnalytics() async {
     final config = PostHogConfig(MyRunshawConfig.posthogApiKey);
     // configure posthog to capture all errors, including native ones, and lifecycle events
-    config.debug = kDebugMode;
     config.captureApplicationLifecycleEvents = true;
     config.errorTrackingConfig.captureFlutterErrors = true;
     config.errorTrackingConfig.capturePlatformDispatcherErrors = true;
@@ -109,9 +72,10 @@ class _SplashPageState extends State<SplashPage> {
       await Posthog().enable();
     }
 
-    if (kDebugMode) {
-      Posthog().debug(true);
-    }
+    // This is generally too verbose even for debug mode. Uncomment if needed.
+    // if (kDebugMode) {
+    //   Posthog().debug(true);
+    // }
     debugLog("Analytics ready", level: 0);
   }
 
@@ -194,6 +158,13 @@ class _SplashPageState extends State<SplashPage> {
 
       if (status == AccountStatus.authenticated) {
         debugLog("User is authenticated");
+        // Token registration happens only after a user JWT exists, so devices
+        // are never registered anonymously. Failure must not block app launch.
+        try {
+          await api.registerCurrentDeviceForNotifications();
+        } catch (e) {
+          debugLog('Unable to register FCM device: $e', level: 1);
+        }
 
         if (!await isOnBoarded()) {
           _setupAnalytics();
@@ -213,6 +184,7 @@ class _SplashPageState extends State<SplashPage> {
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) => MainPage(
               nextRoute: widget.nextRoute,
+              notificationDestination: widget.notificationDestination,
             ),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) =>

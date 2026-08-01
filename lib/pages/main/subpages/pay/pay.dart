@@ -49,7 +49,7 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
         });
       } else if (mounted) {
         setState(() {
-          balance = "Unknown";
+          balance = "Error";
           loadingBalance = false;
         });
       }
@@ -161,7 +161,7 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
             Center(child: Text(e.cause, textAlign: TextAlign.center))
           ];
           loadingTransactions = false;
-          balance = "Unknown";
+          balance = "Error";
           loadingBalance = false;
         });
       }
@@ -315,6 +315,9 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
                       ? Colors.red
                       : Colors.white,
                   elevation: 3,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   child: Stack(
                     children: [
                       Container(
@@ -366,38 +369,56 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 0.0),
-                                  child: Text(
-                                    "£",
-                                    style: GoogleFonts.oxanium(
-                                      color: context
-                                              .read<ThemeProvider>()
-                                              .isDarkMode
-                                          ? Colors.white
-                                          : Colors.black,
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 36,
-                                    ),
-                                  ),
-                                ),
                                 Skeletonizer(
                                   enabled: loadingBalance,
+                                  effect: ShimmerEffect(
+                                    baseColor:
+                                        context.read<ThemeProvider>().isDarkMode
+                                            ? Colors.white.withAlpha(
+                                                (0.1 * 255).round(),
+                                              )
+                                            : Colors.black.withAlpha(
+                                                (0.2 * 255).round(),
+                                              ),
+                                    highlightColor: Colors.white,
+                                  ),
                                   textBoneBorderRadius: TextBoneBorderRadius(
                                     BorderRadius.circular(12),
                                   ),
-                                  child: Text(
-                                    balance,
-                                    style: GoogleFonts.oxanium(
-                                      color: context
-                                              .read<ThemeProvider>()
-                                              .isDarkMode
-                                          ? Colors.white
-                                          : Colors.black,
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 57,
-                                      height: 1.1,
-                                    ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(top: 0.0),
+                                        child: Text(
+                                          "£",
+                                          style: GoogleFonts.oxanium(
+                                            color: context
+                                                    .read<ThemeProvider>()
+                                                    .isDarkMode
+                                                ? Colors.white
+                                                : Colors.black,
+                                            fontWeight: FontWeight.w900,
+                                            fontSize: 36,
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        balance,
+                                        style: GoogleFonts.oxanium(
+                                          color: context
+                                                  .read<ThemeProvider>()
+                                                  .isDarkMode
+                                              ? Colors.white
+                                              : Colors.black,
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 57,
+                                          height: 1.1,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
@@ -471,12 +492,12 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
                       Positioned(
                         right: 0,
                         bottom: 0,
+                        height: 80,
                         child: Image.asset(
                           context.read<ThemeProvider>().isDarkMode
                               ? "assets/img/pay_card_pattern_dark.png"
                               : "assets/img/pay_card_pattern_light.png",
                         ),
-                        height: 80,
                       ),
                     ],
                   ),

@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:runshaw/utils/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:runshaw/utils/config.dart';
 
@@ -76,7 +75,6 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
       cachedTimetables = data['timetables'] ?? {};
 
       if (!kIsWeb && !Platform.isLinux && currentUser != null) {
-        OneSignal.login(currentUser!.id);
         await Posthog().identify(userId: currentUser!.$id, userProperties: {
           "name": currentUser!.name,
           "email": currentUser!.email,
@@ -264,7 +262,6 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
       status = AccountStatus.unauthenticated;
 
       if (!kIsWeb && !Platform.isLinux) {
-        OneSignal.logout();
         await Posthog().reset();
       }
     } finally {

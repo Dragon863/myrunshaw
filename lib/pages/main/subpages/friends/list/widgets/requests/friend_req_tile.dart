@@ -67,6 +67,8 @@ class _FriendRequestTileState extends State<FriendRequestTile> {
           ),
         ),
       );
+      await api
+          .refreshUser(); // ensures name is cached to prevent friends list breaking
     }
     setState(() {
       name = response ? "Accepted" : "Declined";

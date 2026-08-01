@@ -12,11 +12,13 @@ import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/slider/slider_view.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
+import 'package:runshaw/utils/notifications/notification_service.dart';
 import 'main_helpers.dart';
 
 class MainPage extends StatefulWidget {
   final String? nextRoute;
-  const MainPage({super.key, this.nextRoute});
+  final NotificationDestination? notificationDestination;
+  const MainPage({super.key, this.nextRoute, this.notificationDestination});
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -43,6 +45,7 @@ class _MainPageState extends State<MainPage> {
     }
     super.initState();
     nextRoute();
+    _openNotificationDestination();
   }
 
   void nextRoute() {
@@ -64,6 +67,44 @@ class _MainPageState extends State<MainPage> {
         });
       });
     }
+  }
+
+  void _openNotificationDestination() {
+    final destination = widget.notificationDestination;
+    if (destination == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() {
+        switch (destination.section) {
+          case 'bus':
+            _currentIndex = 1;
+            title = 'Buses';
+          case 'friends':
+            _currentIndex = 2;
+            title = 'Friends';
+          case 'pay':
+            _currentIndex = 4;
+            title = 'Pay';
+          default:
+            _currentIndex = 0;
+            title = 'Home';
+        }
+      });
+      if (destination.section == 'bus' && destination.busId != null) {
+        // Can also navigate to the bus page directly, but this is commented out for now
+        // since sending the student to a route map isn't very useful when they want to
+        // see the arrival bay visualised on the college map.
+
+        // Navigator.of(context).push(
+        //   MaterialPageRoute(
+        //     builder: (_) => IndividualBusPage(
+        //       busNumber: destination.busId!,
+        //       bay: destination.bay ?? '...',
+        //     ),
+        //   ),
+        // );
+      }
+    });
   }
 
   Future<void> loadNotifications() async {
@@ -103,50 +144,73 @@ class _MainPageState extends State<MainPage> {
                 : Theme.of(context).colorScheme.surface),
         child: SafeArea(
           child: Scaffold(
-            body: SliderDrawer(
-              key: _sliderDrawerKey,
-              sliderOpenSize: 200,
-              isDraggable: isDraggable,
-              slider: SliderView(
-                  currentIndex: _currentIndex,
-                  notification: notification,
-                  showNotifs: showNotifs,
-                  onItemClick: (title, index) async {
-                    if (!kIsWeb) {
-                      if (!Platform.isLinux) {
-                        if (await Gaimon.canSupportsHaptic) {
-                          Gaimon.selection();
+            body: Stack(
+              children: [
+                SliderDrawer(
+                  key: _sliderDrawerKey,
+                  sliderOpenSize: 200,
+                  isDraggable: isDraggable,
+                  slider: SliderView(
+                      currentIndex: _currentIndex,
+                      notification: notification,
+                      showNotifs: showNotifs,
+                      onItemClick: (title, index) async {
+                        if (!kIsWeb) {
+                          if (!Platform.isLinux) {
+                            if (await Gaimon.canSupportsHaptic) {
+                              Gaimon.selection();
+                            }
+                          }
                         }
-                      }
-                    }
-                    _sliderDrawerKey.currentState!.closeSlider();
-                    setState(() {
-                      this.title = title;
-                      _currentIndex = index;
-                    });
-                    await loadNotifications();
-                  }),
-              appBar: SliderAppBar(
-                config: SliderAppBarConfig(
-                  title: Text(
-                    title,
-                    style: GoogleFonts.rubik(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  backgroundColor: context.read<ThemeProvider>().isLightMode
-                      ? Colors.red
-                      : (context.read<ThemeProvider>().amoledEnabled
-                          ? Colors.black
-                          : Theme.of(context).colorScheme.surface),
-                  padding: const EdgeInsets.only(top: 4),
-                  drawerIconColor: Colors.white,
+                        _sliderDrawerKey.currentState!.closeSlider();
+                        setState(() {
+                          this.title = title;
+                          _currentIndex = index;
+                        });
+                        await loadNotifications();
+                      }),
+                  appBar: _currentIndex == 5
+                      ? SizedBox.shrink()
+                      : SliderAppBar(
+                          config: SliderAppBarConfig(
+                            title: Text(
+                              title,
+                              style: GoogleFonts.rubik(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            backgroundColor: context
+                                    .read<ThemeProvider>()
+                                    .isLightMode
+                                ? Colors.red
+                                : (context.read<ThemeProvider>().amoledEnabled
+                                    ? Colors.black
+                                    : Theme.of(context).colorScheme.surface),
+                            padding: const EdgeInsets.only(top: 4),
+                            drawerIconColor: Colors.white,
+                          ),
+                        ),
+                  child: getPages(showNotifs)[_currentIndex],
                 ),
-              ),
-              child: getPages(showNotifs)[_currentIndex],
+                Visibility(
+                  visible: _currentIndex == 5,
+                  child: Positioned(
+                    top: 16,
+                    left: 16,
+                    child: FloatingActionButton(
+                      mini: true,
+                      shape: const CircleBorder(),
+                      onPressed: () async {
+                        _sliderDrawerKey.currentState?.toggle();
+                      },
+                      child: const Icon(Icons.menu),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

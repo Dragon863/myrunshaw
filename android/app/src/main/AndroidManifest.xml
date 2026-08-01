@@ -52,6 +52,12 @@
       <meta-data android:name="android.appwidget.provider"
         android:resource="@xml/runshaw_pay_widget_info" />
     </receiver>
+    <meta-data
+      android:name="com.google.firebase.messaging.default_notification_channel_id"
+      android:value="general_channel" />
+    <meta-data
+      android:name="com.google.firebase.messaging.default_notification_icon"
+      android:resource="@drawable/app_logo" />
   </application>
   <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
@@ -65,5 +71,6 @@
     </intent>
   </queries>
   <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 </manifest>

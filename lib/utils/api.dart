@@ -4,11 +4,20 @@ import 'api/api_friends.dart';
 import 'api/api_timetable.dart';
 import 'api/api_bus.dart';
 import 'api/api_payments.dart';
+import 'api/api_notifications.dart';
 
 export 'api/api_core.dart' show AccountStatus;
+export 'api/api_notifications.dart'
+    show NotificationDevice, CurrentDeviceNotificationPreference;
 
 class BaseAPI extends ApiCore
-    with ApiFriends, ApiTimetable, ApiAuth, ApiBus, ApiPayments {
+    with
+        ApiFriends,
+        ApiTimetable,
+        ApiAuth,
+        ApiBus,
+        ApiPayments,
+        ApiNotifications {
   BaseAPI() {
     loadUser();
   }

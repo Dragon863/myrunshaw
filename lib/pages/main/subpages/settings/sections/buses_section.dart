@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/settings/add_buses.dart';
+import 'package:runshaw/utils/api.dart';
 
 class SettingsBusesSection extends StatelessWidget {
   final bool showNotifs;
@@ -27,9 +28,15 @@ class SettingsBusesSection extends StatelessWidget {
           ),
           trailing: Switch(
             value: showNotifs,
-            onChanged: (value) {
+            onChanged: (value) async {
               onShowNotifsChanged(value);
-              OneSignal.User.addTagWithKey("bus_optout", !value);
+              try {
+                await context
+                    .read<BaseAPI>()
+                    .setCurrentDeviceBusNotifications(value);
+              } catch (_) {
+                onShowNotifsChanged(!value);
+              }
             },
           ),
         ),
