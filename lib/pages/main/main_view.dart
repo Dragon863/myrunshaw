@@ -167,6 +167,13 @@ class _MainPageState extends State<MainPage> {
                           this.title = title;
                           _currentIndex = index;
                         });
+                        try {
+                          // On android, dragging from the side goes back
+                          isDraggable = Platform.isIOS && _currentIndex != 5;
+                          // map uses gestures to pan and zoom
+                        } catch (e) {
+                          isDraggable = false;
+                        }
                         await loadNotifications();
                       }),
                   appBar: _currentIndex == 5
@@ -201,6 +208,7 @@ class _MainPageState extends State<MainPage> {
                     top: 16,
                     left: 16,
                     child: FloatingActionButton(
+                      heroTag: "menubtn",
                       mini: true,
                       shape: const CircleBorder(),
                       onPressed: () async {
