@@ -1,31 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:runshaw/pages/main/main_helpers.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
 
 class SliderMenuItem extends StatelessWidget {
-  final String title;
-  final IconData inactiveIcon;
-  final IconData activeIcon;
-  final Function(String, int)? onTap;
-  final bool? isBeta;
-  final int index;
-  final int currentIndex;
+  final AppDestination destination;
+  final AppDestination currentDest;
+  final String notificationStr;
+  final Function(AppDestination)? onTap;
 
   const SliderMenuItem({
     super.key,
-    required this.title,
-    required this.inactiveIcon,
-    required this.activeIcon,
+    required this.destination,
+    required this.currentDest,
+    required this.notificationStr,
     required this.onTap,
-    required this.isBeta,
-    required this.index,
-    required this.currentIndex,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bool isSelected = destination == currentDest;
+
     return Material(
-      color: index == currentIndex
+      color: isSelected
           ? context.read<ThemeProvider>().isLightMode
               ? const Color.fromARGB(255, 255, 209, 209)
               : Theme.of(context).colorScheme.surface
@@ -36,14 +33,14 @@ class SliderMenuItem extends StatelessWidget {
         title: Row(
           children: [
             Text(
-              title,
+              destination.getTitle(notificationStr),
               style: TextStyle(
                 color: context.read<ThemeProvider>().isLightMode
                     ? Colors.black
                     : Colors.white,
               ),
             ),
-            if (isBeta == true)
+            if (destination.isBeta)
               const Padding(
                 padding: EdgeInsets.only(left: 4.0),
                 child: Text(
@@ -54,20 +51,11 @@ class SliderMenuItem extends StatelessWidget {
           ],
         ),
         leading: Icon(
-          index == currentIndex ? activeIcon : inactiveIcon,
+          isSelected ? destination.activeIcon : destination.inactiveIcon,
           color: Theme.of(context).iconTheme.color,
         ),
-        onTap: () => onTap?.call(title, index),
+        onTap: () => onTap?.call(destination),
       ),
     );
   }
-}
-
-class Menu {
-  final IconData inactiveIcon;
-  final IconData activeIcon;
-  final String title;
-  final bool? isBeta;
-
-  Menu(this.inactiveIcon, this.activeIcon, this.title, {this.isBeta = false});
 }
