@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
@@ -27,43 +26,47 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   final GlobalKey<SliderDrawerState> _sliderDrawerKey =
       GlobalKey<SliderDrawerState>();
-  String title = "Home";
-  int _currentIndex = 0;
+
+  // Replaces _currentIndex and title
+  AppDestination _currentDest = AppDestination.home;
+
   String notification = "";
   bool showNotifs = true;
   bool isDraggable = false;
 
   @override
   void initState() {
-    loadNotifications();
-    try {
-      // On android, dragging from the side goes back
-      isDraggable = Platform.isIOS && _currentIndex != 5;
-      // map uses gestures to pan and zoom
-    } catch (e) {
-      isDraggable = false;
-    }
     super.initState();
+    loadNotifications();
+    _updateDraggable();
     nextRoute();
     _openNotificationDestination();
+  }
+
+  void _updateDraggable() {
+    // Avoids Platform exception crash on Web
+    if (kIsWeb) {
+      isDraggable = false;
+      return;
+    }
+    isDraggable = Platform.isIOS && !_currentDest.disableDrag;
   }
 
   void nextRoute() {
     if (widget.nextRoute != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
-          if (widget.nextRoute == "/bus") {
-            _currentIndex = 1;
-            title = "Buses";
-          } else if (widget.nextRoute == "/friends") {
-            _currentIndex = 2;
-            title = "Friends";
-          } else if (widget.nextRoute == "/pay") {
-            _currentIndex = 4;
-            title = "Pay";
-          } else {
-            _currentIndex = 0;
+          switch (widget.nextRoute) {
+            case "/bus":
+              _currentDest = AppDestination.buses;
+            case "/friends":
+              _currentDest = AppDestination.friends;
+            case "/pay":
+              _currentDest = AppDestination.pay;
+            default:
+              _currentDest = AppDestination.home;
           }
+          _updateDraggable();
         });
       });
     }
@@ -77,149 +80,109 @@ class _MainPageState extends State<MainPage> {
       setState(() {
         switch (destination.section) {
           case 'bus':
-            _currentIndex = 1;
-            title = 'Buses';
+            _currentDest = AppDestination.buses;
           case 'friends':
-            _currentIndex = 2;
-            title = 'Friends';
+            _currentDest = AppDestination.friends;
           case 'pay':
-            _currentIndex = 4;
-            title = 'Pay';
+            _currentDest = AppDestination.pay;
           default:
-            _currentIndex = 0;
-            title = 'Home';
+            _currentDest = AppDestination.home;
         }
+        _updateDraggable();
       });
-      if (destination.section == 'bus' && destination.busId != null) {
-        // Can also navigate to the bus page directly, but this is commented out for now
-        // since sending the student to a route map isn't very useful when they want to
-        // see the arrival bay visualised on the college map.
-
-        // Navigator.of(context).push(
-        //   MaterialPageRoute(
-        //     builder: (_) => IndividualBusPage(
-        //       busNumber: destination.busId!,
-        //       bay: destination.bay ?? '...',
-        //     ),
-        //   ),
-        // );
-      }
     });
   }
 
   Future<void> loadNotifications() async {
-    // Load notifications from API
     final api = context.read<BaseAPI>();
     final response = await api.getFriendRequests();
     if (!mounted) return;
-    if (response.isNotEmpty) {
-      setState(() {
-        notification = " (${response.length.toString()})";
-      });
-    } else {
-      setState(() {
-        notification = "";
-      });
-    }
+    setState(() {
+      notification = response.isNotEmpty ? " (${response.length})" : "";
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion(
-      // This method isn't exactly standard, however the SliderDrawer library doesn't
-      // provide a method to set the system overlay style, so in light mode this leads
-      // to dark icons which don't contrast well with the red app bar. This overrides
-      // the default behavior and ensures the icons are always light in colour.
-      value: const SystemUiOverlayStyle(
+    final themeProvider = context.watch<ThemeProvider>();
+    final backgroundColor = themeProvider.isLightMode
+        ? Colors.red
+        : (themeProvider.amoledEnabled
+            ? Colors.black
+            : Theme.of(context).colorScheme.surface);
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness:
-            Brightness.light, // makes icons light in Android
-        statusBarBrightness: Brightness.dark, // makes icons light in iOS
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarDividerColor: Colors.transparent,
+        systemNavigationBarIconBrightness:
+            themeProvider.isLightMode ? Brightness.dark : Brightness.light,
       ),
-      child: Container(
-        color: context.read<ThemeProvider>().isLightMode
-            ? Colors.red
-            : (context.read<ThemeProvider>().amoledEnabled
-                ? Colors.black
-                : Theme.of(context).colorScheme.surface),
-        child: SafeArea(
-          child: Scaffold(
-            body: Stack(
-              children: [
-                SliderDrawer(
-                  key: _sliderDrawerKey,
-                  sliderOpenSize: 200,
-                  isDraggable: isDraggable,
-                  slider: SliderView(
-                      currentIndex: _currentIndex,
-                      notification: notification,
-                      showNotifs: showNotifs,
-                      onItemClick: (title, index) async {
-                        if (!kIsWeb) {
-                          if (!Platform.isLinux) {
-                            if (await Gaimon.canSupportsHaptic) {
-                              Gaimon.selection();
-                            }
-                          }
-                        }
-                        _sliderDrawerKey.currentState!.closeSlider();
-                        setState(() {
-                          this.title = title;
-                          _currentIndex = index;
-                        });
-                        try {
-                          // On android, dragging from the side goes back
-                          isDraggable = Platform.isIOS && _currentIndex != 5;
-                          // map uses gestures to pan and zoom
-                        } catch (e) {
-                          isDraggable = false;
-                        }
-                        await loadNotifications();
-                      }),
-                  appBar: _currentIndex == 5
-                      ? SizedBox.shrink()
-                      : SliderAppBar(
-                          config: SliderAppBarConfig(
-                            title: Text(
-                              title,
-                              style: GoogleFonts.rubik(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            backgroundColor: context
-                                    .read<ThemeProvider>()
-                                    .isLightMode
-                                ? Colors.red
-                                : (context.read<ThemeProvider>().amoledEnabled
-                                    ? Colors.black
-                                    : Theme.of(context).colorScheme.surface),
-                            padding: const EdgeInsets.only(top: 4),
-                            drawerIconColor: Colors.white,
-                          ),
-                        ),
-                  child: getPages(showNotifs)[_currentIndex],
+      child: Scaffold(
+        backgroundColor: backgroundColor,
+        body: SafeArea(
+          bottom: false,
+          child: Stack(
+            children: [
+              SliderDrawer(
+                key: _sliderDrawerKey,
+                sliderOpenSize: 200,
+                isDraggable: isDraggable,
+                slider: SliderView(
+                  currentDest: _currentDest,
+                  notification: notification,
+                  showNotifs: showNotifs,
+                  onItemClick: (destination) async {
+                    if (!kIsWeb && !Platform.isLinux) {
+                      if (await Gaimon.canSupportsHaptic) Gaimon.selection();
+                    }
+                    _sliderDrawerKey.currentState?.closeSlider();
+                    setState(() {
+                      _currentDest = destination;
+                      _updateDraggable();
+                    });
+                    await loadNotifications();
+                  },
                 ),
-                Visibility(
-                  visible: _currentIndex == 5,
-                  child: Positioned(
-                    top: 16,
-                    left: 16,
-                    child: FloatingActionButton(
-                      heroTag: "menubtn",
-                      mini: true,
-                      shape: const CircleBorder(),
-                      onPressed: () async {
-                        _sliderDrawerKey.currentState?.toggle();
-                      },
-                      child: const Icon(Icons.menu),
-                    ),
+                appBar: _currentDest.hideAppBar
+                    ? const SizedBox.shrink()
+                    : SliderAppBar(
+                        config: SliderAppBarConfig(
+                          title: Text(
+                            _currentDest.getTitle(notification),
+                            style: GoogleFonts.rubik(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          backgroundColor: backgroundColor,
+                          padding: const EdgeInsets.only(top: 4),
+                          drawerIconColor: Colors.white,
+                        ),
+                      ),
+                child: _currentDest.page,
+              ),
+              Visibility(
+                visible: _currentDest
+                    .hideAppBar, // Menu button handled automatically!
+                child: Positioned(
+                  top: 16,
+                  left: 16,
+                  child: FloatingActionButton(
+                    heroTag: "menubtn",
+                    mini: true,
+                    shape: const CircleBorder(),
+                    onPressed: () => _sliderDrawerKey.currentState?.toggle(),
+                    child: const Icon(Icons.menu),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

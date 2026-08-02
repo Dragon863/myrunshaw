@@ -5,15 +5,15 @@ import 'package:runshaw/pages/main/slider/slider_widgets.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
 
 class SliderView extends StatefulWidget {
-  final Function(String, int)? onItemClick;
-  final int currentIndex;
+  final Function(AppDestination)? onItemClick;
+  final AppDestination currentDest;
   final String notification;
   final bool showNotifs;
 
   const SliderView({
     super.key,
     this.onItemClick,
-    required this.currentIndex,
+    required this.currentDest,
     required this.notification,
     required this.showNotifs,
   });
@@ -23,11 +23,6 @@ class SliderView extends StatefulWidget {
 }
 
 class _SliderViewState extends State<SliderView> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -42,11 +37,12 @@ class _SliderViewState extends State<SliderView> {
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
         child: Theme(
           data: Theme.of(context).copyWith(
-              iconTheme: IconThemeData(
-            color: context.read<ThemeProvider>().isLightMode
-                ? Colors.black
-                : Colors.white,
-          )),
+            iconTheme: IconThemeData(
+              color: context.read<ThemeProvider>().isLightMode
+                  ? Colors.black
+                  : Colors.white,
+            ),
+          ),
           child: Column(
             children: [
               Expanded(
@@ -59,60 +55,19 @@ class _SliderViewState extends State<SliderView> {
                           Theme.of(context).scaffoldBackgroundColor,
                       child: const CircleAvatar(
                         radius: 70,
-                        backgroundImage: AssetImage(
-                          'assets/img/logo-muted.png',
-                        ),
+                        backgroundImage:
+                            AssetImage('assets/img/logo-muted.png'),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    ...[
-                      Menu(
-                        Icons.home_outlined,
-                        Icons.home,
-                        'Home',
-                      ),
-                      Menu(
-                        Icons.directions_bus_outlined,
-                        Icons.directions_bus,
-                        'Buses',
-                      ),
-                      Menu(
-                        Icons.people_alt_outlined,
-                        Icons.people_alt,
-                        'Friends${widget.notification}',
-                      ),
-                      Menu(
-                        Icons.calendar_month_outlined,
-                        Icons.calendar_month,
-                        'Timetable',
-                      ),
-                      Menu(
-                        Icons.payments_outlined,
-                        Icons.payments,
-                        'Pay',
-                        isBeta: false, // no more beta!
-                      ),
-                      Menu(
-                        Icons.map_outlined,
-                        Icons.map,
-                        'Map',
-                      ),
-                      Menu(
-                        Icons.settings_outlined,
-                        Icons.settings,
-                        'Settings',
-                      ),
-                    ].asMap().entries.map(
-                          (entry) => SliderMenuItem(
-                            title: entry.value.title,
-                            inactiveIcon: entry.value.inactiveIcon,
-                            activeIcon: entry.value.activeIcon,
-                            onTap: widget.onItemClick,
-                            index: entry.key,
-                            currentIndex: widget.currentIndex,
-                            isBeta: entry.value.isBeta,
-                          ),
-                        ),
+                    ...AppDestination.values.map((destination) {
+                      return SliderMenuItem(
+                        destination: destination,
+                        currentDest: widget.currentDest,
+                        notificationStr: widget.notification,
+                        onTap: widget.onItemClick,
+                      );
+                    }),
                   ],
                 ),
               ),
