@@ -77,34 +77,40 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildFriendAvatar(FreeFriendInfo friend) {
-    return GestureDetector(
-      onLongPress: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("${friend.name} (tap to view)")),
-        );
-      },
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => IndividualFriendPage(
-            userId: friend.uid,
-            name: friend.name,
-            profilePicUrl: friend.pfpUrl,
+    return Semantics(
+      label: 'Profile bubble for ${friend.name}',
+      button: true,
+      child: ExcludeSemantics(
+        child: GestureDetector(
+          onLongPress: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("${friend.name} (tap to view)")),
+            );
+          },
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => IndividualFriendPage(
+                userId: friend.uid,
+                name: friend.name,
+                profilePicUrl: friend.pfpUrl,
+              ),
+            ),
           ),
-        ),
-      ),
-      child: Align(
-        widthFactor: 0.8,
-        child: CircleAvatar(
-          radius: 25,
-          foregroundImage: CachedNetworkImageProvider(
-            friend.pfpPreviewUrl,
-            errorListener: (error) {},
-          ),
-          child: Text(
-            getFirstNameCharacter(friend.name),
-            style: GoogleFonts.rubik(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
+          child: Align(
+            widthFactor: 0.8,
+            child: CircleAvatar(
+              radius: 25,
+              foregroundImage: CachedNetworkImageProvider(
+                friend.pfpPreviewUrl,
+                errorListener: (error) {},
+              ),
+              child: Text(
+                getFirstNameCharacter(friend.name),
+                style: GoogleFonts.rubik(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
         ),
@@ -124,19 +130,27 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CircleAvatar(
-                  radius: 60,
-                  foregroundImage: CachedNetworkImageProvider(
-                    _controller.pfpUrl ?? "",
-                    errorListener: (error) {},
+                GestureDetector(
+                  onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                          "Go to settings to change your profile picture!"),
+                    ),
                   ),
-                  child: Text(
-                    _controller.name == "Loading..."
-                        ? "..."
-                        : getFirstNameCharacter(_controller.name),
-                    style: GoogleFonts.rubik(
-                      fontSize: 48,
-                      fontWeight: FontWeight.bold,
+                  child: CircleAvatar(
+                    radius: 60,
+                    foregroundImage: CachedNetworkImageProvider(
+                      _controller.pfpUrl ?? "",
+                      errorListener: (error) {},
+                    ),
+                    child: Text(
+                      _controller.name == "Loading..."
+                          ? "..."
+                          : getFirstNameCharacter(_controller.name),
+                      style: GoogleFonts.rubik(
+                        fontSize: 48,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -301,11 +315,14 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                const Icon(Icons.qr_code),
+                const Icon(Icons.qr_code, semanticLabel: "QR Code"),
                 const SizedBox(width: 8),
                 Text("QR Code", style: GoogleFonts.rubik(fontSize: 22)),
                 const Spacer(),
-                const Icon(Icons.keyboard_arrow_right),
+                const Icon(
+                  Icons.keyboard_arrow_right,
+                  semanticLabel: "View QR Code",
+                ),
               ],
             ),
           ),
@@ -399,8 +416,9 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        tooltip: "Refresh data",
         onPressed: () => _controller.loadData(allowCache: false),
-        child: const Icon(Icons.refresh),
+        child: const Icon(Icons.refresh, semanticLabel: "Refresh data"),
       ),
     );
   }

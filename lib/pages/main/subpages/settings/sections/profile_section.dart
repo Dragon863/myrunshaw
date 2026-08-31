@@ -54,7 +54,12 @@ class SettingsProfileSection extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.camera_alt, color: Colors.white),
+                    tooltip: "Change profile picture",
+                    icon: const Icon(
+                      Icons.camera_alt,
+                      color: Colors.white,
+                      semanticLabel: "Change profile picture",
+                    ),
                     style: ButtonStyle(
                       backgroundColor: WidgetStateProperty.all(Colors.red),
                       shape: WidgetStateProperty.all(const CircleBorder()),
@@ -62,8 +67,10 @@ class SettingsProfileSection extends StatelessWidget {
                     onPressed: onPhotoTap,
                   ),
                   IconButton(
+                    tooltip: "Delete profile picture",
                     icon: Icon(
                       Icons.delete,
+                      semanticLabel: "Delete profile picture",
                       color: context.read<ThemeProvider>().isLightMode
                           ? Colors.grey.shade800
                           : Colors.white70,
@@ -92,7 +99,14 @@ class SettingsProfileSection extends StatelessWidget {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.mode_edit, color: Colors.grey.shade800),
+              tooltip: "Edit display name",
+              icon: Icon(
+                Icons.mode_edit,
+                color: context.read<ThemeProvider>().isDarkMode
+                    ? Colors.white70
+                    : Colors.grey.shade800,
+                semanticLabel: "Edit display name",
+              ),
               onPressed: () async {
                 if (!nameLoaded) {
                   ScaffoldMessenger.of(context).showSnackBar(

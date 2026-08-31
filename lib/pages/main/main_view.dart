@@ -135,6 +135,8 @@ class _MainPageState extends State<MainPage> {
                   currentDest: _currentDest,
                   notification: notification,
                   showNotifs: showNotifs,
+                  drawerAnimationController:
+                      _sliderDrawerKey.currentState?.animationController,
                   onItemClick: (destination) async {
                     if (!kIsWeb && !Platform.isLinux) {
                       if (await Gaimon.canSupportsHaptic) Gaimon.selection();
@@ -175,10 +177,11 @@ class _MainPageState extends State<MainPage> {
                   left: 16,
                   child: FloatingActionButton(
                     heroTag: "menubtn",
+                    tooltip: "Open menu",
                     mini: true,
                     shape: const CircleBorder(),
                     onPressed: () => _sliderDrawerKey.currentState?.toggle(),
-                    child: const Icon(Icons.menu),
+                    child: const Icon(Icons.menu, semanticLabel: "Open menu"),
                   ),
                 ),
               ),

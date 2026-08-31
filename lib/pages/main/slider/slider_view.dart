@@ -9,6 +9,10 @@ class SliderView extends StatefulWidget {
   final AppDestination currentDest;
   final String notification;
   final bool showNotifs;
+  /// The animation controller from the [SliderDrawer]. When provided, nav
+  /// items are hidden from the accessibility tree while the drawer is closed,
+  /// preventing screen readers from reaching off-screen destinations.
+  final AnimationController? drawerAnimationController;
 
   const SliderView({
     super.key,
@@ -16,6 +20,7 @@ class SliderView extends StatefulWidget {
     required this.currentDest,
     required this.notification,
     required this.showNotifs,
+    this.drawerAnimationController,
   });
 
   @override
@@ -61,29 +66,26 @@ class _SliderViewState extends State<SliderView> {
                     ),
                     const SizedBox(height: 20),
                     ...AppDestination.values.map((destination) {
-                      return SliderMenuItem(
+                      final item = SliderMenuItem(
                         destination: destination,
                         currentDest: widget.currentDest,
                         notificationStr: widget.notification,
                         onTap: widget.onItemClick,
                       );
+                      // Exclude nav items from the a11y tree while the drawer
+                      // is closed so TalkBack/VoiceOver can't reach them.
+                      final controller = widget.drawerAnimationController;
+                      if (controller == null) return item;
+                      return AnimatedBuilder(
+                        animation: controller,
+                        builder: (context, child) => ExcludeSemantics(
+                          excluding: !controller.isCompleted,
+                          child: child,
+                        ),
+                        child: item,
+                      );
                     }),
                   ],
-                ),
-              ),
-              Material(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                borderRadius: BorderRadius.circular(20),
-                clipBehavior: Clip.antiAlias,
-                child: ListTile(
-                  onTap: () async {
-                    await logOut(context);
-                  },
-                  title: const Text(
-                    'Log Out',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                  leading: const Icon(Icons.logout, color: Colors.red),
                 ),
               ),
             ],
@@ -93,3 +95,4 @@ class _SliderViewState extends State<SliderView> {
     );
   }
 }
+
