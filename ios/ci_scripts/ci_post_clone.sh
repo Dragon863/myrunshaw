@@ -34,6 +34,9 @@ cd ios
 pod repo update
 pod install --repo-update
 
+echo "Resolving Swift Package Manager dependencies..."
+xcodebuild -resolvePackageDependencies -workspace Runner.xcworkspace -scheme Runner
+
 # Go back to the workspace root
 cd "$CI_PRIMARY_REPOSITORY_PATH"
 
