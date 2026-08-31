@@ -76,18 +76,24 @@ mixin ApiFriends on ApiCore {
     final body = jsonDecode(response.body);
 
     for (final friend in body) {
-      if (friend["receiver_id"] == user?.id) {
+      if (friend["status"] != null && friend["status"] != "accepted") {
+        continue;
+      }
+
+      // this looks messy, but essentially does:
+      // if the current user is the receiver, use the sender's ID
+      // if the current user is the sender, use the receiver's ID
+      // if neither, use the "userid" field (won't happen ever, but just in case)
+      final String? otherUserId = friend["receiver_id"] == user?.id
+          ? friend["sender_id"]
+          : (friend["sender_id"] == user?.id
+              ? friend["receiver_id"]
+              : (friend["userid"] ?? friend["receiver_id"]));
+
+      if (otherUserId != null && otherUserId.isNotEmpty) {
         friends.add({
-          "userid": friend["sender_id"],
-          "status": friend["status"],
-          "id": friend["id"],
-          "created_at": friend["created_at"],
-          "updated_at": friend["updated_at"],
-        });
-      } else {
-        friends.add({
-          "userid": friend["receiver_id"],
-          "status": friend["status"],
+          "userid": otherUserId,
+          "status": friend["status"] ?? "accepted",
           "id": friend["id"],
           "created_at": friend["created_at"],
           "updated_at": friend["updated_at"],

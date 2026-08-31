@@ -18,32 +18,63 @@ class _FriendsListState extends State<FriendsList> {
   bool freeOnly = false;
   bool isLoading = true;
 
-  Future<void> loadFriends() async {
-    isLoading = true;
-    // first generate some fake data
-    for (int i = 0; i < 10; i++) {
-      if (mounted) {
-        setState(() {
-          friends.add({
-            "id": "skeleton",
-          });
-        });
-      }
+  BaseAPI? _api;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final api = context.read<BaseAPI>();
+    if (_api != api) {
+      _api?.removeListener(_onApiUpdate);
+      _api = api;
+      _api?.addListener(_onApiUpdate);
     }
+  }
+
+  void _onApiUpdate() {
+    if (mounted) {
+      loadFriends(showSkeleton: false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _api?.removeListener(_onApiUpdate);
+    inFiveMinutesNotifier.dispose();
+    super.dispose();
+  }
+
+  Future<void> loadFriends({bool showSkeleton = true}) async {
+    if (showSkeleton) {
+      setState(() {
+        isLoading = true;
+        friends = List.generate(10, (_) => {"id": "skeleton"});
+      });
+    }
+
     final api = context.read<BaseAPI>();
     final response = await api.getFriends();
-    friends = [];
 
-    for (final friendId in response) {
-      if (mounted) {
-        setState(() {
-          friends.add({
-            "id": friendId["userid"],
-          });
+    final List<Map<String, dynamic>> loadedFriends = [];
+    for (final friendItem in response) {
+      final dynamic uid = friendItem is Map
+          ? (friendItem["userid"] ??
+              friendItem["id"] ??
+              friendItem["studentId"])
+          : friendItem;
+      if (uid != null && uid.toString().isNotEmpty && uid != "skeleton") {
+        loadedFriends.add({
+          "id": uid.toString(),
         });
       }
     }
-    setState(() => isLoading = false);
+
+    if (mounted) {
+      setState(() {
+        friends = loadedFriends;
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -95,15 +126,13 @@ class _FriendsListState extends State<FriendsList> {
         Expanded(
           child: RefreshIndicator(
             onRefresh: () async {
-              setState(() {
-                friends = [];
-              });
-              loadFriends();
+              await loadFriends();
             },
             child: Skeletonizer(
               enabled: isLoading,
               child: ListView.builder(
-                scrollCacheExtent: ScrollCacheExtent.pixels(9999), itemBuilder: (context, index) {
+                scrollCacheExtent: ScrollCacheExtent.pixels(9999),
+                itemBuilder: (context, index) {
                   if (friends[index]["id"] == "skeleton") {
                     return ListTile(
                       title: Text(
@@ -117,9 +146,14 @@ class _FriendsListState extends State<FriendsList> {
                   final BaseAPI api = context.read<BaseAPI>();
 
                   final friend = friends[index];
+                  final String? friendId = friend["id"]?.toString();
+                  if (friendId == null || friendId.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+
                   return FriendTile(
-                    uid: friend["id"],
-                    profilePicUrl: api.getPfpUrl(friend["id"], isPreview: true),
+                    uid: friendId,
+                    profilePicUrl: api.getPfpUrl(friendId, isPreview: true),
                     freeOnly: freeOnly,
                     inFiveMinutesNotifier: inFiveMinutesNotifier,
                   );

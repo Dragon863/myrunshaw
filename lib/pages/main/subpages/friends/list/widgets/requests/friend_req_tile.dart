@@ -106,8 +106,13 @@ class _FriendRequestTileState extends State<FriendRequestTile> {
                 ),
                 const SizedBox(width: 10),
                 IconButton(
+                  tooltip: "Decline friend request",
                   onPressed: () async => await respond(false),
-                  icon: const Icon(Icons.close, color: Colors.red),
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.red,
+                    semanticLabel: "Decline friend request",
+                  ),
                 ),
               ],
             )
