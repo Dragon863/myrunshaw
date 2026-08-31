@@ -62,6 +62,7 @@ enum AppDestination {
     required this.activeIcon,
     this.hideAppBar = false,
     this.disableDrag = false,
+    // ignore: unused_element_parameter
     this.isBeta = false,
   });
 
@@ -85,11 +86,4 @@ enum AppDestination {
     }
     return baseTitle;
   }
-}
-
-Future<void> logOut(BuildContext context) async {
-  final api = context.read<BaseAPI>();
-  await api.signOut();
-  await Posthog().reset();
-  Navigator.of(context).pushNamedAndRemoveUntil('/splash', (route) => false);
 }
