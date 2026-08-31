@@ -35,6 +35,7 @@ pod repo update
 pod install --repo-update
 
 echo "Resolving Swift Package Manager dependencies..."
+rm -f ios/Runner.xcworkspace/xcshareddata/swiftpm/Package.resolved
 xcodebuild -resolvePackageDependencies -workspace Runner.xcworkspace -scheme Runner
 
 # Go back to the workspace root
