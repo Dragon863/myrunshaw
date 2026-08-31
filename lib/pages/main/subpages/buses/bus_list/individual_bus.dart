@@ -59,17 +59,20 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
       'longitude': -2.6898653,
     });
 
-    // automatically zoom map to fit all stops
-    if (stops.isNotEmpty) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      setState(() {
+        _stops = stops;
+        _routeDescription = routeDescription;
+        _isLoading = false;
+      });
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        // second frame callback to ensure the map has been rendered before fitting bounds
+        if (!mounted) return;
         _fitMapToBounds();
       });
-    }
-
-    setState(() {
-      _stops = stops;
-      _routeDescription = routeDescription;
-      _isLoading = false;
     });
   }
 
@@ -121,7 +124,9 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
                   Stack(
                     alignment: Alignment.bottomCenter,
                     children: [
-                      SizedBox(
+                      // ignore: sized_box_for_whitespace
+                      Container(
+                        // https://github.com/fleaflet/flutter_map/issues/409
                         height: 350,
                         child: FlutterMap(
                           mapController: _mapController,
@@ -131,6 +136,7 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
                               -2.6898653,
                             ), // Runshaw default
                             initialZoom: 11,
+                            maxZoom: 18,
                             interactionOptions: const InteractionOptions(
                               flags:
                                   InteractiveFlag.all & ~InteractiveFlag.rotate,
@@ -151,30 +157,47 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
                               ),
                             ),
                             MarkerLayer(
-                              markers: List.generate(_stops.length, (index) {
-                                final stop = _stops[index];
-                                final isSelected = _selectedStopIndex == index;
-                                return Marker(
-                                  point: LatLng(
-                                      stop['latitude'], stop['longitude']),
-                                  // give the selected pin a little more room so it can render bigger
-                                  width: isSelected ? 36 : 24,
-                                  height: isSelected ? 36 : 24,
-                                  child: AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 200),
-                                    child: Icon(
-                                      isSelected
-                                          ? Icons.location_on
-                                          : Icons.location_on_outlined,
-                                      key: ValueKey(isSelected),
-                                      color: isSelected
-                                          ? primaryColor
-                                          : Colors.black,
-                                      size: isSelected ? 36 : 24,
+                              markers: () {
+                                final markers =
+                                    List.generate(_stops.length, (index) {
+                                  final stop = _stops[index];
+                                  final isSelected =
+                                      _selectedStopIndex == index;
+                                  return Marker(
+                                    point: LatLng(
+                                      stop['latitude'],
+                                      stop['longitude'],
                                     ),
-                                  ),
-                                );
-                              }),
+                                    // give the selected pin a little more room so it can render bigger
+                                    width: isSelected ? 36 : 24,
+                                    height: isSelected ? 36 : 24,
+                                    child: AnimatedSwitcher(
+                                      duration:
+                                          const Duration(milliseconds: 200),
+                                      child: Icon(
+                                        isSelected
+                                            ? Icons.location_on
+                                            : Icons.location_on_outlined,
+                                        key: ValueKey(isSelected),
+                                        color: isSelected
+                                            ? primaryColor
+                                            : Colors.black,
+                                        size: isSelected ? 36 : 24,
+                                      ),
+                                    ),
+                                  );
+                                });
+
+                                if (_selectedStopIndex != null &&
+                                    _selectedStopIndex! >= 0 &&
+                                    _selectedStopIndex! < markers.length) {
+                                  final selectedMarker =
+                                      markers.removeAt(_selectedStopIndex!);
+                                  markers.add(selectedMarker);
+                                }
+
+                                return markers;
+                              }(),
                             ),
                           ],
                         ),
@@ -205,11 +228,13 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
                         bottom: 16,
                         child: FloatingActionButton.small(
                           heroTag: "centerMapBtn",
+                          tooltip: "Centre map on all stops",
                           backgroundColor: theme.cardColor,
                           foregroundColor: theme.colorScheme.onSurface,
                           elevation: 2,
                           onPressed: _fitMapToBounds,
-                          child: const Icon(Icons.my_location_outlined),
+                          child: const Icon(Icons.my_location_outlined,
+                              semanticLabel: "Centre map on all stops"),
                         ),
                       ),
                     ],
