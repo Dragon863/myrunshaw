@@ -83,37 +83,69 @@ class NotificationService {
         onOpened(NotificationDestination.fromData(message.data));
       });
 
-      FirebaseMessaging.onMessage.listen((message) {
+      FirebaseMessaging.onMessage.listen((message) async {
         RemoteNotification? notification = message.notification;
         AndroidNotification? android = message.notification?.android;
 
-        final generalChannel = MyRunshawConfig.notificationChannels.firstWhere(
-          (channel) => channel.id == "general_channel",
-          orElse: () => const AndroidNotificationChannel(
-            'general_channel',
-            'General Notifications',
-            description: 'General notifications for the app',
-            importance: Importance.defaultImportance,
+        final targetChannelId = android?.channelId ?? "general_channel";
+        final targetChannel = MyRunshawConfig.notificationChannels.firstWhere(
+          (channel) => channel.id == targetChannelId,
+          orElse: () => MyRunshawConfig.notificationChannels.firstWhere(
+            (channel) => channel.id == "general_channel",
+            orElse: () => const AndroidNotificationChannel(
+              'general_channel',
+              'General Notifications',
+              description: 'General notifications for the app',
+              importance: Importance.defaultImportance,
+            ),
           ),
         );
 
         // If `onMessage` is triggered with a notification, construct our own
         // local notification to show to users using the created channel.
         if (notification != null && android != null) {
-          flutterLocalNotificationsPlugin.show(
-            id: notification.hashCode,
-            title: notification.title,
-            body: notification.body,
-            notificationDetails: NotificationDetails(
-              android: AndroidNotificationDetails(
-                generalChannel.id,
-                generalChannel.name,
-                channelDescription: generalChannel.description,
-                icon: android.smallIcon ?? 'app_logo',
-                color: Color.fromARGB(255, 230, 48, 9), // #E63009
+          final icon = android.smallIcon ?? 'app_logo';
+          try {
+            await flutterLocalNotificationsPlugin.show(
+              id: notification.hashCode,
+              title: notification.title,
+              body: notification.body,
+              notificationDetails: NotificationDetails(
+                android: AndroidNotificationDetails(
+                  targetChannel.id,
+                  targetChannel.name,
+                  channelDescription: targetChannel.description,
+                  icon: icon,
+                  color: const Color.fromARGB(255, 230, 48, 9), // #E63009
+                ),
               ),
-            ),
-          );
+            );
+          } catch (e) {
+            debugLog('Failed to show notification with icon "$icon": $e',
+                level: 1);
+            if (icon != 'app_logo') {
+              try {
+                await flutterLocalNotificationsPlugin.show(
+                  id: notification.hashCode,
+                  title: notification.title,
+                  body: notification.body,
+                  notificationDetails: NotificationDetails(
+                    android: AndroidNotificationDetails(
+                      targetChannel.id,
+                      targetChannel.name,
+                      channelDescription: targetChannel.description,
+                      icon: 'app_logo',
+                      color: const Color.fromARGB(255, 230, 48, 9), // #E63009
+                    ),
+                  ),
+                );
+              } catch (retryError) {
+                debugLog(
+                    'Failed to show notification with fallback icon: $retryError',
+                    level: 1);
+              }
+            }
+          }
         }
       });
     }
