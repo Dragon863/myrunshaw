@@ -6,6 +6,7 @@ class SettingsLegalSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
+      leading: const Icon(Icons.gavel),
       title: const Text(
         "Legal",
         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),

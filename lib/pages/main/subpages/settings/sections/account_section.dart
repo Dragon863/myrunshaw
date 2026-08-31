@@ -10,8 +10,9 @@ class SettingsAccountSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
+      leading: const Icon(Icons.account_circle),
       title: const Text(
-        "Manage Account",
+        "Account",
         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
       children: [
@@ -60,6 +61,32 @@ class SettingsAccountSection extends StatelessWidget {
                 ],
               ),
             );
+          },
+        ),
+        ListTile(
+          title: const Text("Log Out"),
+          trailing: const Icon(Icons.logout),
+          onTap: () async {
+            try {
+              final api = context.read<BaseAPI>();
+              await api.signOut();
+              await Posthog().reset();
+              if (context.mounted) {
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil('/splash', (route) => false);
+              }
+            } catch (e) {
+              debugLog("Error logging out: $e", level: 3);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Error logging out: $e"),
+                  ),
+                );
+              }
+              await Posthog()
+                  .captureException(error: e, stackTrace: StackTrace.current);
+            }
           },
         ),
       ],

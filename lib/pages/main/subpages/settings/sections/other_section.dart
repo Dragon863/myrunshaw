@@ -41,6 +41,7 @@ class _SettingsOtherSectionState extends State<SettingsOtherSection> {
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
+      leading: const Icon(Icons.more_horiz),
       title: const Text(
         "Other",
         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),

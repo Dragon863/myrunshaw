@@ -16,29 +16,28 @@ class SettingsBusesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
+      leading: const Icon(Icons.directions_bus),
       title: const Text(
         "Buses",
         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
       children: [
-        ListTile(
+        SwitchListTile(
           title: const Text(
             "Bus Notifications",
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
           ),
-          trailing: Switch(
-            value: showNotifs,
-            onChanged: (value) async {
-              onShowNotifsChanged(value);
-              try {
-                await context
-                    .read<BaseAPI>()
-                    .setCurrentDeviceBusNotifications(value);
-              } catch (_) {
-                onShowNotifsChanged(!value);
-              }
-            },
-          ),
+          value: showNotifs,
+          onChanged: (value) async {
+            onShowNotifsChanged(value);
+            try {
+              await context
+                  .read<BaseAPI>()
+                  .setCurrentDeviceBusNotifications(value);
+            } catch (_) {
+              onShowNotifsChanged(!value);
+            }
+          },
         ),
         ListTile(
           title: const Text(
