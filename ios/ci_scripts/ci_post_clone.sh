@@ -18,24 +18,29 @@ flutter --version
 
 # Install dependencies
 echo "Running Flutter pub get..."
-# Install Flutter artifacts for iOS (--ios), or macOS (--macos) platforms.
+# Install Flutter artifacts for iOS platform.
 flutter precache --ios
 
 flutter pub get
 
-echo "Installing cocoapods..."
-# Install CocoaPods using Homebrew.
-HOMEBREW_NO_AUTO_UPDATE=1 # disable homebrew's automatic updates.
-brew install cocoapods
-
-# Set up CocoaPods for iOS
-echo "Running pod install for iOS..."
 cd ios
-pod repo update
-pod install --repo-update
 
 echo "Resolving Swift Package Manager dependencies..."
-xcodebuild -resolvePackageDependencies -workspace Runner.xcworkspace -scheme Runner
+
+
+defaults write com.apple.dt.Xcode IDEPackageOnlyUseVersionsFromResolvedFile -bool false
+defaults write com.apple.dt.Xcode IDEDisableAutomaticPackageResolution -bool false
+
+# 2. Delete Package.resolved from BOTH the workspace and the project caches
+rm -f Runner.xcworkspace/xcshareddata/swiftpm/Package.resolved
+rm -f Runner.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
+
+# 3. Resolve packages safely depending on what Flutter generated
+if [ -d "Runner.xcworkspace" ]; then
+    xcodebuild -resolvePackageDependencies -workspace Runner.xcworkspace -scheme Runner
+else
+    xcodebuild -resolvePackageDependencies -project Runner.xcodeproj -scheme Runner
+fi
 
 # Go back to the workspace root
 cd "$CI_PRIMARY_REPOSITORY_PATH"
