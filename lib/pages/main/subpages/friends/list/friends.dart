@@ -14,21 +14,26 @@ class FriendsPage extends StatefulWidget {
 
 class _FriendsPageState extends State<FriendsPage> {
   Future<void> addFriend(String? studentId) async {
-    if (studentId == null) {
+    final normalizedStudentId = studentId?.trim();
+    if (normalizedStudentId == null || normalizedStudentId.isEmpty) {
       return;
     }
 
-    final BaseAPI api = context.read<BaseAPI>();
-    final String response = await api.sendFriendRequest(studentId);
+    final api = context.read<BaseAPI>();
+    final response = await api.sendFriendRequest(normalizedStudentId);
+
+    if (!mounted) {
+      return;
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(response),
-      ),
+      SnackBar(content: Text(response)),
     );
+
     await Posthog().capture(
       eventName: 'friend_request_sent',
       properties: {
-        'student_id': studentId,
+        'student_id': normalizedStudentId,
         'response_message': response,
       },
     );
@@ -68,10 +73,12 @@ class _FriendsPageState extends State<FriendsPage> {
                 ),
                 floatingActionButton: FloatingActionButton.extended(
                   label: const Text("Add"),
-                  onPressed: () {
-                    Navigator.of(context).pushNamed('/friends/add').then(
-                          (value) async => await addFriend(value as String?),
-                        );
+                  onPressed: () async {
+                    final result =
+                        await Navigator.of(context).pushNamed('/friends/add');
+                    if (result is String && result.trim().isNotEmpty) {
+                      await addFriend(result);
+                    }
                   },
                   icon: const Icon(Icons.add),
                 ),

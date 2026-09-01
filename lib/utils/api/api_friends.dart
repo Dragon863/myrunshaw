@@ -29,10 +29,11 @@ mixin ApiFriends on ApiCore {
       body: {'receiver_id': userId},
     );
 
-    await cacheFriends();
     if (response.statusCode != 200) {
       return humanResponse(response.body);
     }
+
+    await cacheFriends();
     return "Sent friend request.";
   }
 
@@ -57,8 +58,12 @@ mixin ApiFriends on ApiCore {
       body: {'action': accept ? 'accept' : 'decline'},
     );
 
+    if (response.statusCode != 200) {
+      return false;
+    }
+
     await cacheFriends();
-    return response.statusCode == 200;
+    return true;
   }
 
   Future<List> getFriends({bool force = false}) async {
@@ -69,7 +74,7 @@ mixin ApiFriends on ApiCore {
     final response = await apiGet('/api/friends');
 
     if (response.statusCode != 200) {
-      return [];
+      return cachedFriends ?? [];
     }
 
     List<Map> friends = [];
