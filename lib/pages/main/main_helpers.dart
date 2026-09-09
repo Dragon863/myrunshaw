@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:posthog_flutter/posthog_flutter.dart';
-import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/buses/buses.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/friends.dart';
 import 'package:runshaw/pages/main/subpages/home/home.dart';
@@ -8,7 +6,6 @@ import 'package:runshaw/pages/main/subpages/map/map.dart';
 import 'package:runshaw/pages/main/subpages/pay/pay.dart';
 import 'package:runshaw/pages/main/subpages/settings/settings.dart';
 import 'package:runshaw/pages/main/subpages/timetable/timetable.dart';
-import 'package:runshaw/utils/api.dart';
 
 enum AppDestination {
   home(

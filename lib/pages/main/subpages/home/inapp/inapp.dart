@@ -14,7 +14,7 @@ void checkInAppAlerts(BuildContext context) async {
 
   for (final Map<String, dynamic> notice in notices) {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String id = notice["noticeId"];
+    final String id = 'notice-${notice["noticeId"]}-shown';
 
     debugLog("Checking notice $id");
 

@@ -138,14 +138,14 @@ class _SplashPageState extends State<SplashPage> {
       if (!await serverReachable() && !kIsWeb) {
         if (!await hasNetwork("google.com")) {
           // If we can't resolve google.com, then we have no internet
-          return Navigator.of(context).pushReplacement(
+          return await Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => const NoNetworkPage(),
             ),
           );
         }
         // If we can resolve google, then we have internet but no server - oh no!
-        return Navigator.of(context).pushReplacement(
+        return await Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => const NoServersPage(),
           ),
@@ -168,7 +168,7 @@ class _SplashPageState extends State<SplashPage> {
 
         if (!await isOnBoarded()) {
           _setupAnalytics();
-          return Navigator.of(context).pushAndRemoveUntil(
+          return await Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(
               builder: (context) => const OnBoardingPage(),
             ),

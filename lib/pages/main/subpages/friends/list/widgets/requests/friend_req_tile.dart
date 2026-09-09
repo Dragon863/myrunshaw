@@ -79,10 +79,12 @@ class _FriendRequestTileState extends State<FriendRequestTile> {
   Widget build(BuildContext context) {
     return ListTile(
       leading: CircleAvatar(
-        foregroundImage: CachedNetworkImageProvider(
-          widget.profilePicUrl!,
-          cacheKey: widget.uid,
-        ),
+        foregroundImage: widget.profilePicUrl == null
+            ? null
+            : CachedNetworkImageProvider(
+                widget.profilePicUrl!,
+                cacheKey: widget.uid,
+              ),
         child: Text(
           getFirstNameCharacter(name),
           style: GoogleFonts.rubik(

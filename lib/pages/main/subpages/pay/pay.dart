@@ -8,6 +8,7 @@ import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/models/exceptions.dart';
 import 'package:runshaw/utils/models/transaction.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
+import 'package:runshaw/utils/vendor/spinner/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -20,6 +21,7 @@ class RunshawPayPage extends StatefulWidget {
 }
 
 class _RunshawPayPageState extends State<RunshawPayPage> {
+  bool? payDisabled;
   bool loadingBalance = true;
   bool loadingTransactions = true;
   String balance = "£0.00";
@@ -28,13 +30,28 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
   @override
   void initState() {
     super.initState();
-    loadIntro();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        loadBalance();
-        loadTransactions();
-      }
+    checkPayFeatureFlag();
+  }
+
+  Future<void> checkPayFeatureFlag() async {
+    final PostHogFeatureFlagResult? result =
+        await Posthog().getFeatureFlagResult("runshawpay_disabled");
+    if (!mounted) return;
+
+    final bool isPayDisabled = result?.enabled ?? false;
+    setState(() {
+      payDisabled = isPayDisabled;
     });
+
+    if (!isPayDisabled) {
+      loadIntro();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          loadBalance();
+          loadTransactions();
+        }
+      });
+    }
   }
 
   Future<void> loadBalance() async {
@@ -298,6 +315,41 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (payDisabled == null) {
+      return Center(child: LoadingIndicator());
+    }
+
+    if (payDisabled!) {
+      return Scaffold(
+        body: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(height: 80.0),
+              Icon(Icons.warning_rounded, size: 120.0),
+              SizedBox(height: 20.0),
+              Text(
+                'Pay Integration Unavailable',
+                style: TextStyle(
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+                child: Text(
+                  'Please use the official student portal to check your balance for now due to technical changes outside our control.',
+                  style: TextStyle(fontSize: 16.0),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Center(
