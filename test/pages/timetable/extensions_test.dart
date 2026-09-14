@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
 import 'package:runshaw/utils/models/event.dart';
+import 'package:runshaw/utils/models/event_category.dart';
 
 /// Builds a minimal [Event] with the given start/end times and optional fields.
 Event makeEvent({
@@ -22,6 +23,30 @@ Event makeEvent({
 }
 
 void main() {
+  group('categoriseEvent', () {
+    test('keeps appointments distinct even when they have a location', () {
+      final event = makeEvent(
+        summary: 'Care appointment',
+        location: 'Room 1',
+        start: DateTime(2024, 9, 2, 9),
+        end: DateTime(2024, 9, 2, 10),
+      );
+
+      expect(categoriseEvent(event), EventCategory.appointment);
+    });
+
+    test('does not classify a redacted Busy event as an appointment', () {
+      final event = makeEvent(
+        summary: 'Busy',
+        description: '',
+        start: DateTime(2024, 9, 2, 9),
+        end: DateTime(2024, 9, 2, 10),
+      );
+
+      expect(categoriseEvent(event), EventCategory.lesson);
+    });
+  });
+
   group('EventScheduleFiller.sortEvents', () {
     test('sorts events by start time ascending', () {
       final d = DateTime(2024, 9, 2);

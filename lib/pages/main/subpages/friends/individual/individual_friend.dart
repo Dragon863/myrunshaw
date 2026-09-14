@@ -10,6 +10,7 @@ import 'package:runshaw/pages/main/subpages/timetable/widgets/events_card.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/models/event.dart';
+import 'package:runshaw/utils/models/event_category.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
 import 'package:runshaw/utils/vendor/spinner/loading_indicator.dart';
@@ -70,7 +71,7 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
     } else {
       setState(() {
         _events = events;
-        currentEvent = fetchCurrentEvent(_events);
+        currentEvent = _currentEventLabel(events);
       });
     }
   }
@@ -238,80 +239,10 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
                                         ),
                                       ),
                                     ),
-                                    ...events.map((event) {
-                                      if (event.description != null) {
-                                      } else {}
-                                      if (event.location != "") {
-                                        String eventDetails;
-                                        if (event.description != null) {
-                                          eventDetails =
-                                              "${event.description!.replaceAll("Teacher: ", "")} in ${event.location}";
-                                        } else {
-                                          eventDetails =
-                                              event.location ?? 'Undefined';
-                                        }
-                                        return EventsCard(
-                                          lessonName: event.summary == ''
-                                              ? "Exam"
-                                              : event.summary,
-                                          roomAndTeacher: eventDetails,
-                                          timing: humaniseTime(
-                                              event.start, event.end),
-                                          color: event.summary != ""
-                                              ? Colors.blue
-                                              : Colors.red,
-                                          onTap: () {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    IndividualEventPage(
-                                                  eventName: event.summary,
-                                                  eventDescription:
-                                                      event.description,
-                                                  eventLocation: event.location,
-                                                  dtStart: event.start,
-                                                  dtEnd: event.end,
-                                                  color: event.summary != ""
-                                                      ? Colors.blue
-                                                      : Colors.red,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        );
-                                      } else {
-                                        return EventsCard(
-                                          lessonName: event.summary == ''
-                                              ? "Exam"
-                                              : event.summary,
-                                          roomAndTeacher:
-                                              event.description ?? '',
-                                          timing: humaniseTime(
-                                              event.start, event.end),
-                                          color: event.summary == ''
-                                              ? Colors.red
-                                              : Colors.green.shade400,
-                                          onTap: () {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    IndividualEventPage(
-                                                  eventName: event.summary,
-                                                  eventDescription:
-                                                      event.description,
-                                                  eventLocation: event.location,
-                                                  dtStart: event.start,
-                                                  dtEnd: event.end,
-                                                  color: event.summary == ''
-                                                      ? Colors.red
-                                                      : Colors.green.shade400,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        );
-                                      }
-                                    }),
+                                    ...events.map(
+                                      (event) =>
+                                          _buildEventCard(context, event),
+                                    ),
                                   ],
                                 );
                               }).toList(),
@@ -322,6 +253,83 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEventCard(BuildContext context, Event event) {
+    final category = categoriseEvent(event);
+    final displayEvent = _displayEvent(event, category);
+    final isExam = category == EventCategory.exam;
+
+    return EventsCard(
+      lessonName: isExam ? 'Exam' : displayEvent.summary,
+      roomAndTeacher: _eventDetails(displayEvent),
+      timing: humaniseTime(displayEvent.start, displayEvent.end),
+      color: category.color,
+      onTap: () => _openEvent(context, displayEvent, category),
+    );
+  }
+
+  Event _displayEvent(Event event, EventCategory category) {
+    if (category != EventCategory.appointment) return event;
+
+    return Event(
+      summary: 'Busy',
+      description: '',
+      location: '',
+      start: event.start,
+      end: event.end,
+      uid: event.uid,
+    );
+  }
+
+  String _currentEventLabel(List<Event> events) {
+    final now = DateTime.now();
+    final currentEvent = events.firstWhere(
+      (event) => event.start.isBefore(now) && event.end.isAfter(now),
+      orElse: () => Event(
+        summary: 'No Event',
+        location: '',
+        start: now,
+        end: now,
+        description: '',
+        uid: '',
+      ),
+    );
+
+    return categoriseEvent(currentEvent) == EventCategory.appointment
+        ? 'Busy'
+        : currentEvent.summary;
+  }
+
+  String _eventDetails(Event event) {
+    final location = event.location;
+    if (location == null || location.isEmpty) {
+      return event.description ?? '';
+    }
+
+    final description = event.description;
+    if (description == null) return location;
+
+    return '${description.replaceAll('Teacher: ', '')} in $location';
+  }
+
+  void _openEvent(
+    BuildContext context,
+    Event event,
+    EventCategory category,
+  ) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => IndividualEventPage(
+          eventName: event.summary,
+          eventDescription: event.description,
+          eventLocation: event.location,
+          dtStart: event.start,
+          dtEnd: event.end,
+          color: category.color,
         ),
       ),
     );

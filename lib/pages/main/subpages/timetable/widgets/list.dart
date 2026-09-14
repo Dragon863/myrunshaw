@@ -6,9 +6,10 @@ import 'package:runshaw/pages/main/subpages/timetable/widgets/events_card.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/extensions.dart';
 import 'package:runshaw/pages/sync/sync.dart';
 import 'package:runshaw/utils/models/event.dart';
+import 'package:runshaw/utils/models/event_category.dart';
 import 'package:runshaw/utils/vendor/spinner/loading_indicator.dart';
 
-class TimetableList extends StatefulWidget {
+class TimetableList extends StatelessWidget {
   final List<Event> events;
   final bool dense;
   final bool todayOnly;
@@ -21,30 +22,13 @@ class TimetableList extends StatefulWidget {
   });
 
   @override
-  State<TimetableList> createState() => _TimetableListState();
-}
-
-class _TimetableListState extends State<TimetableList> {
-  final List<Event> _events = [];
-  bool emptyAndDense = false;
-
-  @override
-  void initState() {
-    _events.addAll(widget.events);
-    if (widget.events.isEmpty && widget.dense) {
-      emptyAndDense = true;
-    }
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return ListView(
-      physics: widget.dense
+      physics: dense
           ? const NeverScrollableScrollPhysics()
           : const AlwaysScrollableScrollPhysics(),
       shrinkWrap: true,
-      children: widget.events.isEmpty && !emptyAndDense
+      children: events.isEmpty && !dense
           ? [
               const SizedBox(height: 20),
               Center(
@@ -59,10 +43,10 @@ class _TimetableListState extends State<TimetableList> {
                 textAlign: TextAlign.center,
               )
             ]
-          : widget.events
-              .fillGaps(today: widget.todayOnly)
+          : events
+              .fillGaps(today: todayOnly)
               .sortEvents()
-              .groupByDay(todayOnly: widget.todayOnly)
+              .groupByDay(todayOnly: todayOnly)
               .entries
               .map(
               (entry) {
@@ -72,7 +56,7 @@ class _TimetableListState extends State<TimetableList> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (!widget.todayOnly)
+                    if (!todayOnly)
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
@@ -82,100 +66,72 @@ class _TimetableListState extends State<TimetableList> {
                           ),
                         ),
                       ),
-                    ...events.map(
-                      (Event event) {
-                        if (event.location != "") {
-                          String eventDetails;
-                          if (event.description != null) {
-                            eventDetails =
-                                "${event.description!.replaceAll("Teacher: ", "")} in ${event.location}";
-                          } else {
-                            eventDetails = event.location ?? 'Undefined';
-                          }
-                          return EventsCard(
-                            lessonName:
-                                event.summary == '' ? "Exam" : event.summary,
-                            roomAndTeacher: eventDetails,
-                            timing: humaniseTime(event.start, event.end),
-                            color:
-                                event.summary != "" ? Colors.blue : Colors.red,
-                            dense: widget.dense,
-                            onTap: () {
-                              if (event.summary == '') {
-                                showExamAlert(context);
-                                return;
-                              }
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => IndividualEventPage(
-                                    eventName: event.summary,
-                                    eventDescription: event.description,
-                                    eventLocation: event.location,
-                                    dtStart: event.start,
-                                    dtEnd: event.end,
-                                    color: event.summary != ""
-                                        ? Colors.blue
-                                        : Colors.red,
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        } else {
-                          return EventsCard(
-                            lessonName:
-                                event.summary == '' ? "Exam" : event.summary,
-                            roomAndTeacher: event.description ?? '',
-                            timing: humaniseTime(event.start, event.end),
-                            color: event.summary != ''
-                                ? Colors.green.shade400
-                                : Colors.red,
-                            dense: widget.dense,
-                            onTap: () {
-                              if (event.summary == '') {
-                                showExamAlert(context);
-                                return;
-                              }
-                              if (event.description != null) {
-                                if (event.description!
-                                    .toLowerCase()
-                                    .contains("try syncing your timetable")) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return const SyncPage();
-                                    },
-                                  ).then((value) {
-                                    Future.delayed(
-                                        const Duration(milliseconds: 1000), () {
-                                      // Allow changes to propogate
-                                      // _refresh();
-                                    });
-                                  });
-                                  return;
-                                }
-                              }
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => IndividualEventPage(
-                                    eventName: event.summary,
-                                    eventDescription: event.description,
-                                    eventLocation: event.location,
-                                    dtStart: event.start,
-                                    dtEnd: event.end,
-                                    color: Colors.green.shade400,
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        }
-                      },
-                    ),
+                    ...events.map((event) => _buildEventCard(context, event)),
                   ],
                 );
               },
             ).toList(),
+    );
+  }
+
+  Widget _buildEventCard(BuildContext context, Event event) {
+    final category = categoriseEvent(event);
+    final isExam = category == EventCategory.exam;
+
+    return EventsCard(
+      lessonName: isExam ? "Exam" : event.summary,
+      roomAndTeacher: _eventDetails(event),
+      timing: humaniseTime(event.start, event.end),
+      color: category.color,
+      dense: dense,
+      onTap: () => _handleEventTap(context, event, category),
+    );
+  }
+
+  String _eventDetails(Event event) {
+    final location = event.location;
+    if (location == null || location.isEmpty) {
+      return event.description ?? '';
+    }
+
+    final description = event.description;
+    if (description == null) return location;
+
+    return "${description.replaceAll("Teacher: ", "")} in $location";
+  }
+
+  void _handleEventTap(
+    BuildContext context,
+    Event event,
+    EventCategory category,
+  ) {
+    if (category == EventCategory.exam) {
+      showExamAlert(context);
+      return;
+    }
+
+    if (event.description
+            ?.toLowerCase()
+            .contains("try syncing your timetable") ==
+        true) {
+      showDialog(
+        context: context,
+        builder: (context) => const SyncPage(),
+      );
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => IndividualEventPage(
+          eventName: event.summary,
+          eventDescription: event.description,
+          eventLocation: event.location,
+          dtStart: event.start,
+          dtEnd: event.end,
+          color: category.color,
+        ),
+      ),
     );
   }
 }
