@@ -23,9 +23,9 @@ The key components include:
 - ~~FastAPI backend~~ Migrated to ASP.NET Core backend
 - Postgres database
 - ~~Appwrite auth~~ Migrated to Entra OAuth2
-- ~~Aptabase analytics~~ Now migrated to Posthog
+- ~~Aptabase analytics~~ Migrated to Posthog
 - Docker image based deployments
-- OneSignal push notifications
+- ~~OneSignal push notifications~~ Migrated to FCM
 
 ## Screenshots
 
