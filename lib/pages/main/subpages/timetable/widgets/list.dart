@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/timetable/subpages/individual_event.dart';
@@ -104,7 +104,7 @@ class TimetableList extends StatelessWidget {
     BuildContext context,
     Event event,
     EventCategory category,
-  ) {
+  ) async {
     if (category == EventCategory.exam) {
       showExamAlert(context);
       return;
@@ -114,9 +114,11 @@ class TimetableList extends StatelessWidget {
             ?.toLowerCase()
             .contains("try syncing your timetable") ==
         true) {
-      showDialog(
-        context: context,
-        builder: (context) => const SyncPage(),
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const SyncPage(),
+        ),
       );
       return;
     }

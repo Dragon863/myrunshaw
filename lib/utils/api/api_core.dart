@@ -48,47 +48,55 @@ abstract class ApiCore extends ChangeNotifier {
 
   /// Base GET Request
   Future<http.Response> apiGet(String endpoint) async {
-    final headers = await _getHeaders();
-    final response = await httpClient.get(
-      Uri.parse('${MyRunshawConfig.apiUrl}$endpoint'),
-      headers: headers,
+    return _sendRequest(
+      endpoint,
+      (uri, headers) => httpClient.get(uri, headers: headers),
     );
-    _handleUnauthorized(response);
-    return response;
   }
 
   /// Base POST Request
   Future<http.Response> apiPost(String endpoint,
       {Map<String, dynamic>? body}) async {
-    final headers = await _getHeaders();
-    final response = await httpClient.post(
-      Uri.parse('${MyRunshawConfig.apiUrl}$endpoint'),
-      headers: headers,
-      body: body != null ? jsonEncode(body) : null,
+    return _sendRequest(
+      endpoint,
+      (uri, headers) => httpClient.post(
+        uri,
+        headers: headers,
+        body: body != null ? jsonEncode(body) : null,
+      ),
     );
-    _handleUnauthorized(response);
-    return response;
   }
 
   /// Base PUT Request
   Future<http.Response> apiPut(String endpoint,
       {Map<String, dynamic>? body}) async {
-    final headers = await _getHeaders();
-    final response = await httpClient.put(
-      Uri.parse('${MyRunshawConfig.apiUrl}$endpoint'),
-      headers: headers,
-      body: body != null ? jsonEncode(body) : null,
+    return _sendRequest(
+      endpoint,
+      (uri, headers) => httpClient.put(
+        uri,
+        headers: headers,
+        body: body != null ? jsonEncode(body) : null,
+      ),
     );
-    _handleUnauthorized(response);
-    return response;
   }
 
   /// Base DELETE Request
   Future<http.Response> apiDelete(String endpoint) async {
+    return _sendRequest(
+      endpoint,
+      (uri, headers) => httpClient.delete(uri, headers: headers),
+    );
+  }
+
+  /// Executes a JSON API request and applies the common auth logic
+  Future<http.Response> _sendRequest(
+      String endpoint,
+      Future<http.Response> Function(Uri uri, Map<String, String> headers)
+          send) async {
     final headers = await _getHeaders();
-    final response = await httpClient.delete(
+    final response = await send(
       Uri.parse('${MyRunshawConfig.apiUrl}$endpoint'),
-      headers: headers,
+      headers,
     );
     _handleUnauthorized(response);
     return response;

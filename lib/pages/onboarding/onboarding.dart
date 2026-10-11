@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
@@ -25,6 +25,7 @@ class OnBoardingPage extends StatefulWidget {
 class _OnBoardingPageState extends State<OnBoardingPage> {
   Widget fabIcon = const Icon(Icons.keyboard_arrow_right, color: Colors.white);
   int _currentPage = 0;
+  bool _isTransitioning = false;
 
   final PageController _pageController = PageController();
 
@@ -46,6 +47,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
             child: LoadingIndicator(activeIndicatorColor: Colors.white));
       });
       final bool canContinue = await onboardingStage.onLeaveStage();
+      if (!mounted) return false;
       if (!canContinue) {
         setState(() {
           fabIcon = Icon(
@@ -69,73 +71,90 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
   }
 
   Future<void> goToNextPage() async {
-    final bool canContinue = await handlePageTransition();
-    if (_currentPage < contents.length - 1 && canContinue) {
-      setState(() {
-        _currentPage++;
-      });
-      _pageController.animateToPage(
-        _currentPage,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeIn,
-      );
-    } else if (_currentPage == contents.length - 1 && canContinue) {
-      final api = context.read<BaseAPI>();
-      await api.onboardComplete();
-      Navigator.pushReplacementNamed(context, '/splash');
-    }
-    if (!canContinue) {
-      if (_currentPage == contents.length - 2) {
-        // timetable stage
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text("Warning!",
-                style: GoogleFonts.rubik(fontWeight: FontWeight.bold)),
-            content: const Text(
-                "You haven't provided your timetable. \nSharing your timetable is a key feature of this app and enables RunshawPay support - if possible, please consider adding it! \nAre you sure you want to skip this step?"),
-            actions: [
-              TextButton(
-                onPressed: () async {
-                  final api = context.read<BaseAPI>();
-                  await api.onboardComplete();
-                  await Posthog().capture(
-                    eventName: 'onboarding-timetable-skip',
-                  );
-                  Navigator.pushReplacementNamed(context, '/splash');
-                },
-                child: const Text("Yes"),
-              ),
-              FilledButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text("No"),
-              ),
-            ],
-          ),
+    if (_isTransitioning) return;
+    _isTransitioning = true;
+
+    try {
+      final bool canContinue = await handlePageTransition();
+      if (!mounted) return;
+
+      if (_currentPage < contents.length - 1 && canContinue) {
+        setState(() {
+          _currentPage++;
+        });
+        await _pageController.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeIn,
         );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Please complete the required fields"),
-          ),
-        );
+      } else if (_currentPage == contents.length - 1 && canContinue) {
+        final api = context.read<BaseAPI>();
+        await api.onboardComplete();
+        if (mounted) Navigator.pushReplacementNamed(context, '/splash');
       }
+      if (!mounted) return;
+      if (!canContinue) {
+        if (_currentPage == contents.length - 2) {
+          // timetable stage
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text("Warning!",
+                  style: GoogleFonts.rubik(fontWeight: FontWeight.bold)),
+              content: const Text(
+                  "You haven't provided your timetable. \nSharing your timetable is a key feature of this app and enables RunshawPay support - if possible, please consider adding it! \nAre you sure you want to skip this step?"),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    final api = context.read<BaseAPI>();
+                    await api.onboardComplete();
+                    await Posthog().capture(
+                      eventName: 'onboarding-timetable-skip',
+                    );
+                    if (context.mounted) {
+                      Navigator.pushReplacementNamed(context, '/splash');
+                    }
+                  },
+                  child: const Text("Yes"),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("No"),
+                ),
+              ],
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Please complete the required fields"),
+            ),
+          );
+        }
+      }
+    } finally {
+      _isTransitioning = false;
     }
   }
 
   Future<void> goToPreviousPage() async {
-    if (_currentPage > 0) {
+    if (_isTransitioning || _currentPage <= 0) return;
+    _isTransitioning = true;
+
+    try {
       setState(() {
         _currentPage--;
         fabIcon = const Icon(Icons.keyboard_arrow_right, color: Colors.white);
       });
-      _pageController.animateToPage(
+      await _pageController.animateToPage(
         _currentPage,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeIn,
       );
+    } finally {
+      _isTransitioning = false;
     }
   }
 

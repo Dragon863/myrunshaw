@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:gaimon/gaimon.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:runshaw/pages/scan/controller.dart';

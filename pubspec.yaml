@@ -2,7 +2,7 @@ name: runshaw
 description: "My Runshaw mobile app"
 publish_to: "none" # don't remove this line! we don't want to accidentally publish this app to pub.dev
 
-version: 2.3.3+60
+version: 2.3.4+61
 
 environment:
   sdk: ^3.5.1
@@ -12,32 +12,31 @@ dependencies:
     sdk: flutter
 
   mobile_scanner: ^7.4.2
-  google_fonts: ^8.2.1
+  google_fonts: ^9.0.0
   provider: ^6.1.5+1
   flutter_slider_drawer: ^3.0.2
-  shared_preferences: ^2.5.4
+  shared_preferences: ^2.5.6
   intl: ^0.20.3
-  image_picker: ^1.2.3
-  cached_network_image: ^4.0.0
+  image_picker: ^1.2.4
+  cached_network_image: ^4.0.4
   http: ^1.6.0
-  dropdown_button2: ^3.1.0
-  url_launcher: ^6.3.1
-  video_player: ^2.14.0
-  crop_your_image: ^2.0.0
-  package_info_plus: ^10.2.1
+  url_launcher: ^6.3.3
+  video_player: ^2.14.1
+  crop_your_image: ^2.0.1
+  package_info_plus: ^10.2.2
   flutter_image_map: ^1.0.1
   pub_semver: ^2.2.1
   skeletonizer: ^3.0.0
-  posthog_flutter: ^5.42.0
-  device_info_plus: ^13.2.0
-  gaimon: ^1.5.0
-  flutter_cache_manager: ^3.4.2
-  cronet_http: ^1.9.0
+  posthog_flutter: ^5.53.0
+  device_info_plus: ^13.3.0
+  gaimon: ^1.5.1
+  flutter_cache_manager: ^3.4.5
+  cronet_http: ^1.10.0
   cupertino_http: ^3.1.0
   fetch_client: ^1.2.0
-  home_widget: ^0.9.4
+  home_widget: ^0.10.0
   background_fetch: ^1.7.0
-  cupertino_icons: ^1.0.2
+  cupertino_icons: ^2.0.0
   flutter_web_auth_2: ^5.1.0
   timeago: ^3.7.1
   flutter_map: ^8.3.2
@@ -45,13 +44,17 @@ dependencies:
   crypto: ^3.0.7
   firebase_core: ^4.15.0
   firebase_messaging: ^16.7.0
-  flutter_local_notifications: ^22.3.0
+  flutter_local_notifications: ^22.3.1
 
+  material_ui: any
+  meta: any
+  vector_math: any
+  xml: ^7.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  build_runner: ^2.15.0
+  build_runner: ^2.16.2
   flutter_lints: ^6.0.0
 
 flutter:

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/list.dart';
@@ -123,12 +123,12 @@ class _TimetablePageState extends State<TimetablePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return const SyncPage();
-            },
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const SyncPage(),
+            ),
           ).then((value) {
             Future.delayed(const Duration(milliseconds: 1000), () {
               // Allow changes to propogate
@@ -141,4 +141,3 @@ class _TimetablePageState extends State<TimetablePage> {
     );
   }
 }
-

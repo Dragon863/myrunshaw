@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
@@ -72,6 +72,7 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
         // second frame callback to ensure the map has been rendered before fitting bounds
         if (!mounted) return;
         _fitMapToBounds();
+        setState(() {});
       });
     });
   }
@@ -116,7 +117,10 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
       ),
       backgroundColor: theme.scaffoldBackgroundColor,
       body: _isLoading
-          ? Center(child: LoadingIndicator())
+          ? Center(
+              child: LoadingIndicator(
+              activeIndicatorColor: primaryColor,
+            ))
           : SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,7 +1,7 @@
 // Originally from https://pub.dev/packages/zoomable_interactive_viewer
 // Many thanks to Ali Hussnain :)
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// A customizable widget that provides interactive zoom and pan functionality
 /// with options to animate scaling and zoom buttons.

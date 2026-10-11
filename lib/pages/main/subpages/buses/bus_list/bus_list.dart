@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/buses/bus_list/individual_bus.dart';
@@ -42,8 +42,12 @@ class _BusListPageState extends State<BusListPage> {
 
   @override
   void initState() {
-    loadData();
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        loadData();
+      }
+    });
   }
 
   @override

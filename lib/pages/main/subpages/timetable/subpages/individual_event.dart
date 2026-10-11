@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
@@ -289,7 +289,8 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
                                       "Tap to view",
                                       style: GoogleFonts.rubik(
                                         fontSize: 14,
-                                        color: Colors.white.withValues(alpha: 0.8),
+                                        color:
+                                            Colors.white.withValues(alpha: 0.8),
                                       ),
                                     ),
                                     Text(
@@ -307,7 +308,8 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
                               child: Material(
                                 color: Colors.transparent,
                                 child: InkWell(
-                                  splashColor: Colors.white.withValues(alpha: 0.3),
+                                  splashColor:
+                                      Colors.white.withValues(alpha: 0.3),
                                   onTap: () {
                                     Navigator.push(
                                       context,

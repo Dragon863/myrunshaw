@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/main_helpers.dart';
 import 'package:runshaw/pages/main/slider/slider_widgets.dart';
@@ -9,6 +9,7 @@ class SliderView extends StatefulWidget {
   final AppDestination currentDest;
   final String notification;
   final bool showNotifs;
+
   /// The animation controller from the [SliderDrawer]. When provided, nav
   /// items are hidden from the accessibility tree while the drawer is closed,
   /// preventing screen readers from reaching off-screen destinations.
@@ -95,4 +96,3 @@ class _SliderViewState extends State<SliderView> {
     );
   }
 }
-
