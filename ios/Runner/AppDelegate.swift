@@ -29,7 +29,7 @@ import Flutter
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
      GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
      if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "WifiProfilePlugin") {
-       WifiProfilePlugin.register(messenger: registrar.messenger(), teamID: Bundle.main.object(forInfoDictionaryKey: "AppIdentifierPrefix"))
+       WifiProfilePlugin.register(messenger: registrar.messenger(), teamID: Bundle.main.object(forInfoDictionaryKey: "AppIdentifierPrefix") as! String)
      }
    }
 }

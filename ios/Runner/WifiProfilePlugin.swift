@@ -83,7 +83,9 @@ enum WifiProfileError: Error, LocalizedError {
 final class WifiConfigurator {
     private let config: OrgWifiConfig
     private let teamID: String   // Apple Developer Team ID (NOT the bundle ID)
-    private var accessGroup: String { "\(teamID).com.apple.networkextensionsharing" }
+    private var accessGroup: String {
+        "\(teamID.trimmingCharacters(in: CharacterSet(charactersIn: "."))).com.apple.networkextensionsharing"
+    }
 
     init(config: OrgWifiConfig, teamID: String) {
         self.config = config
@@ -196,29 +198,6 @@ final class WifiConfigurator {
         status = SecItemCopyMatching(get as CFDictionary, &item)
         guard status == errSecSuccess, let item else { throw WifiProfileError.keychain(status) }
         return item as! SecCertificate
-    }
-}
-
-// MARK: - Flutter MethodChannel
-
-extension OrgWifiConfig {
-    /// Build from the map Dart sends (parsed from the CAT .eap file).
-    init(map: [String: Any]) throws {
-        guard let ssids = map["ssids"] as? [String],
-              let outer = map["outerEapType"] as? Int,
-              let eapType = WifiConfigurator.outerEapType(outer)
-        else { throw WifiProfileError.noNetworks }
-        self.init(
-            ssids: ssids,
-            consortiumOIDs: map["consortiumOIDs"] as? [String] ?? [],
-            hs20Domain: map["hs20Domain"] as? String,
-            outerEAP: eapType,
-            innerAuth: WifiConfigurator.innerAuth(map["innerEapType"] as? Int),
-            outerIdentity: map["outerIdentity"] as? String,
-            trustedServerNames: map["serverIds"] as? [String] ?? [],
-            caCertificatesBase64: map["caCertificates"] as? [String] ?? [],
-            usernameSuffix: map["usernameSuffix"] as? String
-        )
     }
 }
 
