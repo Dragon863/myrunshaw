@@ -56,7 +56,7 @@ Future<String?> promptForNetworkPassword(
     context: context,
     barrierDismissible: false,
     builder: (ctx) => AlertDialog(
-      title: const Text('Connect to school Wi-Fi'),
+      title: const Text('Connect to college Wi-Fi'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

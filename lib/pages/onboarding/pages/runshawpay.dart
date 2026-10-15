@@ -2,13 +2,22 @@ import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:runshaw/pages/onboarding/onboarding.dart';
 
-class OnBoardingStageFive extends StatefulWidget implements OnboardingStage {
-  const OnBoardingStageFive({super.key});
+class OnBoardingRunshawPayStage extends StatefulWidget
+    implements OnboardingStage, FeatureFlaggedOnboardingStage {
+  const OnBoardingRunshawPayStage({super.key});
 
   @override
-  State<OnBoardingStageFive> createState() => _OnBoardingStageFiveState();
+  State<OnBoardingRunshawPayStage> createState() =>
+      _OnBoardingRunshawPayStageState();
 
-  static final GlobalKey<_OnBoardingStageFiveState> _stateKey = GlobalKey();
+  static final GlobalKey<_OnBoardingRunshawPayStageState> _stateKey =
+      GlobalKey();
+
+  @override
+  String get featureFlagId => 'runshawpay_disabled';
+
+  @override
+  bool get featureFlagEnabledValue => false;
 
   @override
   Future<bool> onLeaveStage() async {
@@ -19,7 +28,7 @@ class OnBoardingStageFive extends StatefulWidget implements OnboardingStage {
   Key? get key => _stateKey;
 }
 
-class _OnBoardingStageFiveState extends State<OnBoardingStageFive> {
+class _OnBoardingRunshawPayStageState extends State<OnBoardingRunshawPayStage> {
   @override
   void initState() {
     super.initState();

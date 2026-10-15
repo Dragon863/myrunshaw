@@ -3,16 +3,25 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:runshaw/pages/onboarding/pages/five.dart';
-import 'package:runshaw/pages/onboarding/pages/four.dart';
-import 'package:runshaw/pages/onboarding/pages/one.dart';
-import 'package:runshaw/pages/onboarding/pages/three.dart';
-import 'package:runshaw/pages/onboarding/pages/two.dart';
+import 'package:runshaw/pages/onboarding/pages/eduroam.dart';
+import 'package:runshaw/pages/onboarding/pages/runshawpay.dart';
+import 'package:runshaw/pages/onboarding/pages/timetablesync.dart';
+import 'package:runshaw/pages/onboarding/pages/welcome.dart';
+import 'package:runshaw/pages/onboarding/pages/bus.dart';
+import 'package:runshaw/pages/onboarding/pages/name.dart';
 import 'package:runshaw/utils/api.dart';
-import 'package:runshaw/utils/vendor/spinner/loading_indicator.dart';
 
 abstract class OnboardingStage {
   Future<bool> onLeaveStage();
+}
+
+abstract class FeatureFlaggedOnboardingStage {
+  /// PostHog flag that controls whether this stage is included in onboarding.
+  String get featureFlagId;
+
+  /// Whether the flag must be enabled for this stage to be included.
+  /// Set to false for flags whose enabled state means the feature is disabled.
+  bool get featureFlagEnabledValue => true;
 }
 
 class OnBoardingPage extends StatefulWidget {
@@ -23,62 +32,78 @@ class OnBoardingPage extends StatefulWidget {
 }
 
 class _OnBoardingPageState extends State<OnBoardingPage> {
-  Widget fabIcon = const Icon(Icons.keyboard_arrow_right, color: Colors.white);
   int _currentPage = 0;
   bool _isTransitioning = false;
 
   final PageController _pageController = PageController();
 
-  final List<Widget> contents = [
-    const OnBoardingStageOne(),
-    const OnBoardingStageTwo(),
-    const OnBoardingStageThree(),
-    const OnBoardingStageFour(),
-    const OnBoardingStageFive(),
+  static const List<Widget> _allContents = [
+    OnBoardingWelcomeStage(),
+    OnBoardingNameStage(),
+    OnBoardingBusStage(),
+    OnBoardingTimetableSyncStage(),
+    OnBoardingEduroamStage(),
+    OnBoardingRunshawPayStage(),
   ];
 
-  Future<bool> handlePageTransition() async {
-    if (contents[_currentPage] is OnboardingStage) {
-      final onboardingStage = contents[_currentPage] as OnboardingStage;
-      setState(() {
-        fabIcon = SizedBox(
-            width: 28,
-            height: 28,
-            child: LoadingIndicator(activeIndicatorColor: Colors.white));
-      });
-      final bool canContinue = await onboardingStage.onLeaveStage();
-      if (!mounted) return false;
-      if (!canContinue) {
-        setState(() {
-          fabIcon = Icon(
-              _currentPage == contents.length - 1
-                  ? Icons.check
-                  : Icons.keyboard_arrow_right,
-              color: Colors.white);
-        });
-        return false;
+  List<Widget> _contents = [];
+  bool _loadingStages = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEnabledStages();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  }
+
+  Future<void> _loadEnabledStages() async {
+    final enabledStages = <Widget>[];
+    for (final stage in _allContents) {
+      final flaggedStage = stage is FeatureFlaggedOnboardingStage
+          ? stage as FeatureFlaggedOnboardingStage
+          : null;
+      if (flaggedStage == null) {
+        enabledStages.add(stage);
+        continue;
       }
-      setState(() {
-        fabIcon = const Icon(Icons.keyboard_arrow_right, color: Colors.white);
-      });
+
+      PostHogFeatureFlagResult? result;
+      try {
+        result =
+            await Posthog().getFeatureFlagResult(flaggedStage.featureFlagId);
+      } catch (_) {
+        // An unavailable flag evaluates as disabled, matching a null result.
+      }
+      final isEnabled = result?.enabled ?? false;
+      if (isEnabled == flaggedStage.featureFlagEnabledValue) {
+        enabledStages.add(stage);
+      }
     }
-    if (_currentPage == contents.length - 2) {
-      setState(() {
-        fabIcon = const Icon(Icons.check, color: Colors.white);
-      });
+
+    if (!mounted) return;
+    setState(() {
+      _contents = enabledStages;
+      _loadingStages = false;
+    });
+  }
+
+  Future<bool> _canLeaveCurrentPage() async {
+    final currentPage = _contents[_currentPage];
+    if (currentPage is OnboardingStage) {
+      return (currentPage as OnboardingStage).onLeaveStage();
     }
     return true;
   }
 
-  Future<void> goToNextPage() async {
+  Future<void> _goToNextPage() async {
     if (_isTransitioning) return;
     _isTransitioning = true;
 
     try {
-      final bool canContinue = await handlePageTransition();
+      final canContinue = await _canLeaveCurrentPage();
       if (!mounted) return;
 
-      if (_currentPage < contents.length - 1 && canContinue) {
+      if (_currentPage < _contents.length - 1 && canContinue) {
         setState(() {
           _currentPage++;
         });
@@ -87,16 +112,16 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeIn,
         );
-      } else if (_currentPage == contents.length - 1 && canContinue) {
+      } else if (_currentPage == _contents.length - 1 && canContinue) {
         final api = context.read<BaseAPI>();
         await api.onboardComplete();
         if (mounted) Navigator.pushReplacementNamed(context, '/splash');
       }
       if (!mounted) return;
       if (!canContinue) {
-        if (_currentPage == contents.length - 2) {
+        if (_currentPage == _contents.length - 2) {
           // timetable stage
-          showDialog(
+          showDialog<void>(
             context: context,
             builder: (context) => AlertDialog(
               title: Text("Warning!",
@@ -105,16 +130,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
                   "You haven't provided your timetable. \nSharing your timetable is a key feature of this app and enables RunshawPay support - if possible, please consider adding it! \nAre you sure you want to skip this step?"),
               actions: [
                 TextButton(
-                  onPressed: () async {
-                    final api = context.read<BaseAPI>();
-                    await api.onboardComplete();
-                    await Posthog().capture(
-                      eventName: 'onboarding-timetable-skip',
-                    );
-                    if (context.mounted) {
-                      Navigator.pushReplacementNamed(context, '/splash');
-                    }
-                  },
+                  onPressed: () => _skipTimetableAndContinue(context),
                   child: const Text("Yes"),
                 ),
                 FilledButton(
@@ -139,104 +155,149 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
     }
   }
 
-  Future<void> goToPreviousPage() async {
-    if (_isTransitioning || _currentPage <= 0) return;
+  Future<void> _skipTimetableAndContinue(BuildContext dialogContext) async {
+    if (_isTransitioning) return;
     _isTransitioning = true;
 
     try {
+      Navigator.pop(dialogContext);
+      if (!mounted) return;
+
       setState(() {
-        _currentPage--;
-        fabIcon = const Icon(Icons.keyboard_arrow_right, color: Colors.white);
+        _currentPage++;
       });
       await _pageController.animateToPage(
         _currentPage,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeIn,
       );
+      await Posthog().capture(eventName: 'onboarding-timetable-skip');
     } finally {
       _isTransitioning = false;
     }
   }
 
   @override
-  void initState() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    super.initState();
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_loadingStages) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: Container(
-            constraints: const BoxConstraints(
-              minWidth: 150,
-              maxWidth: 1000,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // actual content
-                Expanded(
-                  flex: 8,
-                  child: PageView.builder(
-                    controller: _pageController,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: contents.length,
-                    itemBuilder: (context, index) {
-                      return contents[index];
-                    },
-                  ),
-                ),
-                // progress indicator dots
-                Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: List.generate(contents.length, (index) {
-                        final isActive = _currentPage == index;
-                        return AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          margin: const EdgeInsets.symmetric(horizontal: 3.0),
-                          width: isActive ? 30 : 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: isActive ? Colors.red : Colors.grey.shade400,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                        );
-                      }),
+      body: GestureDetector(
+        child: SafeArea(
+          child: Center(
+            child: Container(
+              constraints: const BoxConstraints(
+                minWidth: 150,
+                maxWidth: 1000,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // actual content
+                  Expanded(
+                    flex: 8,
+                    child: PageView.builder(
+                      controller: _pageController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _contents.length,
+                      itemBuilder: (context, index) {
+                        return _contents[index];
+                      },
                     ),
                   ),
-                ),
-                const SizedBox(height: 18),
-              ],
+                  // progress indicator dots and buttons
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: List.generate(_contents.length, (index) {
+                              final isActive = _currentPage == index;
+                              return AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 3.0),
+                                width: isActive ? 30 : 12,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: isActive
+                                      ? Colors.red
+                                      : Colors.grey.shade400,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              );
+                            }),
+                          ),
+                        ),
+                        const Spacer(),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: IconButton(
+                            onPressed: () {
+                              if (_currentPage > 0) {
+                                setState(() {
+                                  _currentPage--;
+                                });
+                                _pageController.animateToPage(
+                                  _currentPage,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeIn,
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.keyboard_arrow_left),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: FilledButton.icon(
+                            onPressed: _goToNextPage,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 16),
+                            ),
+                            label: Text(
+                              _currentPage == _contents.length - 1
+                                  ? "Done"
+                                  : "Next",
+                              style: TextStyle(
+                                  color: ColorScheme.of(context).surface,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            icon: Icon(
+                              _currentPage == _contents.length - 1
+                                  ? Icons.check
+                                  : Icons.arrow_forward,
+                              color: ColorScheme.of(context).surface,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            iconAlignment: IconAlignment.end,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            heroTag: "back",
-            onPressed: goToPreviousPage,
-            mini: true,
-            elevation: 0,
-            child: const Icon(Icons.keyboard_arrow_left, color: Colors.black),
-          ),
-          const SizedBox(width: 8),
-          FloatingActionButton(
-            heroTag: "forward",
-            backgroundColor: Colors.red,
-            onPressed: goToNextPage,
-            child: fabIcon,
-          ),
-        ],
       ),
     );
   }

@@ -5,13 +5,13 @@ import 'package:runshaw/pages/onboarding/onboarding.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/logging.dart';
 
-class OnBoardingStageTwo extends StatefulWidget implements OnboardingStage {
-  const OnBoardingStageTwo({super.key});
+class OnBoardingNameStage extends StatefulWidget implements OnboardingStage {
+  const OnBoardingNameStage({super.key});
 
   @override
-  State<OnBoardingStageTwo> createState() => _OnBoardingStageTwoState();
+  State<OnBoardingNameStage> createState() => _OnBoardingNameStageState();
 
-  static final GlobalKey<_OnBoardingStageTwoState> _stateKey = GlobalKey();
+  static final GlobalKey<_OnBoardingNameStageState> _stateKey = GlobalKey();
 
   @override
   Key? get key => _stateKey;
@@ -32,7 +32,7 @@ class OnBoardingStageTwo extends StatefulWidget implements OnboardingStage {
   }
 }
 
-class _OnBoardingStageTwoState extends State<OnBoardingStageTwo> {
+class _OnBoardingNameStageState extends State<OnBoardingNameStage> {
   final TextEditingController controller = TextEditingController();
 
   Future<void> fetchPrefs() async {

@@ -5,14 +5,14 @@ import 'package:provider/provider.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/vendor/spinner/loading_indicator.dart';
 
-class OnBoardingStageThree extends StatefulWidget {
-  const OnBoardingStageThree({super.key});
+class OnBoardingBusStage extends StatefulWidget {
+  const OnBoardingBusStage({super.key});
 
   @override
-  State<OnBoardingStageThree> createState() => _OnBoardingStageThreeState();
+  State<OnBoardingBusStage> createState() => _OnBoardingBusStageState();
 }
 
-class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
+class _OnBoardingBusStageState extends State<OnBoardingBusStage> {
   String? busNumber;
   BaseAPI? api;
   List<String> _extraBuses = [];
