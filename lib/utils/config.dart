@@ -28,6 +28,8 @@ class MyRunshawConfig {
   }
 
   static const String emailExtension = "@student.runshaw.ac.uk";
+  static const String qrBaseUrl =
+      "https://webservices.runshaw.ac.uk/qr/qr.ashx?qr=";
 
   static const tutorialVideoUrl = "https://s3.danieldb.uk/cdn/intro.mp4";
 

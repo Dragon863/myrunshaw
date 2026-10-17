@@ -10,6 +10,7 @@ import 'package:runshaw/pages/main/subpages/timetable/widgets/list.dart';
 import 'package:runshaw/pages/qr/qr_page.dart';
 import 'package:runshaw/pages/scan/scan.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
 import 'package:runshaw/utils/string_utils.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
@@ -305,7 +306,7 @@ class _HomePageState extends State<HomePage> {
                 MaterialPageRoute(
                   builder: (context) => QrCodePage(
                     qrUrl:
-                        "https://api.qrserver.com/v1/create-qr-code/?data=${context.read<BaseAPI>().user!.$id.toUpperCase()}-$code",
+                        "${MyRunshawConfig.qrBaseUrl}${context.read<BaseAPI>().user!.$id.toUpperCase()}-$code",
                   ),
                 ),
               );
@@ -396,20 +397,6 @@ class _HomePageState extends State<HomePage> {
                     todayOnly: true,
                   ),
                 const SizedBox(height: 8),
-                if (_controller.userId == "row23207169")
-                  // easter egg for a friend
-                  RotatedBox(
-                    quarterTurns: 1,
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: CachedNetworkImage(
-                        imageUrl:
-                            "https://appwrite.danieldb.uk/v1/storage/buckets/cdn/files/charlie/view?project=66fdb56000209ea9ac18",
-                        width: 80,
-                        height: 80,
-                      ),
-                    ),
-                  ),
               ],
             ),
           ),
