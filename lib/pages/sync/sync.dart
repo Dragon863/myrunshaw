@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:runshaw/pages/onboarding/video_tutorial.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
@@ -67,7 +66,7 @@ class _SyncPageState extends State<SyncPage> {
           children: [
             Text(
                 "Sync your calendar with Runshaw's timetable to share it with your friends. To set up:",
-                style: GoogleFonts.rubik(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 )),

@@ -129,7 +129,7 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
                   top: 6.0, bottom: 6.0, left: 16.0, right: 16.0),
               child: Text(
                 _formatDateTitle(apiDateFormat.parse(transaction.date)),
-                style: GoogleFonts.rubik(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                   color: Theme.of(context).colorScheme.onSurface.withAlpha(
@@ -148,7 +148,7 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
             bottomText: transaction.action,
             trailing: Text(
               transaction.amount,
-              style: GoogleFonts.rubik(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: transaction.action.contains("Spend")
                     ? Colors.red
@@ -239,7 +239,7 @@ class _RunshawPayPageState extends State<RunshawPayPage> {
         builder: (context) => AlertDialog(
           title: Text(
             "Intro",
-            style: GoogleFonts.rubik(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
           insetPadding: const EdgeInsets.all(2.0),
           content: Column(

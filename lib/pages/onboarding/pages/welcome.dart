@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class OnBoardingWelcomeStage extends StatelessWidget {
@@ -29,7 +28,7 @@ class OnBoardingWelcomeStage extends StatelessWidget {
           ),
           Text(
             "Welcome!",
-            style: GoogleFonts.rubik(
+            style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
             ),
@@ -37,7 +36,7 @@ class OnBoardingWelcomeStage extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             "Before we get started, we need to explain that this app is unofficial - it is built and maintained by a student.",
-            style: GoogleFonts.rubik(
+            style: TextStyle(
               fontSize: 16,
             ),
           ),
@@ -48,7 +47,7 @@ class OnBoardingWelcomeStage extends StatelessWidget {
                   alignment: PlaceholderAlignment.middle,
                   child: Text(
                     "The official portal can be found ",
-                    style: GoogleFonts.rubik(
+                    style: TextStyle(
                       fontSize: 16,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
@@ -80,7 +79,7 @@ class OnBoardingWelcomeStage extends StatelessWidget {
                     },
                     child: Text(
                       "here",
-                      style: GoogleFonts.rubik(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.primary,
@@ -93,7 +92,7 @@ class OnBoardingWelcomeStage extends StatelessWidget {
           ),
           Text(
             "Please don't report issues to the service desk - instead, use the button in settings",
-            style: GoogleFonts.rubik(
+            style: TextStyle(
               fontSize: 16,
             ),
           )

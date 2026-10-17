@@ -38,6 +38,7 @@ dependencies:
   background_fetch: ^1.7.0
   cupertino_icons: ^2.0.0
   flutter_web_auth_2: ^5.1.0
+  go_router: ^18.1.0
   timeago: ^3.7.1
   flutter_map: ^8.3.2
   latlong2: ^0.10.1

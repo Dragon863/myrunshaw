@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
@@ -80,7 +79,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                           ),
                           child: Text(
                             getFirstNameCharacter(widget.name),
-                            style: GoogleFonts.rubik(
+                            style: TextStyle(
                               fontSize: 100,
                               fontWeight: FontWeight.bold,
                             ),
@@ -89,14 +88,14 @@ class _UserInfoPageState extends State<UserInfoPage> {
                         const SizedBox(height: 8),
                         Text(
                           widget.name,
-                          style: GoogleFonts.rubik(
+                          style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
                           widget.id,
-                          style: GoogleFonts.rubik(
+                          style: TextStyle(
                             fontWeight: FontWeight.w300,
                           ),
                         ),
@@ -116,7 +115,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                   },
                   title: Text(
                     'Email',
-                    style: GoogleFonts.rubik(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle:
                       Text('${widget.id}${MyRunshawConfig.emailExtension}'),
@@ -126,7 +125,7 @@ class _UserInfoPageState extends State<UserInfoPage> {
                 ListTile(
                   title: Text(
                     'Bus',
-                    style: GoogleFonts.rubik(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(widget.bus),
                   trailing: const Icon(Icons.directions_bus),

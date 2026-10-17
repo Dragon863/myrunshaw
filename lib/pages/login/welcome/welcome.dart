@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/login/widgets/buttons.dart';
@@ -149,8 +150,7 @@ class _WelcomeLoginPageState extends State<WelcomeLoginPage> {
                           GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: () async {
-                              await Navigator.pushNamed(
-                                  context, '/privacy_policy');
+                              await context.push('/privacy_policy');
                             },
                             child: const Padding(
                               padding: EdgeInsets.all(8.0),
@@ -174,7 +174,7 @@ class _WelcomeLoginPageState extends State<WelcomeLoginPage> {
                           GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: () async {
-                              await Navigator.pushNamed(context, '/terms');
+                              await context.push('/terms');
                             },
                             child: const Padding(
                               padding: EdgeInsets.all(8.0),

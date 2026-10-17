@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/split/split_timetable.dart';
@@ -106,7 +105,7 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
                 ),
                 child: Text(
                   getFirstNameCharacter(widget.name),
-                  style: GoogleFonts.rubik(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -142,11 +141,11 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
                               children: [
                                 Text(
                                   'Now:',
-                                  style: GoogleFonts.rubik(),
+                                  style: TextStyle(),
                                 ),
                                 Text(
                                   currentEvent,
-                                  style: GoogleFonts.rubik(
+                                  style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -181,7 +180,7 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
                                 const SizedBox(height: 4),
                                 Text(
                                   "Split",
-                                  style: GoogleFonts.rubik(),
+                                  style: TextStyle(),
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 6),
@@ -234,7 +233,7 @@ class _IndividualFriendPageState extends State<IndividualFriendPage> {
                                       padding: const EdgeInsets.all(8.0),
                                       child: Text(
                                         formatDayTitle(date),
-                                        style: GoogleFonts.rubik(
+                                        style: TextStyle(
                                           fontSize: 18,
                                         ),
                                       ),

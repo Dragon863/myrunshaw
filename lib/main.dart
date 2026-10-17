@@ -3,9 +3,8 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:background_fetch/background_fetch.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -20,7 +19,6 @@ import 'package:runshaw/utils/theme/theme_provider.dart';
 import 'package:runshaw/utils/widgets/runshaw_pay_widget_sync.dart';
 import 'package:runshaw/utils/routing/route_handler.dart';
 import 'package:runshaw/utils/notifications/notification_service.dart';
-import 'package:runshaw/pages/splash/splash.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,14 +31,15 @@ void main() async {
   BackgroundFetch.registerHeadlessTask(runshawPayWidgetHeadlessTask);
 
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  late final GoRouter router;
   final initialNotification = await NotificationService.instance.start(
     onOpened: (destination) {
-      navigatorKey.currentState?.pushAndRemoveUntil(
-        MaterialPageRoute(
-            builder: (_) => SplashPage(notificationDestination: destination)),
-        (_) => false,
-      );
+      router.go('/splash', extra: destination);
     },
+  );
+  router = createAppRouter(
+    navigatorKey: navigatorKey,
+    initialNotification: initialNotification,
   );
 
   debugLog("Starting app...", level: 0);
@@ -59,35 +58,32 @@ void main() async {
         ChangeNotifierProvider.value(value: themeProvider),
       ],
       child: BaseApp(
-        globalKey: navigatorKey,
-        initialNotification: initialNotification,
+        router: router,
       ),
     ),
   );
 }
 
 class BaseApp extends StatelessWidget {
-  final GlobalKey<NavigatorState>? globalKey;
-  final NotificationDestination? initialNotification;
-  const BaseApp({super.key, this.globalKey, this.initialNotification});
+  final GoRouter router;
+  const BaseApp({super.key, required this.router});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeProvider>(builder: (context, themeProvider, child) {
-      return MaterialApp(
+      return MaterialApp.router(
         title: 'My Runshaw',
         theme: ThemeData(
           primarySwatch: Colors.red,
           colorScheme: lightColourScheme,
           fontFamily: 'Rubik',
-          primaryTextTheme: GoogleFonts.rubikTextTheme(
-            Theme.of(context).textTheme,
-          ),
+          primaryTextTheme:
+              Theme.of(context).textTheme.apply(fontFamily: 'Rubik'),
           scaffoldBackgroundColor: Colors.white,
           snackBarTheme: SnackBarThemeData(
             actionTextColor: Colors.red,
             backgroundColor: Colors.grey[800],
-            contentTextStyle: GoogleFonts.rubik(color: Colors.white),
+            contentTextStyle: const TextStyle(color: Colors.white),
             elevation: 20,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -109,9 +105,8 @@ class BaseApp extends StatelessWidget {
           brightness: Brightness.dark,
           colorScheme: darkColourScheme,
           fontFamily: 'Rubik',
-          primaryTextTheme: GoogleFonts.rubikTextTheme(
-            Theme.of(context).textTheme,
-          ),
+          primaryTextTheme:
+              Theme.of(context).textTheme.apply(fontFamily: 'Rubik'),
           scaffoldBackgroundColor: context.read<ThemeProvider>().amoledEnabled
               ? Colors.black
               : darkColourScheme.surfaceContainerHighest,
@@ -120,7 +115,7 @@ class BaseApp extends StatelessWidget {
             backgroundColor: context.read<ThemeProvider>().amoledEnabled
                 ? Colors.black
                 : Colors.grey[800],
-            contentTextStyle: GoogleFonts.rubik(color: Colors.white),
+            contentTextStyle: const TextStyle(color: Colors.white),
             elevation: 20,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -137,27 +132,8 @@ class BaseApp extends StatelessWidget {
             ),
           ),
         ),
-        initialRoute: '/splash',
-        onGenerateInitialRoutes: (initialRoute) {
-          if (initialNotification != null &&
-              (initialRoute == '/' || initialRoute == '/splash')) {
-            return [
-              MaterialPageRoute(
-                builder: (_) =>
-                    SplashPage(notificationDestination: initialNotification),
-                settings: const RouteSettings(name: '/splash'),
-              ),
-            ];
-          }
-          return AppRouteHandler.onGenerateInitialRoutes(initialRoute);
-        },
         debugShowCheckedModeBanner: false,
-        routes: AppRouteHandler.getNamedRoutes(),
-        onGenerateRoute: AppRouteHandler.onGenerateRoute,
-        navigatorKey: globalKey,
-        navigatorObservers: [
-          PosthogObserver(),
-        ],
+        routerConfig: router,
         themeMode: themeProvider.themeMode,
       );
     });

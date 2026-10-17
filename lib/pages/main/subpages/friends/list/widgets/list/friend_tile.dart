@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/individual_friend.dart';
@@ -153,7 +152,7 @@ class _FriendTileState extends State<FriendTile> {
             ),
             child: Text(
               getFirstNameCharacter(name),
-              style: GoogleFonts.rubik(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),

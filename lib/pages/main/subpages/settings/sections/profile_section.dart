@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
@@ -40,7 +39,7 @@ class SettingsProfileSection extends StatelessWidget {
                     profilePicUrl != null ? NetworkImage(profilePicUrl!) : null,
                 child: Text(
                   getFirstNameCharacter(name),
-                  style: GoogleFonts.rubik(
+                  style: TextStyle(
                     fontSize: 60,
                     fontWeight: FontWeight.bold,
                   ),
@@ -91,7 +90,7 @@ class SettingsProfileSection extends StatelessWidget {
               child: Text(
                 name,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.rubik(
+                style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.normal,
                 ),
@@ -158,7 +157,7 @@ class SettingsProfileSection extends StatelessWidget {
         ),
         Text(
           email.replaceAll(MyRunshawConfig.emailExtension, ""),
-          style: GoogleFonts.rubik(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.normal,
             color: context.read<ThemeProvider>().isLightMode

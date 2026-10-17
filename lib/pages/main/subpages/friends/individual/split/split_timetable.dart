@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/split/compact_event_card.dart';
@@ -169,7 +168,7 @@ class _SplitTimetablePageState extends State<SplitTimetablePage> {
                         onPressed: () => _selectDate(context),
                         child: Text(
                           DateFormat.MMMMd().format(_selectedDate),
-                          style: GoogleFonts.rubik(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context)
@@ -199,7 +198,7 @@ class _SplitTimetablePageState extends State<SplitTimetablePage> {
                         child: Text(
                           'You',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.rubik(
+                          style: TextStyle(
                             fontSize: 12,
                           ),
                         ),
@@ -211,7 +210,7 @@ class _SplitTimetablePageState extends State<SplitTimetablePage> {
                         child: Text(
                           widget.friendName,
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.rubik(
+                          style: TextStyle(
                             fontSize: 12,
                           ),
                         ),
@@ -261,7 +260,7 @@ class _SplitTimetablePageState extends State<SplitTimetablePage> {
             height: 60 * heightPerMinute,
             child: Text(
               '$hour',
-              style: GoogleFonts.rubik(fontSize: 10),
+              style: TextStyle(fontSize: 10),
             ),
           );
         }),

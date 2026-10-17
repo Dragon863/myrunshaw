@@ -1,6 +1,5 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/buses/bus_widgets.dart';
@@ -255,7 +254,7 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
                             children: [
                               Text(
                                 widget.busNumber,
-                                style: GoogleFonts.rubik(
+                                style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.w800,
                                   color: theme.colorScheme.onSurface,
@@ -264,7 +263,7 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
                               ),
                               Text(
                                 _routeDescription,
-                                style: GoogleFonts.rubik(
+                                style: TextStyle(
                                     fontSize: 16,
                                     color: theme.colorScheme.onSurface
                                         .withValues(alpha: 0.8),
@@ -364,7 +363,7 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
               Expanded(
                 child: Text(
                   name,
-                  style: GoogleFonts.rubik(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: isLast || isSelected
                         ? FontWeight.w600

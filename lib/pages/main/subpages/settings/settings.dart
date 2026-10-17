@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:crop_your_image/crop_your_image.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -127,7 +126,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Just a sec!',
-                        style: GoogleFonts.rubik(
+                        style: TextStyle(
                             fontSize: 24, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     Container(
@@ -139,7 +138,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     const SizedBox(height: 8),
                     Text('Uploading your profile picture...',
-                        style: GoogleFonts.rubik(
+                        style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.normal)),
                   ],
                 ),

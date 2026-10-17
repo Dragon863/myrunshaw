@@ -6,7 +6,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 import 'package:gaimon/gaimon.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/slider/slider_view.dart';
 import 'package:runshaw/utils/api.dart';
@@ -155,7 +154,7 @@ class _MainPageState extends State<MainPage> {
                         config: SliderAppBarConfig(
                           title: Text(
                             _currentDest.getTitle(notification),
-                            style: GoogleFonts.rubik(
+                            style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,

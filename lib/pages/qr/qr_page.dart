@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
 
 class QrCodePage extends StatelessWidget {
@@ -33,7 +32,7 @@ class QrCodePage extends StatelessWidget {
                 child: Text(
                   "This is the same as the QR code on your Student ID; you can use it to add friends in the app. \n\n(due to scanner limitations, this may not work in study zones and won't allow you to scan in/out of campus! This is NOT a replacement for your Student ID)",
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.rubik(fontSize: 14, color: Colors.black),
+                  style: TextStyle(fontSize: 14, color: Colors.black),
                 ),
               ),
             ),

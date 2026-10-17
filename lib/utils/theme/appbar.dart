@@ -1,6 +1,5 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class RunshawAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -24,7 +23,7 @@ class RunshawAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: automaticallyImplyLeading,
       title: Text(
         title,
-        style: GoogleFonts.rubik(
+        style: TextStyle(
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),

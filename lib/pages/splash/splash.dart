@@ -2,16 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:runshaw/pages/error/server_issues.dart';
-import 'package:runshaw/pages/login/welcome/welcome.dart';
-import 'package:runshaw/pages/main/main_view.dart';
-import 'package:runshaw/pages/nonetwork/no_network.dart';
-import 'package:runshaw/pages/onboarding/onboarding.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/logging.dart';
@@ -138,18 +133,12 @@ class _SplashPageState extends State<SplashPage> {
       if (!await serverReachable() && !kIsWeb) {
         if (!await hasNetwork("google.com")) {
           // If we can't resolve google.com, then we have no internet
-          return await Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => const NoNetworkPage(),
-            ),
-          );
+          context.go('/no-network');
+          return;
         }
         // If we can resolve google, then we have internet but no server - oh no!
-        return await Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const NoServersPage(),
-          ),
-        );
+        context.go('/server-issues');
+        return;
       }
       debugLog("API init");
       final api = context.read<BaseAPI>();
@@ -168,32 +157,18 @@ class _SplashPageState extends State<SplashPage> {
 
         if (!await isOnBoarded()) {
           _setupAnalytics();
-          return await Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) => const OnBoardingPage(),
-            ),
-            (r) => false,
-          );
+          context.go('/onboarding');
+          return;
         }
 
         setState(() {
           loadingStageText = "Let's go!";
         });
 
-        Navigator.of(context).pushAndRemoveUntil(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => MainPage(
-              nextRoute: widget.nextRoute,
-              notificationDestination: widget.notificationDestination,
-            ),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) =>
-                    FadeTransition(opacity: animation, child: child),
-            transitionDuration: const Duration(milliseconds: 300),
-            settings: const RouteSettings(name: "/home"),
-          ),
-          (route) => false,
-        );
+        context.go('/home', extra: {
+          'nextRoute': widget.nextRoute,
+          'notificationDestination': widget.notificationDestination,
+        });
 
         _setupAnalytics().then((_) async {
           await Posthog().capture(
@@ -202,24 +177,14 @@ class _SplashPageState extends State<SplashPage> {
         });
       } else {
         _setupAnalytics();
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const WelcomeLoginPage(),
-          ),
-          (r) => false,
-        );
+        context.go('/login');
       }
     } catch (e, stackTrace) {
       debugLog("Fatal error during initialization: $e", level: 3);
       debugLog("Stack trace: $stackTrace", level: 3);
 
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const NoServersPage(),
-          ),
-        );
+        context.go('/server-issues');
       }
     }
   }
@@ -259,14 +224,14 @@ class _SplashPageState extends State<SplashPage> {
             const Spacer(flex: 3),
             Text(
               loadingStageText,
-              style: GoogleFonts.rubik(
+              style: TextStyle(
                 color: Colors.white,
               ),
             ),
             if (kDebugMode)
               Text(
                 "Debug mode!",
-                style: GoogleFonts.rubik(
+                style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 20,

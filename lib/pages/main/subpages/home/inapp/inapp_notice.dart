@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -31,7 +30,7 @@ class InAppNotice extends StatelessWidget {
                 Center(
                   child: Text(
                     "In-App Notification",
-                    style: GoogleFonts.rubik(
+                    style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey.shade700,
                     ),
@@ -39,7 +38,7 @@ class InAppNotice extends StatelessWidget {
                 ),
                 Text(
                   data['title'],
-                  style: GoogleFonts.rubik(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
@@ -85,7 +84,7 @@ class InAppNotice extends StatelessWidget {
                     icon: const Icon(Icons.link),
                     label: Text(
                       data["linktext"] ?? "Link",
-                      style: GoogleFonts.rubik(
+                      style: TextStyle(
                         color: Colors.red,
                       ),
                     ),

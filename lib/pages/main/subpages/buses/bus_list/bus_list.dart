@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/buses/bus_list/individual_bus.dart';
 import 'package:runshaw/utils/api.dart';
@@ -89,8 +88,7 @@ class _BusListPageState extends State<BusListPage> {
 
                       return ListTile(
                         title: Text(bus,
-                            style:
-                                GoogleFonts.rubik(fontWeight: FontWeight.bold)),
+                            style: TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Text(
                           bay.toString() == "0"
                               ? "Not yet arrived"

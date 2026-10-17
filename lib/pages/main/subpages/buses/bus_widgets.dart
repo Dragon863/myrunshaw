@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:runshaw/pages/main/subpages/buses/helpers.dart';
 import 'package:runshaw/utils/config.dart';
 
@@ -60,7 +59,7 @@ class BusCard extends StatelessWidget {
                     children: [
                       Text(
                         bus.number,
-                        style: GoogleFonts.rubik(
+                        style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
                           color: theme.colorScheme.onSurface,
@@ -70,7 +69,7 @@ class BusCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         _subtitle,
-                        style: GoogleFonts.rubik(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w400,
                           color: theme.colorScheme.onSurfaceVariant,
@@ -155,7 +154,7 @@ class BayBadge extends StatelessWidget {
       child: Text(
         label,
         textAlign: TextAlign.center,
-        style: GoogleFonts.rubik(
+        style: TextStyle(
           fontSize: 17,
           fontWeight: FontWeight.w700,
           color: Colors.white,

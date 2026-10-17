@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:go_router/go_router.dart';
 
 class NoServersPage extends StatelessWidget {
   const NoServersPage({super.key});
@@ -28,7 +29,7 @@ class NoServersPage extends StatelessWidget {
                 backgroundColor: WidgetStateProperty.all(Colors.red),
               ),
               onPressed: () {
-                Navigator.pushNamed(context, '/splash');
+                context.go('/splash');
               },
               child: const Text('Retry'),
             ),

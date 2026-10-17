@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/onboarding/onboarding.dart';
@@ -88,7 +87,7 @@ class _OnBoardingTimetableSyncStageState
           Center(
             child: Text(
               "Please complete later in the timetable page",
-              style: GoogleFonts.rubik(
+              style: TextStyle(
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -290,7 +289,7 @@ class _OnBoardingTimetableSyncStageState
           Center(
             child: Text(
               "You've already completed this step!",
-              style: GoogleFonts.rubik(
+              style: TextStyle(
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -329,7 +328,7 @@ class _OnBoardingTimetableSyncStageState
             Center(
               child: Text(
                 "Sync Timetable",
-                style: GoogleFonts.rubik(
+                style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                 ),
@@ -339,7 +338,7 @@ class _OnBoardingTimetableSyncStageState
             const SizedBox(height: 8),
             Text(
               "Sync your Runshaw timetable to share it with friends and use RunshawPay",
-              style: GoogleFonts.rubik(
+              style: TextStyle(
                 fontSize: 16,
               ),
               textAlign: TextAlign.center,

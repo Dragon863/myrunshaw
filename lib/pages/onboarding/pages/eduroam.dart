@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/onboarding/onboarding.dart';
 import 'package:runshaw/utils/api.dart';
@@ -54,7 +53,7 @@ class _OnBoardingEduroamStageState extends State<OnBoardingEduroamStage> {
           const SizedBox(height: 16),
           Text(
             "College Wi-Fi",
-            style: GoogleFonts.rubik(
+            style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
             ),
@@ -63,7 +62,7 @@ class _OnBoardingEduroamStageState extends State<OnBoardingEduroamStage> {
           const SizedBox(height: 8),
           Text(
             "Set up eduroam on your phone below to use the free Wi-Fi while you're in college",
-            style: GoogleFonts.rubik(
+            style: TextStyle(
               fontSize: 16,
             ),
             textAlign: TextAlign.center,

@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/list.dart';
 import 'package:runshaw/pages/sync/sync.dart';
@@ -93,11 +92,11 @@ class _TimetablePageState extends State<TimetablePage> {
                   children: [
                     Text(
                       'Current:',
-                      style: GoogleFonts.rubik(),
+                      style: TextStyle(),
                     ),
                     Text(
                       currentTitle,
-                      style: GoogleFonts.rubik(
+                      style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.onPrimaryContainer,

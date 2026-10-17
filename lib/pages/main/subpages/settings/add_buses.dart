@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/utils/api.dart';
@@ -170,7 +169,7 @@ class _ExtraBusPageState extends State<ExtraBusPage> {
                   const SizedBox(height: 18),
                   Text(
                     "Use this page to add or remove extra buses you want push notifications for! These will show up in the 'Buses' page on the sidebar.",
-                    style: GoogleFonts.rubik(
+                    style: TextStyle(
                       fontSize: 16,
                     ),
                   ),

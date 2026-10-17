@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/individual_friend.dart';
@@ -176,7 +175,7 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
               ),
               child: Text(
                 getFirstNameCharacter(name),
-                style: GoogleFonts.rubik(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -287,7 +286,7 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
                                   children: [
                                     Text(
                                       "Tap to view",
-                                      style: GoogleFonts.rubik(
+                                      style: TextStyle(
                                         fontSize: 14,
                                         color:
                                             Colors.white.withValues(alpha: 0.8),
@@ -295,7 +294,7 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
                                     ),
                                     Text(
                                       "${widget.eventLocation!}, ${building![0].toUpperCase()}${building!.substring(1)}",
-                                      style: GoogleFonts.rubik(
+                                      style: TextStyle(
                                         fontSize: 18,
                                         color: Colors.white,
                                       ),
@@ -336,7 +335,7 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
                     padding: const EdgeInsets.only(left: 4.0),
                     child: Text(
                       "From ${widget.dtStart.hour.toString().padLeft(2, '0')}:${widget.dtStart.minute.toString().padLeft(2, '0')} to ${widget.dtEnd.hour.toString().padLeft(2, '0')}:${widget.dtEnd.minute.toString().padLeft(2, '0')}",
-                      style: GoogleFonts.rubik(
+                      style: TextStyle(
                         fontSize: 14,
                         color: widget.color,
                       ),
@@ -346,7 +345,7 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
                     padding: const EdgeInsets.only(left: 4.0),
                     child: Text(
                       widget.eventName,
-                      style: GoogleFonts.rubik(
+                      style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
@@ -357,7 +356,7 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
                       padding: const EdgeInsets.only(left: 4.0),
                       child: Text(
                         widget.eventDescription!,
-                        style: GoogleFonts.rubik(
+                        style: TextStyle(
                           fontSize: 14,
                         ),
                       ),
@@ -367,7 +366,7 @@ class _IndividualEventPageState extends State<IndividualEventPage> {
                   const SizedBox(height: 6),
                   Text(
                     "Free during event:",
-                    style: GoogleFonts.rubik(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),

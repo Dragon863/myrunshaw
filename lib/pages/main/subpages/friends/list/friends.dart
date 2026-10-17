@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/widgets/list/friends_list.dart';
@@ -74,8 +75,7 @@ class _FriendsPageState extends State<FriendsPage> {
                 floatingActionButton: FloatingActionButton.extended(
                   label: const Text("Add"),
                   onPressed: () async {
-                    final result =
-                        await Navigator.of(context).pushNamed('/friends/add');
+                    final result = await context.push('/friends/add');
                     if (result is String && result.trim().isNotEmpty) {
                       await addFriend(result);
                     }

@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class CompactEventCard extends StatelessWidget {
   final String lessonName;
@@ -43,7 +42,7 @@ class CompactEventCard extends StatelessWidget {
           ),
           child: Text(
             lessonName,
-            style: GoogleFonts.rubik(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 14,
             ),

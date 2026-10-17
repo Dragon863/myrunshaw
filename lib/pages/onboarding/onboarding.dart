@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/onboarding/pages/eduroam.dart';
@@ -115,7 +115,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
       } else if (_currentPage == _contents.length - 1 && canContinue) {
         final api = context.read<BaseAPI>();
         await api.onboardComplete();
-        if (mounted) Navigator.pushReplacementNamed(context, '/splash');
+        if (mounted) context.go('/splash');
       }
       if (!mounted) return;
       if (!canContinue) {
@@ -125,7 +125,7 @@ class _OnBoardingPageState extends State<OnBoardingPage> {
             context: context,
             builder: (context) => AlertDialog(
               title: Text("Warning!",
-                  style: GoogleFonts.rubik(fontWeight: FontWeight.bold)),
+                  style: TextStyle(fontWeight: FontWeight.bold)),
               content: const Text(
                   "You haven't provided your timetable. \nSharing your timetable is a key feature of this app and enables RunshawPay support - if possible, please consider adding it! \nAre you sure you want to skip this step?"),
               actions: [

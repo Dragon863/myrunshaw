@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/utils/api.dart';
@@ -38,10 +39,7 @@ class SettingsAccountSection extends StatelessWidget {
                       try {
                         await api.closeAccount();
                         if (context.mounted) {
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                            "/splash",
-                            (route) => false,
-                          );
+                          context.go("/splash");
                         }
                       } catch (e) {
                         debugLog("Error closing account: $e", level: 3);
@@ -72,8 +70,7 @@ class SettingsAccountSection extends StatelessWidget {
               await api.signOut();
               await Posthog().reset();
               if (context.mounted) {
-                Navigator.of(context)
-                    .pushNamedAndRemoveUntil('/splash', (route) => false);
+                context.go('/splash');
               }
             } catch (e) {
               debugLog("Error logging out: $e", level: 3);

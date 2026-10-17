@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
 import 'package:video_player/video_player.dart';
@@ -98,7 +97,7 @@ class _VideoTutorialState extends State<VideoTutorial> {
               constraints: const BoxConstraints(maxWidth: 500),
               child: Text(
                 "Once you have copied this link, click the back button above and paste it into the text input.",
-                style: GoogleFonts.rubik(fontSize: 16),
+                style: TextStyle(fontSize: 16),
               ),
             ),
           ],

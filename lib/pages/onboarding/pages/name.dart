@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/onboarding/onboarding.dart';
 import 'package:runshaw/utils/api.dart';
@@ -103,7 +102,7 @@ class _OnBoardingNameStageState extends State<OnBoardingNameStage> {
           const SizedBox(height: 16),
           Text(
             "Display Name",
-            style: GoogleFonts.rubik(
+            style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
             ),
@@ -112,7 +111,7 @@ class _OnBoardingNameStageState extends State<OnBoardingNameStage> {
           const SizedBox(height: 8),
           Text(
             "We'll use this to identify you to your friends. Using your first and last name is a good option",
-            style: GoogleFonts.rubik(
+            style: TextStyle(
               fontSize: 16,
             ),
             textAlign: TextAlign.center,

@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class EventsCard extends StatelessWidget {
   final String lessonName;
@@ -64,14 +63,14 @@ class EventsCard extends StatelessWidget {
                       children: [
                         Text(
                           timing,
-                          style: GoogleFonts.rubik(
+                          style: TextStyle(
                             fontSize: 14,
                             color: color,
                           ),
                         ),
                         Text(
                           lessonName,
-                          style: GoogleFonts.rubik(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -79,7 +78,7 @@ class EventsCard extends StatelessWidget {
                         if (!dense)
                           Text(
                             roomAndTeacher,
-                            style: GoogleFonts.rubik(
+                            style: TextStyle(
                               fontSize: 14,
                             ),
                           )

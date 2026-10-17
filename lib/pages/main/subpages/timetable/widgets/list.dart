@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/helpers.dart';
 import 'package:runshaw/pages/main/subpages/timetable/subpages/individual_event.dart';
 import 'package:runshaw/pages/main/subpages/timetable/widgets/events_card.dart';
@@ -61,7 +60,7 @@ class TimetableList extends StatelessWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
                           formatDayTitle(date),
-                          style: GoogleFonts.rubik(
+                          style: TextStyle(
                             fontSize: 18,
                           ),
                         ),

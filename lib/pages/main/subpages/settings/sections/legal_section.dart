@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:go_router/go_router.dart';
 
 class SettingsLegalSection extends StatelessWidget {
   const SettingsLegalSection({super.key});
@@ -13,17 +14,17 @@ class SettingsLegalSection extends StatelessWidget {
       ),
       children: [
         ListTile(
-          onTap: () => Navigator.of(context).pushNamed("/privacy_policy"),
+          onTap: () => context.push("/privacy_policy"),
           title: const Text("Privacy Policy"),
           trailing: const Icon(Icons.privacy_tip_outlined),
         ),
         ListTile(
-          onTap: () => Navigator.of(context).pushNamed("/terms"),
+          onTap: () => context.push("/terms"),
           title: const Text("Terms of Use"),
           trailing: const Icon(Icons.gavel),
         ),
         ListTile(
-          onTap: () => Navigator.of(context).pushNamed("/about"),
+          onTap: () => context.push("/about"),
           title: const Text("About"),
           trailing: const Icon(Icons.info_outline),
         ),
