@@ -1,10 +1,11 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
+import 'package:runshaw/utils/models/api_responses.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class InAppNotice extends StatelessWidget {
-  final Map<String, dynamic> data;
+  final InAppNoticeData data;
 
   const InAppNotice({
     super.key,
@@ -37,7 +38,7 @@ class InAppNotice extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  data['title'],
+                  data.title,
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -53,13 +54,13 @@ class InAppNotice extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                if (data["imageurl"] != null)
+                if (data.imageUrl != null)
                   AspectRatio(
                     aspectRatio: 16 / 9,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12.0),
                       child: Image.network(
-                        data["imageurl"],
+                        data.imageUrl!,
                         fit: BoxFit.cover,
                         width: 700,
                         height: 400,
@@ -67,7 +68,7 @@ class InAppNotice extends StatelessWidget {
                     ),
                   ),
                 const SizedBox(height: 4),
-                if (data["link"] != null)
+                if (data.link != null)
                   TextButton.icon(
                     style: const ButtonStyle(
                         padding: WidgetStatePropertyAll(
@@ -79,11 +80,11 @@ class InAppNotice extends StatelessWidget {
                       ),
                     )),
                     onPressed: () async {
-                      await launchUrlString(data["link"]);
+                      await launchUrlString(data.link!);
                     },
                     icon: const Icon(Icons.link),
                     label: Text(
-                      data["linktext"] ?? "Link",
+                      data.linkText ?? "Link",
                       style: TextStyle(
                         color: Colors.red,
                       ),
@@ -91,7 +92,7 @@ class InAppNotice extends StatelessWidget {
                   ),
                 const SizedBox(height: 4),
                 Text(
-                  data['description'],
+                  data.description,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -100,7 +101,7 @@ class InAppNotice extends StatelessWidget {
                       onPressed: () async {
                         final SharedPreferences prefs =
                             await SharedPreferences.getInstance();
-                        final String noticeId = data["noticeId"];
+                        final String noticeId = data.id;
 
                         prefs.setBool("notice-$noticeId-shown",
                             true); // Set the notice as read
@@ -126,7 +127,7 @@ class InAppNotice extends StatelessWidget {
 
   void dispose(BuildContext context) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String noticeId = data["noticeId"];
+    final String noticeId = data.id;
 
     prefs.setBool("notice-$noticeId-shown", true); // Set the notice as read
     await Posthog().capture(

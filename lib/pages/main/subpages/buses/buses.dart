@@ -58,7 +58,7 @@ class _BusesPageState extends State<BusesPage> {
     Map<String, String?> busBays = {};
     final busArrivals = await api.getBusArrivals();
     for (var bus in busArrivals) {
-      busBays[bus["bus_id"]] = bus["bus_bay"]?.toString();
+      busBays[bus.id] = bus.bay;
       // turn busBays into a map like { "760": "A1", "762": "B2" }
     }
 
@@ -120,10 +120,10 @@ class _BusesPageState extends State<BusesPage> {
               bayColor: busColor,
               status: BusStatus.arrived,
               arrivedTimeAgo: timeago.format(
-                DateTime.parse(
-                  busArrivals.firstWhere(
-                      (element) => element["bus_id"] == bus)["arrival_time"],
-                ),
+                busArrivals
+                        .firstWhere((element) => element.id == bus)
+                        .arrivalTime ??
+                    DateTime.now(),
               ),
             ),
             onTap: () {

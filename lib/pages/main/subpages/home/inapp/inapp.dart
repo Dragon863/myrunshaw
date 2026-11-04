@@ -10,17 +10,17 @@ import 'dart:io' show Platform;
 
 void checkInAppAlerts(BuildContext context) async {
   final api = context.read<BaseAPI>();
-  final List<Map<String, dynamic>> notices = await api.getInAppNotices();
+  final notices = await api.getInAppNotices();
 
-  for (final Map<String, dynamic> notice in notices) {
+  for (final notice in notices) {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String id = 'notice-${notice["noticeId"]}-shown';
+    final String id = 'notice-${notice.id}-shown';
 
     debugLog("Checking notice $id");
 
     if (prefs.getBool(id) == null || prefs.getBool(id) == false) {
-      final bool isIos = notice["ios"];
-      final bool isAndroid = notice["android"];
+      final bool isIos = notice.ios;
+      final bool isAndroid = notice.android;
 
       if (isAndroid == false && Platform.isAndroid) {
         debugLog("Skipping notice $id as it is not for Android");
@@ -30,8 +30,8 @@ void checkInAppAlerts(BuildContext context) async {
         continue;
       }
 
-      if (notice["expires"] != null) {
-        final DateTime date = DateTime.parse(notice["expires"]);
+      if (notice.expires != null) {
+        final DateTime date = notice.expires!;
         final DateTime now = DateTime.now();
         if (now.isAfter(date)) {
           debugLog("Skipping notice $id as it has expired");
@@ -40,11 +40,11 @@ void checkInAppAlerts(BuildContext context) async {
         }
       }
 
-      if (notice["maxversion"] != null) {
+      if (notice.maxVersion != null) {
         final PackageInfo packageInfo = await PackageInfo.fromPlatform();
         final Version currentVersion = Version.parse(packageInfo.version);
 
-        final Version maxVersion = Version.parse(notice["maxversion"]);
+        final Version maxVersion = Version.parse(notice.maxVersion!);
         if (currentVersion > maxVersion) {
           debugLog("Skipping notice $id as the user's version is too high");
           // User's version is too high
@@ -52,11 +52,11 @@ void checkInAppAlerts(BuildContext context) async {
         }
       }
 
-      if (notice["minversion"] != null) {
+      if (notice.minVersion != null) {
         final PackageInfo packageInfo = await PackageInfo.fromPlatform();
         final Version currentVersion = Version.parse(packageInfo.version);
 
-        final Version minVersion = Version.parse(notice["minversion"]);
+        final Version minVersion = Version.parse(notice.minVersion!);
         if (currentVersion < minVersion) {
           debugLog("Skipping notice $id as the user's version is too low");
           // User's version is too low

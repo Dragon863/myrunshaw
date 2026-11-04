@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:posthog_flutter/posthog_flutter.dart';
+import 'package:runshaw/utils/models/api_responses.dart';
 import 'api_core.dart';
 
 mixin ApiFriends on ApiCore {
@@ -108,11 +109,17 @@ mixin ApiFriends on ApiCore {
     return friends;
   }
 
-  Future<List> getFriendRequests() async {
+  Future<List<FriendRequestData>> getFriendRequests() async {
     final response = await apiGet('/api/friend-requests?status=pending');
 
     if (response.statusCode != 200) return [];
-    return jsonDecode(response.body);
+    final decoded = jsonDecode(response.body);
+    if (decoded is! List) return const [];
+    return decoded
+        .whereType<Map>()
+        .map((request) =>
+            FriendRequestData.fromJson(Map<String, dynamic>.from(request)))
+        .toList(growable: false);
   }
 
   Future<String> getName(String userId) async {
@@ -123,7 +130,10 @@ mixin ApiFriends on ApiCore {
     final response = await apiGet('/api/name/get/$userId');
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body)["name"] ?? "Unknown";
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map && decoded['name'] != null) {
+        return decoded['name'].toString();
+      }
     }
     return "Unknown";
   }

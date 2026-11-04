@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'api_core.dart';
+import 'package:runshaw/utils/models/api_responses.dart';
 
 mixin ApiBus on ApiCore {
   Future<String> getBusBay(String busNumber) async {
@@ -12,11 +13,13 @@ mixin ApiBus on ApiCore {
     final body = jsonDecode(response.body);
 
     for (var bus in body) {
-      if (bus["bus_id"] == busNumber) {
-        if (bus["bus_bay"].toString() == "0") {
+      final arrival =
+          BusArrival.fromJson(Map<String, dynamic>.from(bus as Map));
+      if (arrival.id == busNumber) {
+        if (arrival.bay == "0") {
           return "RSP_NYA"; // Response: not yet arrived
         }
-        return bus["bus_bay"].toString();
+        return arrival.bay ?? 'RSP_UNK';
       }
     }
     return "RSP_UNK"; // Response: unknown (no idea where the bus is!)
@@ -32,12 +35,14 @@ mixin ApiBus on ApiCore {
     final body = jsonDecode(response.body);
     Map<String, String?> bays = {};
     for (var bus in body) {
-      bays[bus["bus_id"]] = bus["bus_bay"]?.toString();
+      final arrival =
+          BusArrival.fromJson(Map<String, dynamic>.from(bus as Map));
+      bays[arrival.id] = arrival.bay;
     }
     return bays;
   }
 
-  Future<List<Map<String, dynamic>>> getBusArrivals() async {
+  Future<List<BusArrival>> getBusArrivals() async {
     // returns all data, including updated at times
     final response = await apiGet('/api/bus');
 
@@ -45,10 +50,12 @@ mixin ApiBus on ApiCore {
       throw "Failed to fetch bus arrivals";
     }
 
-    final body = jsonDecode(response.body)
-        .map<Map<String, dynamic>>((bus) => bus as Map<String, dynamic>)
-        .toList(); // cast to List<Map<String, dynamic>>
-    return body;
+    final decoded = jsonDecode(response.body);
+    if (decoded is! List) return const [];
+    return decoded
+        .whereType<Map>()
+        .map((bus) => BusArrival.fromJson(Map<String, dynamic>.from(bus)))
+        .toList(growable: false);
   }
 
   Future<String?> getBusFor(String userId) async {
@@ -71,7 +78,10 @@ mixin ApiBus on ApiCore {
     List<String> buses = [];
 
     for (var bus in body) {
-      buses.add((bus["bus"]).toString());
+      buses.add(
+        BusSubscriptionData.fromJson(Map<String, dynamic>.from(bus as Map))
+            .busId,
+      );
     }
     return buses;
   }
@@ -98,7 +108,7 @@ mixin ApiBus on ApiCore {
     }
   }
 
-  Future<Map> getStopsForBus(String busId) async {
+  Future<BusRoute> getStopsForBus(String busId) async {
     final response = await apiGet('/api/bus/stops?bus_id=$busId');
 
     if (response.statusCode != 200) {
@@ -123,6 +133,7 @@ mixin ApiBus on ApiCore {
     }
     */
     final body = jsonDecode(response.body);
-    return body;
+    if (body is! Map) return const BusRoute(stops: [], description: '');
+    return BusRoute.fromJson(Map<String, dynamic>.from(body));
   }
 }

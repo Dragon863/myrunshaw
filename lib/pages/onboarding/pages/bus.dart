@@ -35,11 +35,10 @@ class _OnBoardingBusStageState extends State<OnBoardingBusStage> {
 
   Future<void> populateBusList() async {
     final api = context.read<BaseAPI>();
-    final List<Map<String, dynamic>> response = await api.getBusArrivals();
+    final response = await api.getBusArrivals();
 
     setState(() {
-      _availableBuses =
-          response.map((bus) => bus['bus_id'].toString()).toList();
+      _availableBuses = response.map((bus) => bus.id).toList();
     });
   }
 

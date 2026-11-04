@@ -10,6 +10,7 @@ import 'package:runshaw/utils/http/http_client_factory.dart'
 import 'package:runshaw/utils/logging.dart';
 
 import 'package:runshaw/utils/models/current_user.dart';
+import 'package:runshaw/utils/models/sync_response.dart';
 
 enum AccountStatus { uninitialized, unauthenticated, authenticated }
 
@@ -19,13 +20,11 @@ abstract class ApiCore extends ChangeNotifier {
   String? jwt;
 
   final http.Client httpClient = http_factory.httpClient();
-
-  // These caches will be largely populated by the /api/sync endpoint in the future.
-  // Kept here so the rest of your app doesn't break during the transition.
-  Map cachedTimetables = {};
+  // caches are populated by the /api/sync endpoint
+  Map<String, TimetableDocument> cachedTimetables = {};
   Future<void>? timetableCacheInFlight;
-  Map cachedPfpVersions = {};
-  Map cachedNames = {};
+  Map<String, int> cachedPfpVersions = {};
+  Map<String, String> cachedNames = {};
   List? cachedFriends;
   Future<void>? caching;
 

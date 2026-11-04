@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/widgets/runshaw_pay_widget_sync.dart';
 import 'package:runshaw/utils/logging.dart';
 import 'package:runshaw/utils/wifi/wifi_profile_service.dart';
@@ -130,37 +132,22 @@ class _SettingsOtherSectionState extends State<SettingsOtherSection> {
           ),
         ListTile(
           title: const Text(
-            "Test eduroam Wi-Fi Profile",
+            "Join college Wi-Fi",
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
           ),
           trailing: const Icon(Icons.wifi),
           onTap: () async {
-            final email = await showDialog(
-                context: context,
-                builder: (context) {
-                  final controller = TextEditingController();
-                  return AlertDialog(
-                    title: const Text("Enter debug student ID"),
-                    content: TextField(
-                      controller: controller,
-                      decoration: const InputDecoration(
-                        hintText: "e.g. TES12345678",
-                      ),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text("Cancel"),
-                      ),
-                      ElevatedButton(
-                        onPressed: () =>
-                            Navigator.of(context).pop(controller.text),
-                        child: const Text("Submit"),
-                      ),
-                    ],
-                  );
-                });
-            if (email == null || email.isEmpty) return;
+            final BaseAPI api = context.read<BaseAPI>();
+            final String? email = await api.currentUser?.email;
+            if (email == null) {
+              // should be impossible, but just in case
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Couldn't get your email address"),
+                ),
+              );
+              return;
+            }
             final pw = await promptForNetworkPassword(context, email);
             if (pw != null && pw.isNotEmpty) {
               try {

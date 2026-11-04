@@ -27,10 +27,10 @@ class _FriendRequestsListState extends State<FriendRequestsList> {
       final response = await api.getFriendRequests();
       for (final friendRequest in response) {
         final String url =
-            api.getPfpUrl(friendRequest["sender_id"], isPreview: true);
+            api.getPfpUrl(friendRequest.senderId, isPreview: true);
         requests.add({
-          "id": friendRequest["sender_id"],
-          "req_id": friendRequest["id"],
+          "id": friendRequest.senderId,
+          "req_id": friendRequest.id,
           "pfpUrl": url,
         });
       }

@@ -60,7 +60,8 @@ Future<String?> promptForNetworkPassword(
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(username),
+          Text(
+              'Please enter your college password that you use to log in to $username'),
           const SizedBox(height: 12),
           TextField(
             controller: controller,
