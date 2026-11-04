@@ -8,7 +8,7 @@
         <item name="android:windowBackground">@drawable/launch_background</item>
         <!-- Android 12+ Splash Screen API -->
         <item name="android:windowSplashScreenBackground">@color/splash_background</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/splash_icon_dark_foreground</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_screen_icon_dark</item>
     </style>
     <!-- Theme applied to the Android Window as soon as the process has started.
          This theme determines the color of the Android Window while your

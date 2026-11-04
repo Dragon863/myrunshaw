@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_map/flutter_image_map.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';

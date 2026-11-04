@@ -1,8 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:crop_your_image/crop_your_image.dart';
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -56,8 +55,9 @@ class _SettingsPageState extends State<SettingsPage> {
     });
     try {
       final preference = await api.getCurrentDeviceNotificationPreference();
-      if (mounted)
+      if (mounted) {
         setState(() => showNotifs = preference.busNotificationsEnabled);
+      }
     } catch (e) {
       // Notification registration is optional; leave the default enabled when it
       // has not been completed yet.
@@ -126,7 +126,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Just a sec!',
-                        style: GoogleFonts.rubik(
+                        style: TextStyle(
                             fontSize: 24, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     Container(
@@ -138,7 +138,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     const SizedBox(height: 8),
                     Text('Uploading your profile picture...',
-                        style: GoogleFonts.rubik(
+                        style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.normal)),
                   ],
                 ),

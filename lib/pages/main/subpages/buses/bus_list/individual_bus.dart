@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/buses/bus_widgets.dart';
 import 'package:runshaw/pages/main/subpages/buses/helpers.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/models/api_responses.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
 import 'package:runshaw/utils/vendor/spinner/loading_indicator.dart';
 
@@ -28,7 +28,7 @@ class IndividualBusPage extends StatefulWidget {
 class _IndividualBusPageState extends State<IndividualBusPage> {
   final MapController _mapController = MapController();
   bool _isLoading = true;
-  List<Map> _stops = [];
+  List<BusStop> _stops = [];
   String _routeDescription = "";
   int? _selectedStopIndex;
 
@@ -40,9 +40,9 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
 
   Future<void> loadData() async {
     final BaseAPI api = context.read<BaseAPI>();
-    final Map route = await api.getStopsForBus(widget.busNumber);
-    final List<Map> stops = List<Map>.from(route['stops'] ?? []);
-    String routeDescription = route['description'];
+    final route = await api.getStopsForBus(widget.busNumber);
+    final List<BusStop> stops = List.of(route.stops);
+    String routeDescription = route.description;
 
     // convert description to title case
     routeDescription = routeDescription
@@ -53,11 +53,11 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
             : '')
         .join(' ');
 
-    stops.add({
-      'name': 'Runshaw College',
-      'latitude': 53.6812335,
-      'longitude': -2.6898653,
-    });
+    stops.add(const BusStop(
+      name: 'Runshaw College',
+      latitude: 53.6812335,
+      longitude: -2.6898653,
+    ));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -72,6 +72,7 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
         // second frame callback to ensure the map has been rendered before fitting bounds
         if (!mounted) return;
         _fitMapToBounds();
+        setState(() {});
       });
     });
   }
@@ -79,8 +80,7 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
   void _fitMapToBounds() {
     if (_stops.isEmpty) return;
 
-    final points =
-        _stops.map((s) => LatLng(s['latitude'], s['longitude'])).toList();
+    final points = _stops.map((s) => LatLng(s.latitude, s.longitude)).toList();
     final bounds = LatLngBounds.fromPoints(points);
 
     _mapController.fitCamera(
@@ -94,7 +94,7 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
   /// Selects a stop by index, highlights its pin, and pans the map to it.
   void _selectStop(int index) {
     final stop = _stops[index];
-    final point = LatLng(stop['latitude'], stop['longitude']);
+    final point = LatLng(stop.latitude, stop.longitude);
 
     setState(() {
       _selectedStopIndex = index;
@@ -116,7 +116,10 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
       ),
       backgroundColor: theme.scaffoldBackgroundColor,
       body: _isLoading
-          ? Center(child: LoadingIndicator())
+          ? Center(
+              child: LoadingIndicator(
+              activeIndicatorColor: primaryColor,
+            ))
           : SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,8 +168,8 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
                                       _selectedStopIndex == index;
                                   return Marker(
                                     point: LatLng(
-                                      stop['latitude'],
-                                      stop['longitude'],
+                                      stop.latitude,
+                                      stop.longitude,
                                     ),
                                     // give the selected pin a little more room so it can render bigger
                                     width: isSelected ? 36 : 24,
@@ -251,7 +254,7 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
                             children: [
                               Text(
                                 widget.busNumber,
-                                style: GoogleFonts.rubik(
+                                style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.w800,
                                   color: theme.colorScheme.onSurface,
@@ -260,7 +263,7 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
                               ),
                               Text(
                                 _routeDescription,
-                                style: GoogleFonts.rubik(
+                                style: TextStyle(
                                     fontSize: 16,
                                     color: theme.colorScheme.onSurface
                                         .withValues(alpha: 0.8),
@@ -299,7 +302,7 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
                         final isSelected = _selectedStopIndex == index;
 
                         return _buildStopItem(
-                          stop['name'],
+                          stop.name,
                           index: index,
                           isLast: isLast,
                           isSelected: isSelected,
@@ -360,7 +363,7 @@ class _IndividualBusPageState extends State<IndividualBusPage> {
               Expanded(
                 child: Text(
                   name,
-                  style: GoogleFonts.rubik(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: isLast || isSelected
                         ? FontWeight.w600

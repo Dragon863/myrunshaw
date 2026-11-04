@@ -12,7 +12,8 @@ import 'package:runshaw/utils/config.dart';
 import 'api_core.dart';
 import 'api_friends.dart';
 import 'api_timetable.dart';
-import 'package:runshaw/utils/models/current_user.dart';
+import 'package:runshaw/utils/models/sync_response.dart';
+import 'package:runshaw/utils/models/api_responses.dart';
 
 mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
   final String _tenantId = MyRunshawConfig.entraTenantId;
@@ -49,9 +50,11 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
         throw Exception("Invalid token or backend error");
       }
 
-      final data = jsonDecode(response.body);
+      final sync = SyncResponse.fromJson(
+        Map<String, dynamic>.from(jsonDecode(response.body) as Map),
+      );
 
-      currentUser = CurrentUser.fromJson(data['me']);
+      currentUser = sync.me;
       status = AccountStatus.authenticated;
 
       cachedNames = {};
@@ -60,11 +63,10 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
       cachedNames[currentUser!.id] = currentUser!.name;
       cachedPfpVersions[currentUser!.id] = currentUser!.profilePicVersion;
 
-      final List friendsList = data['friends'] ?? [];
-      cachedFriends = friendsList.map((f) {
-        final String fId = f["studentId"] ?? "";
-        cachedNames[fId] = f["name"] ?? "";
-        cachedPfpVersions[fId] = f["profilePicVersion"] ?? 0;
+      cachedFriends = sync.friends.map((friend) {
+        final String fId = friend.studentId;
+        cachedNames[fId] = friend.name;
+        cachedPfpVersions[fId] = friend.profilePicVersion;
 
         return {
           "userid": fId,
@@ -72,7 +74,7 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
         };
       }).toList();
 
-      cachedTimetables = data['timetables'] ?? {};
+      cachedTimetables = sync.timetables;
 
       if (!kIsWeb && !Platform.isLinux && currentUser != null) {
         await Posthog().identify(userId: currentUser!.$id, userProperties: {
@@ -333,13 +335,18 @@ mixin ApiAuth on ApiCore, ApiFriends, ApiTimetable {
     await prefs.setString("code", code);
   }
 
-  Future<List<Map<String, dynamic>>> getInAppNotices() async {
+  Future<List<InAppNoticeData>> getInAppNotices() async {
     final response = await apiGet('/api/notices');
     if (response.statusCode != 200) {
       throw "Error fetching in-app notices: ${response.body}";
     }
 
-    final List<dynamic> data = jsonDecode(response.body);
-    return data.cast<Map<String, dynamic>>();
+    final decoded = jsonDecode(response.body);
+    if (decoded is! List) return const [];
+    return decoded
+        .whereType<Map>()
+        .map((notice) =>
+            InAppNoticeData.fromJson(Map<String, dynamic>.from(notice)))
+        .toList(growable: false);
   }
 }

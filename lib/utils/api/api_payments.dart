@@ -32,8 +32,11 @@ mixin ApiPayments on ApiCore {
             balance: null, status: 'error');
         return null;
       } else {
-        final String balance =
-            jsonDecode(utf8.decode(response.bodyBytes))["balance"];
+        final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+        if (decoded is! Map || decoded['balance'] == null) {
+          throw const FormatException('Balance response is malformed');
+        }
+        final String balance = decoded['balance'].toString();
         await RunshawPayWidgetSync.saveWidgetPayload(
             balance: balance, status: 'ok');
         return balance;
@@ -53,23 +56,18 @@ mixin ApiPayments on ApiCore {
       throw RunshawPayException(humanResponse(response.body));
     }
 
-    List<Transaction> toReturn = [];
-    final List allTransactions = jsonDecode(utf8.decode(response.bodyBytes));
+    final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+    if (decoded is! List) return const [];
 
-    for (final transaction in allTransactions) {
-      if (transaction["amount"] == "Err" || transaction["balance"] == "Err") {
+    final toReturn = <Transaction>[];
+    for (final transaction in decoded.whereType<Map>()) {
+      final typed =
+          Transaction.fromJson(Map<String, dynamic>.from(transaction));
+      if (typed.amount == "Err" || typed.balance == "Err") {
         // API response for failure parsing - just skip it
         continue;
       }
-      toReturn.add(
-        Transaction(
-          transaction["date"],
-          transaction["details"],
-          transaction["action"],
-          transaction["amount"],
-          transaction["balance"],
-        ),
-      );
+      toReturn.add(typed);
     }
 
     return toReturn;
@@ -82,6 +80,10 @@ mixin ApiPayments on ApiCore {
       throw RunshawPayException(humanResponse(response.body));
     }
 
-    return jsonDecode(utf8.decode(response.bodyBytes))["deeplink"];
+    final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+    if (decoded is Map && decoded['deeplink'] != null) {
+      return decoded['deeplink'].toString();
+    }
+    throw RunshawPayException('The payment link response was malformed.');
   }
 }

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:runshaw/utils/theme/appbar.dart';
 import 'package:runshaw/utils/vendor/interactive_viewer/zoomable_interactive_viewer.dart';
@@ -34,14 +34,13 @@ class _IndividualBuildingMapPageState extends State<IndividualBuildingMapPage> {
       appBar: RunshawAppBar(
         title: widget.subtext[0].toUpperCase() + widget.subtext.substring(1),
       ),
-      body: ZoomableInteractiveViewer (
+      body: ZoomableInteractiveViewer(
         minScale: 1.0,
         boundaryMargin: EdgeInsets.zero,
-
         child: Center(
-            child: Image.asset('assets/img/map/${widget.fileName}.png'),
-          ),
+          child: Image.asset('assets/img/map/${widget.fileName}.png'),
         ),
+      ),
     );
   }
 

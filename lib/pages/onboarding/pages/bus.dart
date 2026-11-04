@@ -1,26 +1,23 @@
-import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/vendor/spinner/loading_indicator.dart';
 
-class OnBoardingStageThree extends StatefulWidget {
-  const OnBoardingStageThree({super.key});
+class OnBoardingBusStage extends StatefulWidget {
+  const OnBoardingBusStage({super.key});
 
   @override
-  State<OnBoardingStageThree> createState() => _OnBoardingStageThreeState();
+  State<OnBoardingBusStage> createState() => _OnBoardingBusStageState();
 }
 
-class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
+class _OnBoardingBusStageState extends State<OnBoardingBusStage> {
   String? busNumber;
   BaseAPI? api;
   List<String> _extraBuses = [];
   List<String> _availableBuses = [];
   bool _loading = true;
   final _formKey = GlobalKey<FormState>();
-  late ValueNotifier<String?> _busNumberNotifier;
 
   Future<void> fetchCurrentBuses() async {
     setState(() {
@@ -38,27 +35,19 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
 
   Future<void> populateBusList() async {
     final api = context.read<BaseAPI>();
-    final List<Map<String, dynamic>> response = await api.getBusArrivals();
+    final response = await api.getBusArrivals();
 
     setState(() {
-      _availableBuses =
-          response.map((bus) => bus['bus_id'].toString()).toList();
+      _availableBuses = response.map((bus) => bus.id).toList();
     });
   }
 
   @override
   void initState() {
     FocusManager.instance.primaryFocus?.unfocus();
-    _busNumberNotifier = ValueNotifier<String?>(null);
     populateBusList();
     fetchCurrentBuses();
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    _busNumberNotifier.dispose();
-    super.dispose();
   }
 
   Future<void> addBus() async {
@@ -82,49 +71,48 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
               key: _formKey,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: DropdownButtonFormField2<String>(
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    hintText: busNumber,
-                  ),
-                  hint: const Text(
-                    'Select Your Bus',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                  items: _availableBuses
-                      .map((item) => DropdownItem<String>(
-                            value: item.toString(),
-                            child: Text(
-                              item.toString(),
-                              style: const TextStyle(
-                                fontSize: 14,
-                              ),
+                child: FormField<String>(
+                  initialValue: busNumber,
+                  validator: (value) =>
+                      value == null ? 'Please select bus.' : null,
+                  builder: (field) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      DropdownMenu<String>(
+                        initialSelection: field.value,
+                        expandedInsets: EdgeInsets.zero,
+                        hintText: 'Select Your Bus',
+                        inputDecorationTheme: InputDecorationTheme(
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 16),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        dropdownMenuEntries: _availableBuses
+                            .map((item) => DropdownMenuEntry<String>(
+                                  value: item,
+                                  label: item,
+                                ))
+                            .toList(),
+                        onSelected: (value) {
+                          field.didChange(value);
+                          busNumber = value;
+                        },
+                      ),
+                      if (field.errorText != null)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 12, top: 8),
+                          child: Text(
+                            field.errorText!,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
                             ),
-                          ))
-                      .toList(),
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Please select bus.';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    _busNumberNotifier.value = value;
-                    busNumber = value;
-                  },
-                  dropdownStyleData: DropdownStyleData(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
+                          ),
+                        ),
+                    ],
                   ),
-                  menuItemStyleData: const MenuItemStyleData(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                  ),
-                  valueListenable: _busNumberNotifier,
                 ),
               ),
             ),
@@ -184,7 +172,7 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
             const SizedBox(height: 16),
             Text(
               "Bus Tracking",
-              style: GoogleFonts.rubik(
+              style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
               ),
@@ -192,7 +180,7 @@ class _OnBoardingStageThreeState extends State<OnBoardingStageThree> {
             const SizedBox(height: 8),
             Text(
               "If you use the college bus services, you can subscribe to push notifications for when they arrive. Please add any you wish to subscribe to.",
-              style: GoogleFonts.rubik(
+              style: TextStyle(
                 fontSize: 16,
               ),
               textAlign: TextAlign.center,

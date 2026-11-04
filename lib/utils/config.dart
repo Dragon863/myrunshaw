@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:runshaw/utils/logging.dart';
 
@@ -28,6 +28,8 @@ class MyRunshawConfig {
   }
 
   static const String emailExtension = "@student.runshaw.ac.uk";
+  static const String qrBaseUrl =
+      "https://webservices.runshaw.ac.uk/qr/qr.ashx?qr=";
 
   static const tutorialVideoUrl = "https://s3.danieldb.uk/cdn/intro.mp4";
 
@@ -47,6 +49,7 @@ class MyRunshawConfig {
   static const String entraClientId = "a259dcce-b2fb-4644-a4e5-d88b70554b86";
   static const String oauthCallbackScheme =
       "appwrite-callback-66fdb56000209ea9ac18"; // preserved from appwrite, but works fine for Entra too
+
   static const List<AndroidNotificationChannel> notificationChannels = [
     AndroidNotificationChannel(
       'bus_channel', // id
@@ -67,4 +70,6 @@ class MyRunshawConfig {
       importance: Importance.defaultImportance,
     ),
   ];
+
+  static const String eduroamCatProfile = "12429";
 }

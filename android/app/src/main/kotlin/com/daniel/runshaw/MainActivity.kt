@@ -14,9 +14,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import android.content.Intent
 
 class MainActivity : FlutterActivity() {
     private val widgetPreviewScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private lateinit var wifiHandler: WifiProfileHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +49,9 @@ class MainActivity : FlutterActivity() {
                         else -> result.notImplemented()
                     }
                 }
+        
+        wifiHandler = WifiProfileHandler(this)
+        wifiHandler.register(flutterEngine.dartExecutor.binaryMessenger)
     }
 
     private fun publishWidgetPreviewIfNeeded() {
@@ -79,6 +84,14 @@ class MainActivity : FlutterActivity() {
             } catch (e: Exception) {
                 // Ignore
             }
+        }
+    }
+
+    @Deprecated("Needed for Settings.ACTION_WIFI_ADD_NETWORKS result")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (!wifiHandler.onActivityResult(requestCode, resultCode, data)) {
+            @Suppress("DEPRECATION")
+            super.onActivityResult(requestCode, resultCode, data)
         }
     }
 }

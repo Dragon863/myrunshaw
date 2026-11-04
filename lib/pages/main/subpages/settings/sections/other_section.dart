@@ -1,11 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/widgets/runshaw_pay_widget_sync.dart';
 import 'package:runshaw/utils/logging.dart';
+import 'package:runshaw/utils/wifi/wifi_profile_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -64,11 +67,11 @@ class _SettingsOtherSectionState extends State<SettingsOtherSection> {
                 onChanged: (value) async {
                   final prefs = await SharedPreferences.getInstance();
                   if (value) {
-                    await Posthog().disable();
+                    await Posthog().optOut();
                     await prefs.setBool("analytics_opt_out", true);
                     debugLog("Disabled analytics");
                   } else {
-                    await Posthog().enable();
+                    await Posthog().optIn();
                     await prefs.setBool("analytics_opt_out", false);
                     debugLog("Enabled analytics");
                   }
@@ -127,6 +130,43 @@ class _SettingsOtherSectionState extends State<SettingsOtherSection> {
               );
             },
           ),
+        ListTile(
+          title: const Text(
+            "Join college Wi-Fi",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+          ),
+          trailing: const Icon(Icons.wifi),
+          onTap: () async {
+            final BaseAPI api = context.read<BaseAPI>();
+            final String? email = await api.currentUser?.email;
+            if (email == null) {
+              // should be impossible, but just in case
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Couldn't get your email address"),
+                ),
+              );
+              return;
+            }
+            final pw = await promptForNetworkPassword(context, email);
+            if (pw != null && pw.isNotEmpty) {
+              try {
+                await WifiProfileService()
+                    .configure(username: email, password: pw);
+              } on WifiProfileException catch (e) {
+                if (!e.cancelled) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        "Failed to configure Wi-Fi profile: ${e.message}",
+                      ),
+                    ),
+                  );
+                }
+              }
+            }
+          },
+        ),
         ListTile(
           title: const Text(
             "Report Bug",

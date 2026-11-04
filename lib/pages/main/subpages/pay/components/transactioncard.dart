@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:material_ui/material_ui.dart';
 
 class TransactionCard extends StatelessWidget {
   final String topText;
@@ -37,14 +36,14 @@ class TransactionCard extends StatelessWidget {
                   children: [
                     Text(
                       topText,
-                      style: GoogleFonts.rubik(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(
                       bottomText,
-                      style: GoogleFonts.rubik(
+                      style: TextStyle(
                         fontSize: 14,
                       ),
                     )

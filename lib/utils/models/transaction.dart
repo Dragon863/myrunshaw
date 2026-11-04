@@ -1,9 +1,9 @@
 class Transaction {
-  String date;
-  String details;
-  String action;
-  String amount;
-  String balance;
+  final String date;
+  final String details;
+  final String action;
+  final String amount;
+  final String balance;
 
   Transaction(
     this.date,
@@ -12,4 +12,12 @@ class Transaction {
     this.amount,
     this.balance,
   );
+
+  factory Transaction.fromJson(Map<String, dynamic> json) => Transaction(
+        json['date']?.toString() ?? '',
+        json['details']?.toString() ?? '',
+        json['action']?.toString() ?? '',
+        json['amount']?.toString() ?? '',
+        json['balance']?.toString() ?? '',
+      );
 }

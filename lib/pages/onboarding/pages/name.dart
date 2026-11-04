@@ -1,17 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/onboarding/onboarding.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/logging.dart';
 
-class OnBoardingStageTwo extends StatefulWidget implements OnboardingStage {
-  const OnBoardingStageTwo({super.key});
+class OnBoardingNameStage extends StatefulWidget implements OnboardingStage {
+  const OnBoardingNameStage({super.key});
 
   @override
-  State<OnBoardingStageTwo> createState() => _OnBoardingStageTwoState();
+  State<OnBoardingNameStage> createState() => _OnBoardingNameStageState();
 
-  static final GlobalKey<_OnBoardingStageTwoState> _stateKey = GlobalKey();
+  static final GlobalKey<_OnBoardingNameStageState> _stateKey = GlobalKey();
 
   @override
   Key? get key => _stateKey;
@@ -32,7 +31,7 @@ class OnBoardingStageTwo extends StatefulWidget implements OnboardingStage {
   }
 }
 
-class _OnBoardingStageTwoState extends State<OnBoardingStageTwo> {
+class _OnBoardingNameStageState extends State<OnBoardingNameStage> {
   final TextEditingController controller = TextEditingController();
 
   Future<void> fetchPrefs() async {
@@ -103,7 +102,7 @@ class _OnBoardingStageTwoState extends State<OnBoardingStageTwo> {
           const SizedBox(height: 16),
           Text(
             "Display Name",
-            style: GoogleFonts.rubik(
+            style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
             ),
@@ -112,7 +111,7 @@ class _OnBoardingStageTwoState extends State<OnBoardingStageTwo> {
           const SizedBox(height: 8),
           Text(
             "We'll use this to identify you to your friends. Using your first and last name is a good option",
-            style: GoogleFonts.rubik(
+            style: TextStyle(
               fontSize: 16,
             ),
             textAlign: TextAlign.center,

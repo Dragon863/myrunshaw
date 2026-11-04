@@ -1,7 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/buses/bus_list/bus_list.dart';
 import 'package:runshaw/pages/main/subpages/buses/bus_list/individual_bus.dart';
@@ -59,7 +58,7 @@ class _BusesPageState extends State<BusesPage> {
     Map<String, String?> busBays = {};
     final busArrivals = await api.getBusArrivals();
     for (var bus in busArrivals) {
-      busBays[bus["bus_id"]] = bus["bus_bay"]?.toString();
+      busBays[bus.id] = bus.bay;
       // turn busBays into a map like { "760": "A1", "762": "B2" }
     }
 
@@ -77,7 +76,7 @@ class _BusesPageState extends State<BusesPage> {
             textAlign: TextAlign.center,
             text: TextSpan(
               text: 'Use the ',
-              style: GoogleFonts.rubik(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.normal,
                 color: Theme.of(context).colorScheme.onPrimaryContainer,
@@ -85,7 +84,7 @@ class _BusesPageState extends State<BusesPage> {
               children: [
                 TextSpan(
                   text: 'settings',
-                  style: GoogleFonts.rubik(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Colors.red,
@@ -93,7 +92,7 @@ class _BusesPageState extends State<BusesPage> {
                 ),
                 TextSpan(
                   text: ' to add a bus!',
-                  style: GoogleFonts.rubik(
+                  style: TextStyle(
                       color: Theme.of(context).colorScheme.onPrimaryContainer),
                 ),
               ],
@@ -121,10 +120,10 @@ class _BusesPageState extends State<BusesPage> {
               bayColor: busColor,
               status: BusStatus.arrived,
               arrivedTimeAgo: timeago.format(
-                DateTime.parse(
-                  busArrivals.firstWhere(
-                      (element) => element["bus_id"] == bus)["arrival_time"],
-                ),
+                busArrivals
+                        .firstWhere((element) => element.id == bus)
+                        .arrivalTime ??
+                    DateTime.now(),
               ),
             ),
             onTap: () {
@@ -274,7 +273,7 @@ class _BusesPageState extends State<BusesPage> {
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
                           "$arrivalText  •",
-                          style: GoogleFonts.rubik(
+                          style: TextStyle(
                             fontSize: 14,
                           ),
                         ),
@@ -293,7 +292,7 @@ class _BusesPageState extends State<BusesPage> {
                               top: 8.0, bottom: 8.0, right: 8.0),
                           child: Text(
                             'View All',
-                            style: GoogleFonts.rubik(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: const Color(0xFFD94040),

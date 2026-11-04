@@ -167,3 +167,5 @@ app.*.symbols
 # AI related
 .agents/rules/personal-*
 .agents/skills/personal-*
+# Widget Preview related
+.widget_preview/

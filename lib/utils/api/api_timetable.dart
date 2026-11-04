@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:runshaw/utils/logging.dart';
 import 'package:runshaw/utils/models/event.dart';
+import 'package:runshaw/utils/models/sync_response.dart';
 import 'api_core.dart';
 import 'api_friends.dart';
 
@@ -35,7 +36,16 @@ mixin ApiTimetable on ApiCore, ApiFriends {
     if (response.statusCode != 200) {
       throw "Error caching timetables";
     }
-    cachedTimetables = jsonDecode(response.body);
+    final decoded = jsonDecode(response.body);
+    if (decoded is! Map) {
+      throw const FormatException('Timetable cache response must be an object');
+    }
+    cachedTimetables = decoded.map<String, TimetableDocument>(
+      (key, value) => MapEntry(
+        key.toString(),
+        TimetableDocument.fromJsonValue(value),
+      ),
+    );
   }
 
   Future<void> associateTimetableUrl(String url) async {
@@ -57,9 +67,8 @@ mixin ApiTimetable on ApiCore, ApiFriends {
     userId ??= user?.id;
     if (userId == null) return [];
 
-    List<Event> timetable = [];
     String query = (userId != user?.id) ? "?user_id=$userId" : "";
-    Map events;
+    TimetableDocument document;
 
     if (allowCache && !cachedTimetables.containsKey(userId)) {
       // Prefer batch cache population over individual fetches when cache usage is requested.
@@ -78,21 +87,19 @@ mixin ApiTimetable on ApiCore, ApiFriends {
       if (response.statusCode != 200) {
         return [];
       }
-      events = jsonDecode(response.body)["timetable"];
+      final decoded = jsonDecode(response.body);
+      final timetableJson = decoded is Map ? decoded['timetable'] : null;
+      document = TimetableDocument.fromJsonValue(timetableJson);
     } else {
       // Safely handle the legacy string-or-map issue
-      var cached = cachedTimetables[userId];
-      events = (cached is String) ? jsonDecode(cached) : cached;
+      document =
+          cachedTimetables[userId] ?? const TimetableDocument(events: []);
     }
 
-    if (events["data"] == null) return [];
-
-    for (final event in events["data"]) {
-      final String start = event["dtstart"]["dt"];
-      final String end = event["dtend"]["dt"];
-
-      final DateTime startDateTime = DateTime.parse(start);
-      final DateTime endDateTime = DateTime.parse(end);
+    final List<Event> timetable = [];
+    for (final event in document.events) {
+      final DateTime startDateTime = event.start;
+      final DateTime endDateTime = event.end;
 
       final startOfToday = DateTime.now().subtract(
         Duration(
@@ -110,14 +117,7 @@ mixin ApiTimetable on ApiCore, ApiFriends {
           continue;
         }
       }
-      timetable.add(Event(
-        summary: event['summary'],
-        location: event['location'],
-        start: startDateTime,
-        end: endDateTime,
-        description: event["description"],
-        uid: event["uid"],
-      ));
+      timetable.add(event);
     }
     return timetable;
   }

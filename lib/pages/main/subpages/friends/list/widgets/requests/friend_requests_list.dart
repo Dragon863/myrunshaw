@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/friends/list/widgets/requests/friend_req_tile.dart';
 import 'package:runshaw/utils/api.dart';
@@ -27,10 +27,10 @@ class _FriendRequestsListState extends State<FriendRequestsList> {
       final response = await api.getFriendRequests();
       for (final friendRequest in response) {
         final String url =
-            api.getPfpUrl(friendRequest["sender_id"], isPreview: true);
+            api.getPfpUrl(friendRequest.senderId, isPreview: true);
         requests.add({
-          "id": friendRequest["sender_id"],
-          "req_id": friendRequest["id"],
+          "id": friendRequest.senderId,
+          "req_id": friendRequest.id,
           "pfpUrl": url,
         });
       }

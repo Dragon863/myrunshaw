@@ -1,23 +1,25 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:posthog_flutter/posthog_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/onboarding/onboarding.dart';
-import 'package:runshaw/pages/onboarding/pages/video_tutorial.dart';
+import 'package:runshaw/pages/onboarding/video_tutorial.dart';
 import 'package:runshaw/pages/sync/sync_controller.dart';
 import 'package:runshaw/utils/api.dart';
 import 'package:runshaw/utils/logging.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class OnBoardingStageFour extends StatefulWidget implements OnboardingStage {
-  const OnBoardingStageFour({super.key});
+class OnBoardingTimetableSyncStage extends StatefulWidget
+    implements OnboardingStage {
+  const OnBoardingTimetableSyncStage({super.key});
 
   @override
-  State<OnBoardingStageFour> createState() => _OnBoardingStageFourState();
+  State<OnBoardingTimetableSyncStage> createState() =>
+      _OnBoardingTimetableSyncStageState();
 
-  static final GlobalKey<_OnBoardingStageFourState> _stateKey = GlobalKey();
+  static final GlobalKey<_OnBoardingTimetableSyncStageState> _stateKey =
+      GlobalKey();
 
   @override
   Key? get key => _stateKey;
@@ -58,7 +60,8 @@ class OnBoardingStageFour extends StatefulWidget implements OnboardingStage {
   }
 }
 
-class _OnBoardingStageFourState extends State<OnBoardingStageFour> {
+class _OnBoardingTimetableSyncStageState
+    extends State<OnBoardingTimetableSyncStage> {
   final TextEditingController _controller = TextEditingController();
   List<Widget> contents = [];
   bool timetablesReleased = true;
@@ -84,7 +87,7 @@ class _OnBoardingStageFourState extends State<OnBoardingStageFour> {
           Center(
             child: Text(
               "Please complete later in the timetable page",
-              style: GoogleFonts.rubik(
+              style: TextStyle(
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -286,7 +289,7 @@ class _OnBoardingStageFourState extends State<OnBoardingStageFour> {
           Center(
             child: Text(
               "You've already completed this step!",
-              style: GoogleFonts.rubik(
+              style: TextStyle(
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -325,7 +328,7 @@ class _OnBoardingStageFourState extends State<OnBoardingStageFour> {
             Center(
               child: Text(
                 "Sync Timetable",
-                style: GoogleFonts.rubik(
+                style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                 ),
@@ -335,7 +338,7 @@ class _OnBoardingStageFourState extends State<OnBoardingStageFour> {
             const SizedBox(height: 8),
             Text(
               "Sync your Runshaw timetable to share it with friends and use RunshawPay",
-              style: GoogleFonts.rubik(
+              style: TextStyle(
                 fontSize: 16,
               ),
               textAlign: TextAlign.center,

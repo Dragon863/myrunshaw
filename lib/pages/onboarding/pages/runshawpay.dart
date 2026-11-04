@@ -1,14 +1,22 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:runshaw/pages/onboarding/onboarding.dart';
 
-class OnBoardingStageFive extends StatefulWidget implements OnboardingStage {
-  const OnBoardingStageFive({super.key});
+class OnBoardingRunshawPayStage extends StatefulWidget
+    implements OnboardingStage, FeatureFlaggedOnboardingStage {
+  const OnBoardingRunshawPayStage({super.key});
 
   @override
-  State<OnBoardingStageFive> createState() => _OnBoardingStageFiveState();
+  State<OnBoardingRunshawPayStage> createState() =>
+      _OnBoardingRunshawPayStageState();
 
-  static final GlobalKey<_OnBoardingStageFiveState> _stateKey = GlobalKey();
+  static final GlobalKey<_OnBoardingRunshawPayStageState> _stateKey =
+      GlobalKey();
+
+  @override
+  String get featureFlagId => 'runshawpay_disabled';
+
+  @override
+  bool get featureFlagEnabledValue => false;
 
   @override
   Future<bool> onLeaveStage() async {
@@ -19,7 +27,7 @@ class OnBoardingStageFive extends StatefulWidget implements OnboardingStage {
   Key? get key => _stateKey;
 }
 
-class _OnBoardingStageFiveState extends State<OnBoardingStageFive> {
+class _OnBoardingRunshawPayStageState extends State<OnBoardingRunshawPayStage> {
   @override
   void initState() {
     super.initState();
@@ -45,7 +53,7 @@ class _OnBoardingStageFiveState extends State<OnBoardingStageFive> {
           const SizedBox(height: 16),
           Text(
             "RunshawPay",
-            style: GoogleFonts.rubik(
+            style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
             ),
@@ -54,7 +62,7 @@ class _OnBoardingStageFiveState extends State<OnBoardingStageFive> {
           const SizedBox(height: 8),
           Text(
             "Check your balance, view your transactions, all in one place!",
-            style: GoogleFonts.rubik(
+            style: TextStyle(
               fontSize: 16,
             ),
             textAlign: TextAlign.center,

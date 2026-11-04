@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 import 'package:runshaw/pages/main/subpages/buses/bus_list/individual_bus.dart';
 import 'package:runshaw/pages/main/subpages/friends/individual/individual_friend.dart';
@@ -10,6 +9,7 @@ import 'package:runshaw/pages/main/subpages/timetable/widgets/list.dart';
 import 'package:runshaw/pages/qr/qr_page.dart';
 import 'package:runshaw/pages/scan/scan.dart';
 import 'package:runshaw/utils/api.dart';
+import 'package:runshaw/utils/config.dart';
 import 'package:runshaw/utils/pfp_helper.dart';
 import 'package:runshaw/utils/string_utils.dart';
 import 'package:runshaw/utils/theme/theme_provider.dart';
@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
         child: ListTile(
           title: Text(
             'The ${info.busNumber} is in bay ${info.bay}!',
-            style: GoogleFonts.rubik(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -106,7 +106,7 @@ class _HomePageState extends State<HomePage> {
               ),
               child: Text(
                 getFirstNameCharacter(friend.name),
-                style: GoogleFonts.rubik(
+                style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
@@ -147,7 +147,7 @@ class _HomePageState extends State<HomePage> {
                       _controller.name == "Loading..."
                           ? "..."
                           : getFirstNameCharacter(_controller.name),
-                      style: GoogleFonts.rubik(
+                      style: TextStyle(
                         fontSize: 48,
                         fontWeight: FontWeight.bold,
                       ),
@@ -159,14 +159,14 @@ class _HomePageState extends State<HomePage> {
                   enabled: _controller.name == "Loading...",
                   child: Text(
                     truncateName(_controller.name),
-                    style: GoogleFonts.rubik(fontSize: 22),
+                    style: TextStyle(fontSize: 22),
                   ),
                 ),
                 Skeletonizer(
                   enabled: _controller.userId == "12345678901",
                   child: Text(
                     _controller.userId,
-                    style: GoogleFonts.rubik(fontWeight: FontWeight.w200),
+                    style: TextStyle(fontWeight: FontWeight.w200),
                   ),
                 ),
               ],
@@ -192,12 +192,12 @@ class _HomePageState extends State<HomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 8),
-                    Text('Next Event:', style: GoogleFonts.rubik()),
+                    Text('Next Event:', style: TextStyle()),
                     Skeletonizer(
                       enabled: _controller.nextLesson == "Loading...",
                       child: Text(
                         _controller.nextLesson,
-                        style: GoogleFonts.rubik(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -221,12 +221,12 @@ class _HomePageState extends State<HomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 8),
-                    Text('Details:', style: GoogleFonts.rubik()),
+                    Text('Details:', style: TextStyle()),
                     Skeletonizer(
                       enabled: _controller.nextDetails == "Loading...",
                       child: Text(
                         _controller.nextDetails,
-                        style: GoogleFonts.rubik(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -305,7 +305,7 @@ class _HomePageState extends State<HomePage> {
                 MaterialPageRoute(
                   builder: (context) => QrCodePage(
                     qrUrl:
-                        "https://api.qrserver.com/v1/create-qr-code/?data=${context.read<BaseAPI>().user!.$id.toUpperCase()}-$code",
+                        "${MyRunshawConfig.qrBaseUrl}${context.read<BaseAPI>().user!.$id.toUpperCase()}-$code",
                   ),
                 ),
               );
@@ -317,7 +317,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 const Icon(Icons.qr_code, semanticLabel: "QR Code"),
                 const SizedBox(width: 8),
-                Text("QR Code", style: GoogleFonts.rubik(fontSize: 22)),
+                Text("QR Code", style: TextStyle(fontSize: 22)),
                 const Spacer(),
                 const Icon(
                   Icons.keyboard_arrow_right,
@@ -363,7 +363,7 @@ class _HomePageState extends State<HomePage> {
                 if (_controller.freeFriendsData.isNotEmpty) ...[
                   Text(
                     'Free Now:',
-                    style: GoogleFonts.rubik(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -383,7 +383,7 @@ class _HomePageState extends State<HomePage> {
                     padding: const EdgeInsets.only(top: 12),
                     child: Text(
                       'Today:',
-                      style: GoogleFonts.rubik(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
@@ -396,20 +396,6 @@ class _HomePageState extends State<HomePage> {
                     todayOnly: true,
                   ),
                 const SizedBox(height: 8),
-                if (_controller.userId == "row23207169")
-                  // easter egg for a friend
-                  RotatedBox(
-                    quarterTurns: 1,
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: CachedNetworkImage(
-                        imageUrl:
-                            "https://appwrite.danieldb.uk/v1/storage/buckets/cdn/files/charlie/view?project=66fdb56000209ea9ac18",
-                        width: 80,
-                        height: 80,
-                      ),
-                    ),
-                  ),
               ],
             ),
           ),
