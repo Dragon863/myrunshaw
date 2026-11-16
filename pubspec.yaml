@@ -2,7 +2,7 @@ name: runshaw
 description: "My Runshaw mobile app"
 publish_to: "none" # don't remove this line! we don't want to accidentally publish this app to pub.dev
 
-version: 2.4.0+64
+version: 2.4.1+64
 
 environment:
   sdk: ^3.5.1
@@ -45,9 +45,9 @@ dependencies:
   crypto: ^3.0.8
   firebase_core: ^5.1.0
   firebase_messaging: ^17.0.1
-  flutter_local_notifications: ^22.3.3
+  flutter_local_notifications: ^23.0.2
+  material_ui: 1.11.0
 
-  material_ui: any
   meta: any
   vector_math: any
   xml: ^7.1.0

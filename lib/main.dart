@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -133,6 +134,14 @@ class BaseApp extends StatelessWidget {
           ),
         ),
         debugShowCheckedModeBanner: false,
+        // inject the skeletonizer config into the widget tree so it takes the app's brightness not the system's
+        builder: (context, child) => SkeletonizerConfig(
+          data: SkeletonizerConfigData(
+            brightness:
+                themeProvider.isDarkMode ? Brightness.dark : Brightness.light,
+          ),
+          child: child!,
+        ),
         routerConfig: router,
         themeMode: themeProvider.themeMode,
       );

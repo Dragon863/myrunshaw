@@ -17,8 +17,4 @@ class BaseAPI extends ApiCore
         ApiAuth,
         ApiBus,
         ApiPayments,
-        ApiNotifications {
-  BaseAPI() {
-    loadUser();
-  }
-}
+        ApiNotifications {}

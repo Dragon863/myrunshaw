@@ -62,14 +62,12 @@ class HomeController extends ChangeNotifier {
   }
 
   Future<void> init() async {
-    await syncData();
+    syncData();
 
     await Future.wait([loadData(), loadEvents()]);
   }
 
-  Future<void> syncData() async {
-    await api.refreshUser();
-
+  void syncData() {
     if (api.currentUser != null) {
       name = api.currentUser!.name.isNotEmpty
           ? api.currentUser!.name

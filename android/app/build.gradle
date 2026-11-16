@@ -16,7 +16,8 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.daniel.runshaw"
-    compileSdk = flutter.compileSdkVersion
+    // compileSdk = flutter.compileSdkVersion // TODO: change back once flutter supports 37
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     buildFeatures {
